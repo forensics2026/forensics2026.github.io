@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F20FO Topic 3 + Lab 03 — Ultimate Drill Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ RESET & VARIABLES ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e14;--surface:#141720;--surface2:#1b1f2b;--surface3:#242837;
+  --border:#2a2f40;--border-hl:#3d4460;
+  --text:#e2e4ed;--text-dim:#8890a8;--text-muted:#5c6380;
+  --accent:#6c8cff;--accent-glow:rgba(108,140,255,.15);
+  --correct:#2dd4a0;--correct-bg:rgba(45,212,160,.08);--correct-border:rgba(45,212,160,.3);
+  --wrong:#ff5a6e;--wrong-bg:rgba(255,90,110,.08);--wrong-border:rgba(255,90,110,.3);
+  --warn:#ffb347;
+  --radius:10px;--radius-lg:16px;
+  --font:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
+  --shadow:0 4px 24px rgba(0,0,0,.35);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:var(--font);color:var(--text);background:var(--bg);
+  min-height:100vh;line-height:1.6;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 0%,rgba(108,140,255,.06),transparent),
+    radial-gradient(ellipse 60% 50% at 80% 100%,rgba(45,212,160,.04),transparent);
+}
+/* ═══════════════ LAYOUT ═══════════════ */
+.app{max-width:820px;margin:0 auto;padding:24px 20px 80px}
+/* ═══════════════ SPLASH SCREEN ═══════════════ */
+#splash{text-align:center;padding:80px 0 40px;animation:fadeUp .6s ease}
+#splash h1{
+  font-size:2.6rem;font-weight:800;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--accent),#a78bfa,var(--correct));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+#splash .subtitle{color:var(--text-dim);font-size:1.05rem;margin:10px 0 6px}
+#splash .tagline{color:var(--text-muted);font-size:.88rem;margin-bottom:36px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 12px;text-align:center;
+}
+.stat-card .num{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.stat-card .label{font-size:.78rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 36px;border:none;border-radius:50px;cursor:pointer;
+  font-family:var(--font);font-size:1.05rem;font-weight:600;
+  transition:all .2s ease;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),#8b6cff);color:#fff;
+  box-shadow:0 4px 20px rgba(108,140,255,.3);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(108,140,255,.45)}
+.btn-secondary{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+}
+.btn-secondary:hover{border-color:var(--accent);background:var(--surface3)}
+/* ═══════════════ HEADER BAR ═══════════════ */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);margin-bottom:20px;
+  position:sticky;top:12px;z-index:90;backdrop-filter:blur(12px);
+}
+.header .left{display:flex;align-items:center;gap:14px}
+.header .title{font-weight:700;font-size:.92rem;color:var(--text-dim)}
+.header .score-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:50px;
+  background:var(--accent-glow);border:1px solid rgba(108,140,255,.2);
+  font-weight:600;font-size:.88rem;color:var(--accent);
+}
+.progress-wrap{
+  width:100%;height:5px;background:var(--surface3);border-radius:8px;
+  margin-top:0;overflow:hidden;
+}
+.progress-bar{
+  height:100%;background:linear-gradient(90deg,var(--accent),var(--correct));
+  border-radius:8px;transition:width .4s ease;width:0%;
+}
+/* ═══════════════ CATEGORY BADGE ═══════════════ */
+.cat-badge{
+  display:inline-block;padding:4px 12px;border-radius:50px;
+  font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:14px;
+}
+.cat-os{background:rgba(108,140,255,.12);color:#8aa8ff}
+.cat-storage{background:rgba(255,179,71,.12);color:#ffb347}
+.cat-fs{background:rgba(163,108,255,.12);color:#b48bff}
+.cat-num{background:rgba(45,212,160,.12);color:#2dd4a0}
+.cat-lab{background:rgba(255,90,110,.12);color:#ff7a8a}
+/* ═══════════════ QUESTION CARD ═══════════════ */
+.q-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px 28px;animation:fadeUp .35s ease;
+}
+.q-counter{font-size:.82rem;color:var(--text-muted);margin-bottom:6px;font-weight:600}
+.q-type{
+  display:inline-block;padding:3px 10px;border-radius:50px;
+  font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  background:var(--surface3);color:var(--text-dim);margin-bottom:16px;margin-left:8px;
+}
+.q-text{font-size:1.12rem;font-weight:600;line-height:1.55;margin-bottom:24px}
+.q-text code{
+  font-family:var(--mono);font-size:.92em;
+  background:var(--surface3);padding:2px 7px;border-radius:5px;color:var(--accent);
+}
+.code-block{
+  background:#0d0f16;border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 18px;margin:14px 0 20px;font-family:var(--mono);font-size:.85rem;
+  line-height:1.65;color:#c5cbe0;overflow-x:auto;white-space:pre;
+}
+/* ═══════════════ OPTIONS ═══════════════ */
+.options{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 18px;border:1.5px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:all .18s ease;background:transparent;
+  text-align:left;font-family:var(--font);font-size:.97rem;color:var(--text);
+  line-height:1.5;
+}
+.opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-glow)}
+.opt .marker{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  border:2px solid var(--border-hl);display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.78rem;color:var(--text-dim);transition:all .18s;margin-top:1px;
+}
+.opt:hover:not(.locked) .marker{border-color:var(--accent);color:var(--accent)}
+.opt.correct-pick{border-color:var(--correct-border);background:var(--correct-bg)}
+.opt.correct-pick .marker{border-color:var(--correct);color:var(--correct);background:rgba(45,212,160,.12)}
+.opt.wrong-pick{border-color:var(--wrong-border);background:var(--wrong-bg)}
+.opt.wrong-pick .marker{border-color:var(--wrong);color:var(--wrong);background:rgba(255,90,110,.12)}
+.opt.show-correct{border-color:var(--correct-border);background:var(--correct-bg)}
+.opt.show-correct .marker{border-color:var(--correct);color:var(--correct)}
+.opt.locked{cursor:default;opacity:.75}
+.opt.correct-pick.locked,.opt.wrong-pick.locked,.opt.show-correct.locked{opacity:1}
+/* ═══════════════ EXPLANATION ═══════════════ */
+.explanation{
+  margin-top:22px;padding:18px 20px;border-radius:var(--radius);
+  font-size:.92rem;line-height:1.65;animation:fadeUp .25s ease;
+}
+.explanation.right{background:var(--correct-bg);border:1px solid var(--correct-border)}
+.explanation.wrong{background:var(--wrong-bg);border:1px solid var(--wrong-border)}
+.explanation strong{color:var(--text)}
+.explanation code{
+  font-family:var(--mono);font-size:.88em;background:rgba(255,255,255,.06);
+  padding:1px 6px;border-radius:4px;
+}
+.next-wrap{display:flex;justify-content:flex-end;margin-top:22px}
+/* ═══════════════ RESULTS ═══════════════ */
+#results{text-align:center;animation:fadeUp .5s ease}
+#results h2{font-size:2rem;font-weight:800;margin-bottom:6px}
+.pct-ring{position:relative;width:160px;height:160px;margin:28px auto}
+.pct-ring svg{transform:rotate(-90deg)}
+.pct-ring .bg{stroke:var(--surface3);fill:none;stroke-width:10}
+.pct-ring .fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+.pct-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:2rem;font-weight:800;
+}
+.grade-msg{font-size:1.1rem;color:var(--text-dim);margin:10px 0 30px}
+.review-section{text-align:left;margin-top:36px}
+.review-section h3{font-size:1.05rem;font-weight:700;margin-bottom:14px;color:var(--warn)}
+.review-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.review-list li{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  font-size:.92rem;
+}
+.review-list .dot{width:8px;height:8px;border-radius:50%;background:var(--wrong);flex-shrink:0}
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:20px 0 32px}
+.perf-card{
+  padding:14px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);text-align:center;
+}
+.perf-card .cat-name{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px}
+.perf-card .cat-score{font-size:1.3rem;font-weight:700}
+/* ═══════════════ ANIMATIONS ═══════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media(max-width:600px){
+  .app{padding:14px 12px 60px}
+  #splash h1{font-size:1.8rem}
+  .stat-grid{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .q-card{padding:22px 16px}
+  .q-text{font-size:1.02rem}
+  .header{padding:10px 14px;flex-wrap:wrap;gap:8px}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══════ SPLASH ═══════ -->
+<div id="splash">
+  <h1>Digital Forensics Drill</h1>
+  <p class="subtitle">Topic 3: Technical Concepts + Lab 03</p>
+  <p class="tagline">60 questions · 5 categories · Detailed explanations for every answer</p>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">60</div><div class="label">Questions</div></div>
+    <div class="stat-card"><div class="num">5</div><div class="label">Categories</div></div>
+    <div class="stat-card"><div class="num">∞</div><div class="label">Retakes</div></div>
+  </div>
+  <button class="btn btn-primary" onclick="startQuiz()">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Start Drill
+  </button>
+</div>
+
+<!-- ═══════ QUIZ AREA ═══════ -->
+<div id="quizArea" class="hidden">
+  <div class="header" id="header">
+    <div class="left">
+      <span class="title" id="hdrTitle">Q1 / 60</span>
+      <span class="score-pill" id="hdrScore">✓ 0</span>
+    </div>
+    <div style="flex:1;margin-left:16px">
+      <div class="progress-wrap"><div class="progress-bar" id="progBar"></div></div>
+    </div>
+  </div>
+  <div id="qContainer"></div>
+</div>
+
+<!-- ═══════ RESULTS ═══════ -->
+<div id="results" class="hidden"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// QUESTION BANK — 60 questions across 5 categories
+// ══════════════════════════════════════════════════════════
+const Q = [
+// ── OPERATING SYSTEMS (cat:"os") ──────────────────────
+{
+  cat:"os",type:"mc",
+  q:"What is an Operating System?",
+  opts:[
+    "A set of programs that manage hardware and software resources of a computer",
+    "A physical component inside the CPU that executes instructions",
+    "A network protocol used to communicate between devices",
+    "A type of secondary storage media"
+  ],
+  ans:0,
+  ex:"An OS is defined as a set of computer programs that manage hardware and software resources. It is NOT hardware itself (B), nor a network protocol (C), nor storage media (D). The OS sits between the user and the machine, providing access to data storage and controlling resources."
+},
+{
+  cat:"os",type:"mc",
+  q:"Which of the following is NOT one of the five core functions of an Operating System?",
+  opts:[
+    "Partitions and formats storage devices",
+    "Compiles source code into machine language",
+    "Error recovery",
+    "Security of the file system"
+  ],
+  ans:1,
+  ex:"The five core OS functions are: (1) Partitions/formats storage, (2) Creates naming standards for files/folders, (3) Maintains file/folder integrity, (4) Error recovery, (5) File system security. Compiling source code is done by a compiler, not an OS function."
+},
+{
+  cat:"os",type:"tf",
+  q:'True or False: "Application metadata" refers to data added by the OS, such as file creation times and permissions.',
+  opts:["True","False"],
+  ans:1,
+  ex:'False. Creation times and permissions are OS metadata. Application metadata is data added by applications, such as geographical/GPS information embedded in photos, or the name of the file creator added by a word processor. The distinction matters for DF: different tools access different metadata layers.'
+},
+{
+  cat:"os",type:"mc",
+  q:"A DF investigator wants to find out which users exist on a Linux system. Which command should they use?",
+  opts:[
+    "<code>cat /etc/passwd | column -t -s :</code>",
+    "<code>cat /var/log/auth.log</code>",
+    "<code>ls /proc/</code>",
+    "<code>systeminfo</code>"
+  ],
+  ans:0,
+  ex:"<code>/etc/passwd</code> lists all user accounts on a Linux system. <code>auth.log</code> (B) shows login attempts, not user listings. <code>/proc/</code> (C) shows running processes. <code>systeminfo</code> (D) is a Windows command for system configuration."
+},
+{
+  cat:"os",type:"mc",
+  q:"Where are system log files stored in Linux?",
+  opts:[
+    "<code>/etc/log/</code>",
+    "<code>/var/log/</code>",
+    "<code>/proc/log/</code>",
+    "<code>/home/log/</code>"
+  ],
+  ans:1,
+  ex:"Linux stores log files in <code>/var/log/</code>. This includes logs for login attempts (<code>auth.log</code>), printing, scheduled tasks, and server logs. <code>/etc/</code> is for configuration data, not logs. <code>/proc/</code> is the pseudo-filesystem for process data."
+},
+{
+  cat:"os",type:"mc",
+  q:"In Windows, system configuration data is primarily stored in:",
+  opts:[
+    "The Windows Registry",
+    "The /etc/ directory",
+    "The Event Viewer",
+    "The MBR"
+  ],
+  ans:0,
+  ex:"The Windows Registry is a database that stores system configuration data in Windows. <code>/etc/</code> is a Linux directory (B). The Event Viewer (C) is used to view log files, not configuration data. The MBR (D) contains boot code and the partition table."
+},
+{
+  cat:"os",type:"mc",
+  q:"Files in the <code>/proc/</code> directory report a size of 0 bytes via <code>ls</code>. Why?",
+  opts:[
+    "The files are encrypted and their true size is hidden",
+    "They are part of a pseudo-filesystem stored only in RAM, not on disk",
+    "The files have been deleted but their inodes remain",
+    "Linux uses compression that shows the compressed size as 0"
+  ],
+  ans:1,
+  ex:"<code>/proc/</code> is a pseudo-filesystem. Its files exist only in RAM (volatile memory), not on disk storage. Despite having size 0 according to <code>ls</code>, they DO contain readable data (e.g., <code>xxd /proc/PID/cmdline</code> works). This means they are NOT available from a static disk image — only via live forensics."
+},
+{
+  cat:"os",type:"tf",
+  q:"True or False: Process data in <code>/proc/</code> can be recovered from a forensic disk image.",
+  opts:["True","False"],
+  ans:1,
+  ex:"False. Process data is stored only in physical memory (RAM), not on disk. Files in <code>/proc/</code> are part of a pseudo-filesystem. They would NOT be present in a static disk image. A DF investigator would need to perform live forensics to capture this data."
+},
+{
+  cat:"os",type:"mc",
+  q:"The standard ASCII table encodes characters using how many bits?",
+  opts:["6 bits (64 characters)","7 bits (128 characters)","8 bits (256 characters)","16 bits (65,536 characters)"],
+  ans:1,
+  ex:"Standard ASCII uses 7 bits, giving 2⁷ = 128 characters total (of which 95 are printable). The Extended ASCII table uses 8 bits for 2⁸ = 256 characters, adding accented letters etc. Don't confuse standard (7-bit, 128) with extended (8-bit, 256)."
+},
+{
+  cat:"os",type:"mc",
+  q:"Why must a DF investigator be careful when using standard OS tools to view files?",
+  opts:[
+    "OS tools always delete the file after viewing it",
+    "OS tools can accidentally modify the file's metadata (e.g., update access time)",
+    "OS tools only show encrypted versions of files",
+    "OS tools require root access which leaves no audit trail"
+  ],
+  ans:1,
+  ex:"Simply opening a file with a standard tool can update its access time (atime), altering the evidence. This is why DF practitioners use write-blockers and dedicated DF tools that don't modify the original data. OS tools don't delete files (A) or show encrypted versions (C)."
+},
+{
+  cat:"os",type:"mc",
+  q:"What does the Linux command <code>cat /etc/os-release</code> show?",
+  opts:[
+    "A list of all running processes",
+    "The authentication log",
+    "Information about the computing platform (OS name, version)",
+    "The partition table of the disk"
+  ],
+  ans:2,
+  ex:"<code>/etc/os-release</code> contains information about the operating system itself — its name, version, ID, etc. This is system configuration data stored in the <code>/etc/</code> directory. It's useful for DF to identify what OS was running on a seized device."
+},
+{
+  cat:"os",type:"mc",
+  q:"Which type of OS data is useful for attributing actions to specific users and creating timelines?",
+  opts:["Process data","Configuration data","Log data","User content data"],
+  ans:2,
+  ex:"Log data records events like authentication attempts with timestamps, user IDs, and session details. This is ideal for attributing actions to users and constructing timelines. Configuration data (B) shows who had access but not what they did. Process data (A) shows running programs but is volatile."
+},
+// ── DATA STORAGE (cat:"storage") ──────────────────────
+{
+  cat:"storage",type:"mc",
+  q:"Which type of memory is volatile?",
+  opts:["Hard Disk Drive (HDD)","Solid State Drive (SSD)","Random Access Memory (RAM)","CD/DVD"],
+  ans:2,
+  ex:"RAM is volatile — data is lost when power is removed (though not always instantly, which matters for DF cold boot attacks). HDDs, SSDs, and CDs/DVDs are all non-volatile secondary storage where data persists without power."
+},
+{
+  cat:"storage",type:"mc",
+  q:"What is the smallest addressable storage unit on a traditional hard disk?",
+  opts:["A cluster","A block","A track","A sector"],
+  ans:3,
+  ex:"A sector is the smallest addressable unit, typically 512 bytes. A cluster (Windows) or block (Linux) is a group of sectors and is the minimum space allocated to a file. A track is a concentric ring on a platter — much larger than a sector."
+},
+{
+  cat:"storage",type:"mc",
+  q:"A vertical set of the same track across all platters in an HDD is called a:",
+  opts:["Sector","Cluster","Cylinder","Head"],
+  ans:2,
+  ex:"A cylinder is the vertical stack of identical tracks across all platters. If track 50 exists on 3 platters (6 surfaces), those 6 instances of track 50 together form cylinder 50. This concept is used in CHS (Cylinder-Head-Sector) addressing."
+},
+{
+  cat:"storage",type:"mc",
+  q:"What is the formula for disk capacity?",
+  opts:[
+    "Cylinders × Heads × Sectors × 512 bytes",
+    "Platters × Tracks × Sectors × 1024 bytes",
+    "Clusters × Blocks × Sectors × 256 bytes",
+    "Tracks × Heads × Cylinders × 4096 bytes"
+  ],
+  ans:0,
+  ex:"Disk Capacity = Number of Cylinders × Number of Heads × Number of Sectors per Track × 512 bytes. The 512 comes from the standard sector size. Note: Heads (not platters) because each platter has a head on top AND bottom."
+},
+{
+  cat:"storage",type:"mc",
+  q:"What is the correct order of disk formatting from lowest to highest level?",
+  opts:[
+    "Logical → Low-level → High-level",
+    "Low-level → Logical (Partitioning) → High-level",
+    "High-level → Low-level → Logical",
+    "Low-level → High-level → Logical"
+  ],
+  ans:1,
+  ex:"(1) Low-level (physical) formatting creates tracks and sectors on blank platters (factory). (2) Logical formatting (partitioning) divides the disk into partitions. (3) High-level formatting sets up the file system (FAT, NTFS, EXT) within each partition."
+},
+{
+  cat:"storage",type:"mc",
+  q:"A file is 800 bytes. The cluster has 4 sectors, each 512 bytes. How much slack space exists?",
+  opts:["224 bytes","1,248 bytes","1,024 bytes","2,048 bytes"],
+  ans:1,
+  ex:"Cluster size = 4 × 512 = 2,048 bytes. The file uses 800 bytes. Slack = 2,048 − 800 = 1,248 bytes. Breaking it down: Sector 1 = 512B data. Sector 2 = 288B data + 224B slack. Sectors 3-4 = 1,024B slack. Total slack = 224 + 1,024 = 1,248."
+},
+{
+  cat:"storage",type:"tf",
+  q:'True or False: When you delete a file, the OS typically overwrites the actual data on disk with zeros.',
+  opts:["True","False"],
+  ans:1,
+  ex:'False. In most cases, "deleting" a file only removes the OS pointers/links to the data. The actual data remains on the disk until that space is overwritten by new data. This is why DF tools can often recover "deleted" files. The exception is SSDs with TRIM enabled, which DO zero deleted blocks.'
+},
+{
+  cat:"storage",type:"mc",
+  q:"What is file fragmentation?",
+  opts:[
+    "When a file is encrypted into multiple parts",
+    "When a file is stored across non-consecutive data units on disk",
+    "When a file loses its metadata due to corruption",
+    "When a file is compressed to reduce storage space"
+  ],
+  ans:1,
+  ex:"Fragmentation occurs when contiguous free space isn't available, so the OS splits the file across non-consecutive clusters/blocks. The OS manages this with multiple pointers. For DF, recovering a fragmented deleted file is harder since the pieces are scattered."
+},
+{
+  cat:"storage",type:"mc",
+  q:"The Master Boot Record (MBR) is located at:",
+  opts:[
+    "The last sector of the disk",
+    "The first sector (Sector 0) of the disk — 512 bytes",
+    "The first sector of each partition",
+    "A hidden partition at the end of the disk"
+  ],
+  ans:1,
+  ex:"The MBR resides in the very first 512 bytes (Sector 0) of the disk, before the first partition. It contains boot loader code (446 bytes), a partition table (64 bytes for 4 entries of 16 bytes each), and a signature (0x55AA, 2 bytes)."
+},
+{
+  cat:"storage",type:"mc",
+  q:"How many partition entries can an MBR's partition table hold?",
+  opts:["2","4","8","128"],
+  ans:1,
+  ex:"The MBR partition table has space for exactly 4 entries, each 16 bytes long (4 × 16 = 64 bytes total). If you need more, you use extended partitions or switch to GPT. GPT (used by SSDs) supports up to 128 partitions."
+},
+{
+  cat:"storage",type:"mc",
+  q:"The MBR signature bytes are:",
+  opts:[
+    "<code>AA 55</code>",
+    "<code>55 AA</code>",
+    "<code>FF FF</code>",
+    "<code>00 00</code>"
+  ],
+  ans:1,
+  ex:"The MBR signature is <code>55 AA</code> (bytes 510-511). This specific value tells the BIOS that this is a valid boot sector. Note the exact order: <code>55</code> first, then <code>AA</code>. <code>AA 55</code> (A) is the reverse and is incorrect."
+},
+{
+  cat:"storage",type:"mc",
+  q:'An MBR partition size field reads <code>4B 34 41 00</code>. In little-endian, what is this as a hex value?',
+  opts:[
+    "<code>4B 34 41 00</code>",
+    "<code>00 41 34 4B</code>",
+    "<code>41 34 4B 00</code>",
+    "<code>00 4B 34 41</code>"
+  ],
+  ans:1,
+  ex:'Little-endian means the least significant byte is stored first. To get the actual value, you read the bytes from right to left: <code>00 41 34 4B</code>. This equals 4,273,227 in decimal. At 512 bytes/sector, that is approximately 2 GB.'
+},
+{
+  cat:"storage",type:"mc",
+  q:"If a partition has 4,273,227 sectors (each 512 bytes), what is its approximate size?",
+  opts:["1 GB","2 GB","4 GB","8 GB"],
+  ans:1,
+  ex:"4,273,227 × 512 = 2,187,892,224 bytes. ÷ 1,024 = 2,136,613 KB. ÷ 1,024 ≈ 2,086 MB ≈ 2 GB. Remember: 1 KB = 1,024 bytes (not 1,000)."
+},
+{
+  cat:"storage",type:"mc",
+  q:"A partition table entry's boot indicator byte is set to <code>0x80</code>. What does this mean?",
+  opts:[
+    "The partition is encrypted",
+    "The partition is active/bootable",
+    "The partition is formatted with NTFS",
+    "The partition is read-only"
+  ],
+  ans:1,
+  ex:"In the partition table entry, byte 0 is the boot indicator. A value of <code>0x80</code> means the partition is active (bootable) — this is the one the BIOS will try to boot from. A value of <code>0x00</code> means not bootable."
+},
+{
+  cat:"storage",type:"mc",
+  q:"Which storage technology makes deleted file recovery MORE difficult compared to HDDs?",
+  opts:["SATA interface","NVMe interface","TRIM on SSDs","MBR partitioning"],
+  ans:2,
+  ex:"TRIM is a feature of SSDs where the OS tells the SSD which blocks are deleted, and the SSD zeroes them out. This destroys the data, making recovery much harder than on HDDs where deleted data typically remains until overwritten. SATA and NVMe are just interfaces."
+},
+{
+  cat:"storage",type:"tf",
+  q:"True or False: TRIM is enabled by default on external SSD drives.",
+  opts:["True","False"],
+  ans:1,
+  ex:"False. TRIM is enabled by default on internal SATA/eSATA drives, but NOT on external SSDs, RAID configurations, or drives connected to certain OSes that don't support TRIM. This is actually good news for DF — external SSDs may still have recoverable deleted data."
+},
+{
+  cat:"storage",type:"mc",
+  q:"SSDs use which partition table scheme?",
+  opts:["MBR","FAT","GPT (GUID Partition Table)","VBR"],
+  ans:2,
+  ex:"SSDs use GPT, which supports volumes larger than 2 TB and up to 128 partitions. MBR is limited to 4 partitions and 2 TB maximum. FAT is a file system, not a partition scheme. VBR (Volume Boot Record) defines partition details, not the partition layout."
+},
+{
+  cat:"storage",type:"mc",
+  q:"An HDD stores data using which physical method?",
+  opts:["Flash transistors","Electromagnetism","Reflecting light","Quantum tunneling"],
+  ans:1,
+  ex:"HDDs use electromagnetism — magnetic fields on spinning platters. SSDs/USB drives use flash (microscopic electrical transistors) (A). CDs/DVDs use reflecting light (C). These are the three physical storage methods covered in the lecture."
+},
+{
+  cat:"storage",type:"mc",
+  q:"The boot loader code in an MBR occupies how many bytes?",
+  opts:["64 bytes","256 bytes","446 bytes","512 bytes"],
+  ans:2,
+  ex:"The MBR is 512 bytes total: Boot loader code = 446 bytes (0-445), Partition table = 64 bytes (446-509), Signature = 2 bytes (510-511). 446 + 64 + 2 = 512."
+},
+{
+  cat:"storage",type:"spot",
+  q:'Spot the Error: A student writes: "Each partition table entry is 64 bytes, and the MBR supports up to 16 partition entries."',
+  opts:[
+    "Each entry is 16 bytes (not 64), and there are 4 entries (not 16)",
+    "Each entry is 64 bytes but there are only 4 entries",
+    "Each entry is 16 bytes and there are 16 entries",
+    "The statement is correct"
+  ],
+  ans:0,
+  ex:"The partition table is 64 bytes total, divided into 4 entries of 16 bytes each (4 × 16 = 64). The student confused the total partition table size (64 bytes) with the individual entry size, and the number of entries (4) with 16."
+},
+// ── FILE SYSTEMS (cat:"fs") ──────────────────────
+{
+  cat:"fs",type:"mc",
+  q:"What are the three layers of a file system (top to bottom)?",
+  opts:[
+    "Logical → Virtual (optional) → Physical",
+    "Physical → Virtual → Logical",
+    "Application → Kernel → Hardware",
+    "User → System → Disk"
+  ],
+  ans:0,
+  ex:"The three layers are: (1) Logical Layer — user-level API for commands like read, write, chmod. (2) Virtual Layer (optional) — allows access to multiple physical file systems. (3) Physical Layer — interacts with hardware for block/memory management."
+},
+{
+  cat:"fs",type:"mc",
+  q:"What is an INode?",
+  opts:[
+    "A type of network connection",
+    "A data structure containing metadata, pointers, and structures about a file",
+    "The physical connection between the HDD and the motherboard",
+    "A user account identifier"
+  ],
+  ans:1,
+  ex:"An INode (Index Node) is a data structure in the file system that stores metadata about a file: ownership, permissions, timestamps, and pointers to the actual data blocks. It does NOT store the file name — that's handled separately in directory entries."
+},
+{
+  cat:"fs",type:"mc",
+  q:'On a modern Linux system, <code>lsblk -t</code> shows PHY-SEC=4096 and LOG-SEC=512. What does this mean?',
+  opts:[
+    "The disk has 4096 physical sectors and 512 logical sectors",
+    "The physical sector size is 4096 bytes but the OS sees 512-byte sectors for compatibility",
+    "The disk can store 4096 files with 512 bytes each",
+    "The block size is 4096 and the cluster size is 512"
+  ],
+  ans:1,
+  ex:"PHY-SEC = physical sector size (4096 bytes on modern hardware). LOG-SEC = logical sector size (512 bytes) maintained for backwards compatibility with older software. The OS addresses data using the logical sector size, but the hardware reads/writes in physical sectors."
+},
+{
+  cat:"fs",type:"mc",
+  q:"Which file system is the default for modern Linux distributions?",
+  opts:["FAT32","NTFS","Ext4","HFS+"],
+  ans:2,
+  ex:"Ext4 (Extended File System version 4) is the default for modern Linux. FAT32 is used for removable media (SD cards, USB). NTFS is the default for Windows. HFS+ is for macOS."
+},
+{
+  cat:"fs",type:"mc",
+  q:"In FAT32, data units are called:",
+  opts:["Blocks","Sectors","Pages","Clusters"],
+  ans:3,
+  ex:"FAT32 (and Windows generally) uses the term 'clusters' for data units. Linux uses 'blocks.' Both refer to the same concept: a group of sectors that is the minimum allocation unit for a file. SSDs use 'pages' grouped into 'blocks' (different terminology)."
+},
+{
+  cat:"fs",type:"mc",
+  q:"The FAT32 file system has two main data structures. What are they?",
+  opts:[
+    "MBR and VBR",
+    "File Allocation Table (FAT) and Directory Entries",
+    "INodes and Super Blocks",
+    "Registry Hives and Log Files"
+  ],
+  ans:1,
+  ex:"FAT32 uses: (1) The File Allocation Table (FAT) — stores the next cluster for each file and allocation status. (2) Directory Entries — one per file/directory, containing name, size, starting cluster address, and metadata. INodes and Super Blocks (C) are Linux/Ext concepts."
+},
+{
+  cat:"fs",type:"mc",
+  q:"What is a key advantage of the Ext2 file system's block group structure for digital forensics?",
+  opts:[
+    "It encrypts data automatically for security",
+    "Reduced fragmentation and stability — errors can be localised to block groups",
+    "It prevents users from deleting files",
+    "It stores files in alphabetical order for easy searching"
+  ],
+  ans:1,
+  ex:"Ext2 splits partition content into block groups. This reduces fragmentation (files stored within single groups), provides redundancy (super block info repeated), and localises errors to individual groups. Reduced fragmentation and stability are specifically noted as advantageous for DF recovery."
+},
+{
+  cat:"fs",type:"mc",
+  q:"Which of these is NOT one of the five file system data categories?",
+  opts:["Content","Metadata","File Name","Encryption"],
+  ans:3,
+  ex:"The five FS data categories are: (1) File System (overview), (2) Content (file data in data units), (3) Metadata (access times, sizes, users), (4) File Name (human-readable name), (5) Application (special features like journalling, quotas). Encryption is a data service provided by the OS, not a FS data category."
+},
+{
+  cat:"fs",type:"tf",
+  q:'True or False: The Volume Boot Record (VBR) defines the details of each partition and contains a File Allocation Table.',
+  opts:["True","False"],
+  ans:0,
+  ex:"True. Each partition has a VBR that defines partition details. The VBR contains some form of FAT (File Allocation Table) that defines where clusters of data are located for each file. The MBR (Sector 0) defines the partitions themselves."
+},
+{
+  cat:"fs",type:"mc",
+  q:"FAT evolved from 8-bit to 32-bit primarily to:",
+  opts:[
+    "Increase encryption strength",
+    "Support larger memory/storage devices",
+    "Improve network speeds",
+    "Add multi-user capability"
+  ],
+  ans:1,
+  ex:"FAT was extended from 8→16→32 bits to support increasingly larger storage devices. FAT8/16 had hard limits on partition size. FAT32 supports partitions up to 2TB. Derivatives like exFAT were created for even larger volumes."
+},
+// ── NUMBERING SYSTEMS (cat:"num") ──────────────────
+{
+  cat:"num",type:"mc",
+  q:"Convert binary <code>11001</code> to decimal.",
+  opts:["23","25","29","19"],
+  ans:1,
+  ex:"1×2⁴ + 1×2³ + 0×2² + 0×2¹ + 1×2⁰ = 16 + 8 + 0 + 0 + 1 = 25. Each bit position is a power of 2, starting from 0 on the right."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert octal <code>31</code> to decimal.",
+  opts:["31","19","25","13"],
+  ans:2,
+  ex:"3×8¹ + 1×8⁰ = 24 + 1 = 25. For octal, multiply each digit by 8 raised to its position (starting from 0 on the right), then sum."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert hexadecimal <code>19</code> to decimal.",
+  opts:["19","25","31","16"],
+  ans:1,
+  ex:"1×16¹ + 9×16⁰ = 16 + 9 = 25. For hex→decimal: multiply each digit by 16 raised to its position. Remember A=10, B=11, C=12, D=13, E=14, F=15."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert decimal <code>25</code> to binary using repeated division.",
+  opts:["10011","11001","11010","10101"],
+  ans:1,
+  ex:"25÷2=12 r1 → 12÷2=6 r0 → 6÷2=3 r0 → 3÷2=1 r1 → 1÷2=0 r1. Read remainders bottom-to-top: 11001. The first remainder is the LSB (rightmost bit)."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert octal <code>705</code> to binary.",
+  opts:["110000101","111000101","101000111","111100101"],
+  ans:1,
+  ex:"Each octal digit → 3 bits: 7→111, 0→000, 5→101. Concatenate: 111 000 101 = 111000101. This works because octal is base 8 = 2³, so each digit maps perfectly to 3 binary bits."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert hex <code>10AF</code> to binary.",
+  opts:[
+    "0001000010101111",
+    "0001000011001111",
+    "0010000010101111",
+    "0001000010111111"
+  ],
+  ans:0,
+  ex:"Each hex digit → 4 bits: 1→0001, 0→0000, A(10)→1010, F(15)→1111. Concatenate: 0001 0000 1010 1111. Hex is base 16 = 2⁴, so each digit maps to exactly 4 bits."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert binary <code>1011010111</code> to octal.",
+  opts:["1327","1237","1372","7231"],
+  ans:0,
+  ex:"Group from right in 3s: 1|011|010|111 → 1, 3, 2, 7 → 1327₈. Pad the leftmost group with leading zeros if needed (here '1' is already fine as it's just one bit: 001)."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert binary <code>1010111011</code> to hexadecimal.",
+  opts:["2BA","ABB","2BB","BB2"],
+  ans:2,
+  ex:"Group from right in 4s: 10|1011|1011 → pad left: 0010|1011|1011 → 2, B(11), B(11) → 2BB₁₆."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert hex <code>1F0C</code> to octal.",
+  opts:["17414","17044","15714","14717"],
+  ans:0,
+  ex:"Step 1 — Hex→Binary: 1→0001, F→1111, 0→0000, C→1100 = 0001111100001100. Step 2 — Regroup in 3s from right: 0|001|111|100|001|100 → 0,1,7,4,1,4 → 17414₈."
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert decimal <code>422</code> to hexadecimal.",
+  opts:["1A6","1B2","19E","1C4"],
+  ans:0,
+  ex:"422÷16=26 r6 → 26÷16=1 r10(=A) → 1÷16=0 r1. Read bottom-up: 1A6₁₆. Verify: 1×256 + 10×16 + 6×1 = 256+160+6 = 422. ✓"
+},
+{
+  cat:"num",type:"mc",
+  q:"Convert octal <code>1076</code> to hexadecimal.",
+  opts:["43E","23E","2F6","23C"],
+  ans:1,
+  ex:"Step 1 — Octal→Binary: 1→001, 0→000, 7→111, 6→110 = 001000111110. Step 2 — Regroup in 4s from right: 0010|0011|1110 → 2, 3, E(14) → 23E₁₆."
+},
+{
+  cat:"num",type:"tf",
+  q:'True or False: The hex prefix <code>0x</code> (e.g., <code>0x19</code>) changes the numeric value of the number.',
+  opts:["True","False"],
+  ans:1,
+  ex:'False. The "0x" prefix is purely for disambiguation — it tells readers "this is a hexadecimal number." 0x19 and 19₁₆ represent the exact same value (25 in decimal). Without it, "19" could be mistaken for decimal 19.'
+},
+{
+  cat:"num",type:"mc",
+  q:"Why are octal and hexadecimal particularly convenient for low-level computing work?",
+  opts:[
+    "They use fewer symbols than decimal",
+    "Their bases are powers of 2 (8=2³, 16=2⁴), allowing direct bit grouping",
+    "They are faster for CPUs to process than binary",
+    "They were invented specifically for digital forensics"
+  ],
+  ans:1,
+  ex:"Octal (base 8 = 2³) maps each digit to exactly 3 bits. Hex (base 16 = 2⁴) maps each digit to exactly 4 bits. This makes conversion to/from binary trivial — just group or split bits. Decimal (base 10) is NOT a power of 2, requiring division for conversion."
+},
+{
+  cat:"num",type:"mc",
+  q:"In the binary number <code>10111010</code>, which is the Most Significant Digit (MSD)?",
+  opts:[
+    "The rightmost 0",
+    "The leftmost 1",
+    "The middle 1",
+    "There is no MSD in binary"
+  ],
+  ans:1,
+  ex:"The Most Significant Digit is always the leftmost digit — it represents the highest power of the base. In 10111010₂, the leftmost '1' is at position 7, representing 2⁷ = 128. The rightmost digit (0) is the Least Significant Digit (LSD)."
+},
+{
+  cat:"num",type:"spot",
+  q:'Spot the Error: "For hex, there are 16 possible numbers: 0…9, A…F. These 16 numbers can be represented by exactly 3 bits."',
+  opts:[
+    "16 numbers need 4 bits (not 3), since 2³=8 but 2⁴=16",
+    "Hex actually has 15 possible numbers, not 16",
+    "Hex numbers go from 1 to F, not 0 to F",
+    "The statement is correct"
+  ],
+  ans:0,
+  ex:"16 values need 4 bits to represent (2⁴ = 16). With 3 bits you can only represent 2³ = 8 values (which is exactly right for octal, not hex). This error actually appears in the lecture slides — it's octal that uses 3 bits per digit, hex uses 4."
+},
+// ── LAB 03 (cat:"lab") ──────────────────────────
+{
+  cat:"lab",type:"mc",
+  q:"The command <code>ls -l fileA</code> displays which timestamp?",
+  opts:["Access time (atime)","Modification time (mtime)","Change time (ctime)","Creation time (crtime)"],
+  ans:1,
+  ex:"By default, <code>ls -l</code> shows the modification time (mtime) — the last time the file's content was changed. Use <code>ls -lu</code> for atime, <code>ls -lc</code> for ctime, and <code>ls --time=birth</code> for crtime."
+},
+{
+  cat:"lab",type:"mc",
+  q:"Which command shows ALL timestamps for a file at once?",
+  opts:[
+    "<code>ls -la fileA</code>",
+    "<code>stat fileA</code>",
+    "<code>file fileA</code>",
+    "<code>cat fileA</code>"
+  ],
+  ans:1,
+  ex:"The <code>stat</code> command displays all timestamps (atime, mtime, ctime, and crtime/birth if supported) plus other metadata like size, blocks, inode number, and permissions. <code>ls -la</code> only shows mtime plus hidden files."
+},
+{
+  cat:"lab",type:"mc",
+  q:"What is the difference between modification time (mtime) and change time (ctime)?",
+  opts:[
+    "They are the same thing",
+    "mtime = content changed; ctime = metadata changed (e.g., permissions, filename)",
+    "mtime = metadata changed; ctime = content changed",
+    "mtime = file created; ctime = file deleted"
+  ],
+  ans:1,
+  ex:"mtime updates when the file's content is modified (e.g., editing text). ctime updates when the file's metadata is modified (e.g., renaming, changing permissions, changing owner). Both are critical for DF timeline reconstruction."
+},
+{
+  cat:"lab",type:"mc",
+  q:"The file <code>/var/log/auth.log</code> records which of the following?",
+  opts:[
+    "All file modifications on the system",
+    "Login/authentication attempts including sudo commands",
+    "Network traffic and packet captures",
+    "Application crash dumps"
+  ],
+  ans:1,
+  ex:"<code>auth.log</code> (or <code>/var/log/secure</code> on some distros) records authentication attempts: successful and failed logins, sudo session initiation, which user attempted access, and timestamps. This is gold for DF investigations."
+},
+{
+  cat:"lab",type:"tf",
+  q:'True or False: A user CANNOT delete or modify their own <code>~/.bash_history</code> file.',
+  opts:["True","False"],
+  ans:1,
+  ex:'False. The user CAN delete or modify <code>~/.bash_history</code>. The file is owned by the user and has write (w) permission. This means a suspect could tamper with or erase their command history, which is an important consideration for DF investigators.'
+},
+{
+  cat:"lab",type:"mc",
+  q:"What command views the command that started a process with PID 1234?",
+  opts:[
+    "<code>cat /proc/1234/cmdline</code>",
+    "<code>xxd /proc/1234/cmdline</code>",
+    "<code>ps -p 1234</code>",
+    "Both A and B work, but B handles non-printable characters better"
+  ],
+  ans:3,
+  ex:"Both <code>cat</code> and <code>xxd</code> can read the cmdline file, but <code>xxd</code> is preferred because the file may contain non-printable characters (null bytes between arguments). <code>xxd</code> shows hex + ASCII side by side, making all bytes visible."
+},
+{
+  cat:"lab",type:"mc",
+  q:"The command <code>ls -l</code> shows file sizes in which unit?",
+  opts:["Kilobytes","Megabytes","Bytes","Blocks"],
+  ans:2,
+  ex:"By default, <code>ls -l</code> shows file sizes in bytes. A number 5 means 5 bytes. Use <code>ls -lh</code> for human-readable sizes (K, M, G). Use <code>ls -s</code> for sizes in blocks."
+},
+{
+  cat:"lab",type:"mc",
+  q:"<code>ls -l</code> shows a file as 246,779 bytes. <code>ls -lh</code> shows 241K. What calculation was used?",
+  opts:[
+    "246,779 ÷ 1000 = 246.8 ≈ 241K",
+    "246,779 ÷ 1024 ≈ 241K (since 1 KB = 1024 bytes)",
+    "246,779 ÷ 512 ≈ 241K (using sector size)",
+    "246,779 − 5,779 = 241K (rounding to nearest thousand)"
+  ],
+  ans:1,
+  ex:"246,779 ÷ 1024 = 240.995… ≈ 241K. The key insight: 1 Kilobyte = 1024 bytes (2¹⁰), NOT 1000 bytes. This binary-based definition is standard in computing and file systems."
+},
+{
+  cat:"lab",type:"mc",
+  q:"What command determines the block size of your file system?",
+  opts:[
+    "<code>ls -b</code>",
+    "<code>stat -fc %s .</code>",
+    "<code>df -h</code>",
+    "<code>fdisk -l</code>"
+  ],
+  ans:1,
+  ex:"<code>stat -fc %s .</code> reports the block size (typically 4096 bytes on modern Linux). Don't forget the period (.) — it refers to the current directory's file system. <code>df -h</code> shows disk usage, not block size."
+},
+{
+  cat:"lab",type:"mc",
+  q:"A file is 246,779 bytes. Block size is 4096 bytes. How many blocks are needed?",
+  opts:["60","61","62","241"],
+  ans:1,
+  ex:"246,779 ÷ 4,096 = 60.248… Since you can't use a partial block, round UP to 61. Verify: 61 × 4,096 = 249,856 bytes (enough). 60 × 4,096 = 245,760 bytes (not enough — 1,019 bytes short). Slack = 249,856 − 246,779 = 3,077 bytes."
+},
+{
+  cat:"lab",type:"mc",
+  q:'In the <code>filefrag</code> output, a file shows "2 extents found". What does this mean?',
+  opts:[
+    "The file has two copies for backup purposes",
+    "The file is stored in two non-consecutive groups of blocks (fragmented)",
+    "The file spans two partitions",
+    "The file has two versions in the version history"
+  ],
+  ans:1,
+  ex:"Two extents means the file is fragmented — stored across two non-consecutive groups of blocks on disk. An extent is a contiguous group of blocks. A non-fragmented file has 1 extent. For DF, fragmented deleted files are harder to recover since pieces are scattered."
+},
+{
+  cat:"lab",type:"spot",
+  q:'Spot the Error: A student claims: "Files in <code>/proc/</code> are stored on disk and can be recovered from a forensic disk image, which makes them very useful for static analysis."',
+  opts:[
+    "Files in /proc/ are only in RAM (pseudo-filesystem), NOT on disk — they require live forensics",
+    "Files in /proc/ are on disk but encrypted, requiring a decryption key",
+    "Files in /proc/ are only available on Windows, not Linux",
+    "The statement is correct"
+  ],
+  ans:0,
+  ex:"This is completely wrong. <code>/proc/</code> is a pseudo-filesystem where files exist only in RAM, not on disk. Despite appearing to have content (readable via xxd), <code>ls</code> reports their size as 0. They would NOT appear in a static disk image. They are only accessible during live forensic analysis."
+},
+{
+  cat:"lab",type:"mc",
+  q:"The <code>&</code> symbol at the end of <code>gedit file.txt &</code> does what?",
+  opts:[
+    "Encrypts the file before opening",
+    "Opens the file in read-only mode",
+    "Runs the process in the background so the terminal remains usable",
+    "Appends output to the file instead of overwriting"
+  ],
+  ans:2,
+  ex:"The <code>&</code> at the end of a command causes the process to run in the background. Without it, the terminal would be blocked until you close gedit. This is important in the lab because you need the terminal free to run <code>ps -a</code> and inspect the process."
+},
+{
+  cat:"lab",type:"mc",
+  q:'What information in <code>auth.log</code> is most useful for a digital forensics investigation?',
+  opts:[
+    "File checksums and hash values",
+    "Date of attempt, sudo sessions, which user, duration, and failed attempts",
+    "Network IP addresses and MAC addresses only",
+    "Disk partition sizes and formats"
+  ],
+  ans:1,
+  ex:"auth.log provides: timestamps (when), user identity (who), sudo session initiation (what privilege level), session duration (how long), and failed attempts (unauthorized access attempts). This allows DF investigators to identify when a user accessed a device and whether they had root access."
+},
+{
+  cat:"lab",type:"mc",
+  q:'A 6-byte file on a filesystem with 8 sectors per block (512 B sectors) reserves how much space?',
+  opts:["6 bytes","512 bytes","4,096 bytes","8,192 bytes"],
+  ans:2,
+  ex:"Even a 6-byte file must reserve an entire block: 8 sectors × 512 bytes = 4,096 bytes. The remaining 4,090 bytes is slack space. This is a fundamental principle: the minimum allocation unit is one block/cluster, regardless of how small the file is."
+},
+{
+  cat:"lab",type:"tf",
+  q:"True or False: The <code>tail</code> command shows the first 10 lines of a file.",
+  opts:["True","False"],
+  ans:1,
+  ex:"False. <code>tail</code> shows the LAST 10 lines of a file (by default). The command that shows the FIRST 10 lines is <code>head</code>. In the lab, <code>tail /var/log/auth.log</code> is used to see the most recent authentication attempts."
+},
+{
+  cat:"lab",type:"mc",
+  q:"Which command would you use to view the content of a file that may contain non-printable characters?",
+  opts:[
+    "<code>cat filename</code>",
+    "<code>xxd filename</code>",
+    "<code>ls -l filename</code>",
+    "<code>stat filename</code>"
+  ],
+  ans:1,
+  ex:"<code>xxd</code> creates a hex dump showing both hexadecimal values and ASCII representation side by side. This reveals non-printable characters (like null bytes) that <code>cat</code> would skip or display incorrectly. This is a standard DF technique for examining binary data."
+},
+{
+  cat:"lab",type:"mc",
+  q:"The command <code>ls -lu fileA</code> displays which timestamp?",
+  opts:["Modification time","Access time","Change time","Creation time"],
+  ans:1,
+  ex:"<code>ls -lu</code> shows the access time (atime) — the last time the file's content was read. The flag breakdown: <code>-l</code> = long format, <code>-u</code> = use access time instead of default modification time."
+},
+];
+
+// ══════════════════════════════════════════════════════════
+// QUIZ ENGINE
+// ══════════════════════════════════════════════════════════
+let current = 0, score = 0, answered = false;
+const catMeta = {
+  os:      {label:"Operating Systems", cls:"cat-os"},
+  storage: {label:"Data Storage",      cls:"cat-storage"},
+  fs:      {label:"File Systems",      cls:"cat-fs"},
+  num:     {label:"Numbering Systems", cls:"cat-num"},
+  lab:     {label:"Lab 03",            cls:"cat-lab"},
+};
+const typeLabels = {mc:"Multiple Choice", tf:"True / False", spot:"Spot the Error"};
+const catScores = {};
+Object.keys(catMeta).forEach(k => catScores[k] = {right:0, total:0});
+
+// Shuffle (Fisher-Yates)
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startQuiz(){
+  shuffle(Q);
+  current=0; score=0; answered=false;
+  Object.keys(catScores).forEach(k=>{catScores[k].right=0;catScores[k].total=0});
+  document.getElementById("splash").classList.add("hidden");
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("quizArea").classList.remove("hidden");
+  renderQ();
+}
+
+function renderQ(){
+  answered=false;
+  const q=Q[current], cm=catMeta[q.cat];
+  catScores[q.cat].total++;
+  // header
+  document.getElementById("hdrTitle").textContent=`Q${current+1} / ${Q.length}`;
+  document.getElementById("hdrScore").innerHTML=`✓ ${score}`;
+  document.getElementById("progBar").style.width=`${((current)/Q.length)*100}%`;
+
+  const markers = "ABCD";
+  let optsHtml = q.opts.map((o,i)=>`
+    <button class="opt" data-idx="${i}" onclick="pick(${i})">
+      <span class="marker">${markers[i]}</span>
+      <span>${o}</span>
+    </button>`).join("");
+
+  document.getElementById("qContainer").innerHTML=`
+    <div class="q-card">
+      <span class="cat-badge ${cm.cls}">${cm.label}</span>
+      <span class="q-type">${typeLabels[q.type]||q.type}</span>
+      <div class="q-counter">Question ${current+1} of ${Q.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts">${optsHtml}</div>
+      <div id="exArea"></div>
+      <div class="next-wrap hidden" id="nextWrap">
+        <button class="btn btn-primary" onclick="nextQ()">
+          ${current<Q.length-1 ? "Next Question →" : "See Results →"}
+        </button>
+      </div>
+    </div>`;
+  // scroll to top of card
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(idx){
+  if(answered) return;
+  answered=true;
+  const q=Q[current], correct=idx===q.ans;
+  if(correct){score++;catScores[q.cat].right++}
+
+  // lock all opts
+  document.querySelectorAll(".opt").forEach(o=>{
+    o.classList.add("locked");
+    const i=+o.dataset.idx;
+    if(i===idx && correct) o.classList.add("correct-pick");
+    else if(i===idx && !correct) o.classList.add("wrong-pick");
+    if(i===q.ans && !correct) o.classList.add("show-correct");
+  });
+
+  // explanation
+  document.getElementById("exArea").innerHTML=`
+    <div class="explanation ${correct?'right':'wrong'}">
+      <strong>${correct ? "✓ Correct!" : "✗ Incorrect."}</strong><br>
+      ${q.ex}
+    </div>`;
+  document.getElementById("nextWrap").classList.remove("hidden");
+  document.getElementById("hdrScore").innerHTML=`✓ ${score}`;
+}
+
+function nextQ(){
+  current++;
+  if(current>=Q.length) return showResults();
+  renderQ();
+}
+
+// ══════════════════════════════════════════════════════════
+// RESULTS
+// ══════════════════════════════════════════════════════════
+function showResults(){
+  document.getElementById("quizArea").classList.add("hidden");
+  const pct = Math.round(score/Q.length*100);
+  const circ = 2*Math.PI*68;
+  const offset = circ - (circ * pct/100);
+  let col = pct>=90?"var(--correct)":pct>=70?"var(--accent)":pct>=50?"var(--warn)":"var(--wrong)";
+  let msg = pct>=90?"Outstanding! You've mastered this material.":
+            pct>=70?"Solid performance. Review the weak spots below.":
+            pct>=50?"Decent start, but several topics need drilling.":
+            "Keep studying — retake after reviewing the notes.";
+
+  // find weak categories
+  let weak = [];
+  Object.keys(catScores).forEach(k=>{
+    const c=catScores[k];
+    if(c.total>0){
+      const p=Math.round(c.right/c.total*100);
+      if(p<75) weak.push({cat:catMeta[k].label, pct:p, right:c.right, total:c.total});
+    }
+  });
+
+  let perfHtml = Object.keys(catScores).map(k=>{
+    const c=catScores[k], p=c.total?Math.round(c.right/c.total*100):0;
+    const cc = p>=75?"var(--correct)":p>=50?"var(--warn)":"var(--wrong)";
+    return `<div class="perf-card">
+      <div class="cat-name">${catMeta[k].label}</div>
+      <div class="cat-score" style="color:${cc}">${c.right}/${c.total} (${p}%)</div>
+    </div>`;
+  }).join("");
+
+  let weakHtml = weak.length ? `
+    <div class="review-section">
+      <h3>⚠ Topics to Review</h3>
+      <ul class="review-list">${weak.map(w=>`
+        <li><span class="dot"></span>${w.cat} — ${w.right}/${w.total} (${w.pct}%)</li>`).join("")}
+      </ul>
+    </div>` : `<p style="color:var(--correct);margin:20px 0">All categories above 75% — great work across the board!</p>`;
+
+  document.getElementById("results").innerHTML=`
+    <h2>Drill Complete</h2>
+    <div class="pct-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="bg" cx="80" cy="80" r="68"/>
+        <circle class="fg" cx="80" cy="80" r="68" stroke="${col}"
+          stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+          style="transition-delay:.2s" id="ringFg"/>
+      </svg>
+      <div class="pct-label" style="color:${col}">${pct}%</div>
+    </div>
+    <p style="font-size:1.15rem;font-weight:600">${score} / ${Q.length} correct</p>
+    <p class="grade-msg">${msg}</p>
+    <h3 style="font-size:1rem;margin-bottom:10px;color:var(--text-dim)">Performance by Category</h3>
+    <div class="perf-grid">${perfHtml}</div>
+    ${weakHtml}
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="startQuiz()">🔁 Retake Quiz</button>
+      <button class="btn btn-secondary" onclick="location.reload()">🏠 Home</button>
+    </div>`;
+  document.getElementById("results").classList.remove("hidden");
+  // animate ring
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.getElementById("ringFg").style.strokeDashoffset = offset;
+    });
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

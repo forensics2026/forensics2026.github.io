@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F20FO Labs 01–04 — Ultimate Drill Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c12;--surface:#12151e;--surface2:#191d2a;--surface3:#222738;
+  --border:#272d42;--border-hl:#3a4260;
+  --text:#e4e6f0;--text-dim:#8a92b0;--text-muted:#5a6280;
+  --accent:#7b8cff;--accent2:#a78bfa;--accent-glow:rgba(123,140,255,.12);
+  --correct:#34d399;--correct-bg:rgba(52,211,153,.07);--correct-border:rgba(52,211,153,.3);
+  --wrong:#f87171;--wrong-bg:rgba(248,113,113,.07);--wrong-border:rgba(248,113,113,.3);
+  --warn:#fbbf24;
+  --lab1:#60a5fa;--lab2:#a78bfa;--lab3:#34d399;--lab4:#fb923c;
+  --radius:10px;--radius-lg:14px;
+  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:var(--font);color:var(--text);background:var(--bg);
+  min-height:100vh;line-height:1.6;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 15% 0%,rgba(123,140,255,.05),transparent),
+    radial-gradient(ellipse 50% 40% at 85% 100%,rgba(167,139,250,.04),transparent);
+}
+.app{max-width:840px;margin:0 auto;padding:24px 20px 80px}
+/* ── SPLASH ── */
+#splash{text-align:center;padding:60px 0 30px;animation:fadeUp .6s ease}
+#splash h1{
+  font-size:2.4rem;font-weight:800;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--lab1),var(--lab2),var(--lab3),var(--lab4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+#splash .sub{color:var(--text-dim);font-size:1rem;margin:8px 0 4px}
+#splash .tag{color:var(--text-muted);font-size:.85rem;margin-bottom:28px}
+.lab-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px}
+.lab-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 10px;text-align:center;position:relative;overflow:hidden;
+}
+.lab-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.lab-card.l1::before{background:var(--lab1)}.lab-card.l2::before{background:var(--lab2)}
+.lab-card.l3::before{background:var(--lab3)}.lab-card.l4::before{background:var(--lab4)}
+.lab-card .num{font-size:1.6rem;font-weight:700}.lab-card .lbl{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.mode-sel{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.mode-btn{
+  padding:10px 22px;border:1.5px solid var(--border);border-radius:50px;
+  background:transparent;color:var(--text);font-family:var(--font);font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.mode-btn:hover{border-color:var(--accent);background:var(--accent-glow)}
+.mode-btn.active{border-color:var(--accent);background:var(--accent-glow);color:var(--accent)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 32px;border:none;border-radius:50px;cursor:pointer;
+  font-family:var(--font);font-size:1rem;font-weight:600;transition:all .2s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  box-shadow:0 4px 20px rgba(123,140,255,.25);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(123,140,255,.4)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent)}
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 18px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);margin-bottom:18px;
+  position:sticky;top:10px;z-index:90;backdrop-filter:blur(14px);
+}
+.header .left{display:flex;align-items:center;gap:12px}
+.header .title{font-weight:700;font-size:.88rem;color:var(--text-dim)}
+.score-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:50px;
+  background:var(--accent-glow);border:1px solid rgba(123,140,255,.2);
+  font-weight:600;font-size:.85rem;color:var(--accent);
+}
+.progress-wrap{width:100%;height:4px;background:var(--surface3);border-radius:8px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--correct));border-radius:8px;transition:width .4s;width:0%}
+/* ── BADGES ── */
+.cat-badge{
+  display:inline-block;padding:3px 11px;border-radius:50px;
+  font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;
+}
+.cat-lab01{background:rgba(96,165,250,.12);color:var(--lab1)}
+.cat-lab02{background:rgba(167,139,250,.12);color:var(--lab2)}
+.cat-lab03{background:rgba(52,211,153,.12);color:var(--lab3)}
+.cat-lab04{background:rgba(251,146,60,.12);color:var(--lab4)}
+/* ── QUESTION CARD ── */
+.q-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:30px 26px;animation:fadeUp .3s ease;
+}
+.q-counter{font-size:.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600}
+.q-type{
+  display:inline-block;padding:3px 9px;border-radius:50px;
+  font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  background:var(--surface3);color:var(--text-dim);margin-left:8px;margin-bottom:14px;
+}
+.q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:22px}
+.q-text code{
+  font-family:var(--mono);font-size:.9em;
+  background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--accent);
+}
+.code-block{
+  background:#090b10;border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 16px;margin:12px 0 18px;font-family:var(--mono);font-size:.82rem;
+  line-height:1.6;color:#c0c8e0;overflow-x:auto;white-space:pre;
+}
+/* ── OPTIONS ── */
+.options{display:flex;flex-direction:column;gap:9px}
+.opt{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:all .16s;background:transparent;
+  text-align:left;font-family:var(--font);font-size:.94rem;color:var(--text);line-height:1.5;
+}
+.opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-glow)}
+.opt .marker{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  border:2px solid var(--border-hl);display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.75rem;color:var(--text-dim);transition:all .16s;margin-top:1px;
+}
+.opt:hover:not(.locked) .marker{border-color:var(--accent);color:var(--accent)}
+.opt.correct-pick{border-color:var(--correct-border);background:var(--correct-bg)}
+.opt.correct-pick .marker{border-color:var(--correct);color:var(--correct);background:rgba(52,211,153,.1)}
+.opt.wrong-pick{border-color:var(--wrong-border);background:var(--wrong-bg)}
+.opt.wrong-pick .marker{border-color:var(--wrong);color:var(--wrong);background:rgba(248,113,113,.1)}
+.opt.show-correct{border-color:var(--correct-border);background:var(--correct-bg)}
+.opt.show-correct .marker{border-color:var(--correct);color:var(--correct)}
+.opt.locked{cursor:default;opacity:.7}
+.opt.correct-pick.locked,.opt.wrong-pick.locked,.opt.show-correct.locked{opacity:1}
+/* ── EXPLANATION ── */
+.explanation{
+  margin-top:20px;padding:16px 18px;border-radius:var(--radius);
+  font-size:.9rem;line-height:1.65;animation:fadeUp .2s ease;
+}
+.explanation.right{background:var(--correct-bg);border:1px solid var(--correct-border)}
+.explanation.wrong{background:var(--wrong-bg);border:1px solid var(--wrong-border)}
+.explanation strong{color:var(--text)}
+.explanation code{font-family:var(--mono);font-size:.86em;background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px}
+.next-wrap{display:flex;justify-content:flex-end;margin-top:20px}
+/* ── RESULTS ── */
+#results{text-align:center;animation:fadeUp .5s ease}
+#results h2{font-size:1.9rem;font-weight:800;margin-bottom:4px}
+.pct-ring{position:relative;width:150px;height:150px;margin:24px auto}
+.pct-ring svg{transform:rotate(-90deg)}
+.pct-ring .bg{stroke:var(--surface3);fill:none;stroke-width:10}
+.pct-ring .fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+.pct-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.9rem;font-weight:800}
+.grade-msg{font-size:1.05rem;color:var(--text-dim);margin:8px 0 26px}
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px;margin:18px 0 28px}
+.perf-card{padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-align:center;position:relative;overflow:hidden}
+.perf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.perf-card.pl1::before{background:var(--lab1)}.perf-card.pl2::before{background:var(--lab2)}
+.perf-card.pl3::before{background:var(--lab3)}.perf-card.pl4::before{background:var(--lab4)}
+.perf-card .cat-name{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:3px}
+.perf-card .cat-score{font-size:1.2rem;font-weight:700}
+.review-section{text-align:left;margin-top:30px}
+.review-section h3{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--warn)}
+.review-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:28px}
+.review-list li{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem}
+.review-list .dot{width:7px;height:7px;border-radius:50%;background:var(--wrong);flex-shrink:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  .app{padding:14px 12px 60px}
+  #splash h1{font-size:1.7rem}
+  .lab-cards{grid-template-columns:repeat(2,1fr)}
+  .q-card{padding:20px 14px}
+  .header{padding:10px 12px;flex-wrap:wrap}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══ SPLASH ═══ -->
+<div id="splash">
+  <h1>Labs Mastery Drill</h1>
+  <p class="sub">F20FO Digital Forensics — Labs 01 through 04</p>
+  <p class="tag">80 questions · 4 labs · Detailed explanations · Shuffled every attempt</p>
+
+  <div class="lab-cards" id="labCards"></div>
+
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:12px;font-weight:600">Select labs to include:</p>
+  <div class="mode-sel" id="modeBar">
+    <button class="mode-btn active" data-lab="all">All Labs</button>
+    <button class="mode-btn" data-lab="lab01">Lab 01</button>
+    <button class="mode-btn" data-lab="lab02">Lab 02</button>
+    <button class="mode-btn" data-lab="lab03">Lab 03</button>
+    <button class="mode-btn" data-lab="lab04">Lab 04</button>
+  </div>
+
+  <button class="btn btn-primary" onclick="startQuiz()">
+    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Start Drill
+  </button>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quizArea" class="hidden">
+  <div class="header">
+    <div class="left">
+      <span class="title" id="hdrTitle">Q1 / 80</span>
+      <span class="score-pill" id="hdrScore">✓ 0</span>
+    </div>
+    <div style="flex:1;margin-left:14px"><div class="progress-wrap"><div class="progress-bar" id="progBar"></div></div></div>
+  </div>
+  <div id="qContainer"></div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div id="results" class="hidden"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// QUESTION BANK
+// ══════════════════════════════════════════════════════
+const Q = [
+// ───── LAB 01: Linux & VirtualBox ─────────────────
+{cat:"lab01",type:"mc",q:"What is the primary purpose of Lab 01 in the F20FO course?",
+opts:["Learn Windows forensic tools","Get familiarised with the Linux command line and VirtualBox","Install FTK Imager on a host machine","Create forensic images of USB drives"],ans:0+1,
+ex:"Lab 01 introduces the Linux environment (specifically the command line) and Oracle VirtualBox. These are foundational skills required for all subsequent labs and coursework assessments."},
+{cat:"lab01",type:"mc",q:"Which virtualisation software is introduced in Lab 01?",
+opts:["VMware Workstation","Hyper-V","Oracle VM VirtualBox","Docker"],ans:2,
+ex:"Lab 01 uses Oracle VM VirtualBox. VMware is introduced later in Lab 04. VirtualBox is free, cross-platform, and widely used in educational settings."},
+{cat:"lab01",type:"tf",q:"True or False: Students must submit their work at the end of Lab 01.",
+opts:["True","False"],ans:1,
+ex:"False. There is nothing to submit, but students are 'encouraged to log and record their certificate and results in a document' (logbook). The LinkedIn Learning course offers a Certificate of Completion."},
+{cat:"lab01",type:"mc",q:"What resource does Lab 01 recommend for learning Linux commands?",
+opts:["A textbook chapter on Unix","The LinkedIn Learning course 'Learning Linux Command Line'","A YouTube playlist on Kali Linux","The Ubuntu official documentation"],ans:1,
+ex:"The lab specifically links to the LinkedIn Learning course 'Learning Linux Command Line' and students should use their Heriot-Watt credentials to access it."},
+{cat:"lab01",type:"mc",q:"Which of these is a valid Linux distribution you could install in VirtualBox as required by Lab 01?",
+opts:["Windows 11","macOS Ventura","Ubuntu","Android"],ans:2,
+ex:"The lab lists Ubuntu, openSUSE, Linux Mint, and Manjaro as example Linux distros. You can select any Linux distro you prefer. Windows and macOS are not Linux distributions."},
+{cat:"lab01",type:"mc",q:"Why are Virtual Machines (VMs) essential for digital forensics coursework?",
+opts:["They make the computer run faster","They provide an isolated environment that doesn't risk the host system","They are required by UK law for forensic analysis","They automatically write-protect all connected devices"],ans:1,
+ex:"VMs provide isolation — you can safely examine evidence, install tools, and experiment without affecting your host machine. The lab states 'changes to your machine should not impact on its functionality — however you are recommended to use a VM.'"},
+{cat:"lab01",type:"tf",q:"True or False: Lab 01 only covers Linux — there is no VirtualBox installation involved.",
+opts:["True","False"],ans:1,
+ex:"False. Lab 01 has three parts: (1.1) Linux command line fundamentals, (1.2) Practise with VirtualBox via LinkedIn Learning, (1.3) Install a Linux distro on VirtualBox. All three are required."},
+{cat:"lab01",type:"mc",q:"What should students do after successfully installing their Linux VM in VirtualBox?",
+opts:["Delete the ISO file immediately","Take a screenshot for their logbook","Email it to the lecturer","Export it as an OVA file"],ans:1,
+ex:"The lab instructs: 'Take a screenshot of your VM in your VirtualBox and record in your logbook.' This documents your setup for future reference."},
+
+// ───── LAB 02: DF Foundations ────────────────────────
+{cat:"lab02",type:"mc",q:"What are the default login credentials for the Windows 10 VM in Lab 02?",
+opts:["Admin / password","IEUser / Passw0rd!","User / Pass1234","forensic / digital"],ans:1,
+ex:"The lab states: User: IEUser, Password: Passw0rd! (note the zero replacing the 'o'). The VM is valid for 90 days, so taking a snapshot is recommended."},
+{cat:"lab02",type:"mc",q:"Which Windows Explorer setting must a DF analyst ENABLE to see system files?",
+opts:["Hide empty drives","Hide extensions for known file types","Show hidden files, folders, and drives","Hide protected operating system files"],ans:2,
+ex:"You must ENABLE 'Show hidden files, folders, and drives' and DISABLE 'Hide empty drives', 'Hide extensions for known file types', and 'Hide protected operating system files.' A DF analyst needs to see everything."},
+{cat:"lab02",type:"mc",q:"Which system file contains a snapshot of RAM from when the system hibernated?",
+opts:["pagefile.sys","swapfile.sys","hiberfil.sys","msdia80.dll"],ans:2,
+ex:"hiberfil.sys is the hibernation file — it contains a complete RAM snapshot. pagefile.sys is virtual memory (OS swaps RAM here when full). swapfile.sys is for UWP/Store apps. All are forensically valuable, but hiberfil.sys captures the full RAM state."},
+{cat:"lab02",type:"mc",q:"What is a file attribute?",
+opts:["A virus signature embedded in the file","Metadata that describes or is associated with a computer file","The file's encryption key","The physical location of the file on the platter"],ans:1,
+ex:"A file attribute is metadata: creation date, modification date, size, extension, associated application, and permissions. The OS tracks these automatically. They are critical forensic evidence."},
+{cat:"lab02",type:"mc",q:"The full Registry path for the software write blocker is:",
+opts:[
+  "<code>HKEY_CURRENT_USER\\Software\\WriteBlock</code>",
+  "<code>HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\StorageDevicePolicies</code>",
+  "<code>HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\USB\\WriteProtect</code>",
+  "<code>HKEY_CLASSES_ROOT\\StorageDevicePolicies</code>"
+],ans:1,
+ex:"The correct path is HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\StorageDevicePolicies with a DWORD value called WriteProtect. Setting it to 1 enables write protection; 0 disables it."},
+{cat:"lab02",type:"mc",q:"What value must the <code>WriteProtect</code> DWORD be set to in order to ENABLE USB write protection?",
+opts:["0","1","2","256"],ans:1,
+ex:"WriteProtect = 1 enables write protection (blocks writes to USB). WriteProtect = 0 disables it (allows normal USB writes). This is a simple on/off toggle."},
+{cat:"lab02",type:"mc",q:"What does a System Restore Point do?",
+opts:["Backs up all personal files to the cloud","Creates a snapshot of system configuration (Registry, system files) that can be reverted to","Encrypts the entire hard drive","Defragments the file system"],ans:1,
+ex:"A System Restore Point saves the system's configuration (Registry, system files, installed programs) at a specific point in time. It does NOT back up personal files. It allows you to undo system changes if a Registry modification causes problems."},
+{cat:"lab02",type:"tf",q:"True or False: In real forensic investigations, a software write blocker is sufficient — no hardware write blocker is needed.",
+opts:["True","False"],ans:1,
+ex:"False. The lab explicitly states: 'In real scenarios... a hardware-based write-blocker should be attached between the forensic base station and the electronic device.' Software write blockers are convenient for lab work but are NOT a substitute for hardware blockers in court-admissible investigations."},
+{cat:"lab02",type:"mc",q:"FTK Imager is best described as:",
+opts:["A full forensic examination suite like EnCase","A data preview and imaging tool for triage and acquisition","A network packet analyser","A password cracking tool"],ans:1,
+ex:"FTK Imager is a triage/acquisition tool for creating forensic images, previewing files, recovering deleted files, and generating hashes. Full forensic examination is done with tools like EnCase, FTK (full version), or Autopsy."},
+{cat:"lab02",type:"mc",q:"Which forensic image format supports compression, case metadata, AND built-in hash verification?",
+opts:["Raw (dd)","SMART","E01 (EnCase)","All of the above"],ans:2,
+ex:"E01 is the most common DF format because it supports compression (saves space), embeds case metadata (case number, examiner, notes), and includes built-in MD5/SHA-1 hash verification. Raw (dd) is just a bit-for-bit copy with no metadata or compression."},
+{cat:"lab02",type:"mc",q:"What is the difference between a logical and physical acquisition?",
+opts:[
+  "Logical copies the entire disk; physical copies only files",
+  "Logical copies the file system layer (files/folders); physical copies every sector including slack and unallocated space",
+  "They are the same thing with different names",
+  "Logical uses MD5; physical uses SHA-1"
+],ans:1,
+ex:"Logical acquisition captures only what the OS presents (files and folders). Physical acquisition captures EVERY sector — including deleted files, file slack, unallocated space, and hidden partitions. Physical is the gold standard for forensic investigations."},
+{cat:"lab02",type:"mc",q:"After FTK Imager creates an image, the Drive/Image Verify Results shows 'MD5 Hash — Verify result: Match'. What does this prove?",
+opts:["The image file is not corrupted by a virus","The forensic image is a perfect bit-for-bit copy of the original","The original drive has been securely erased","The image was created using the correct software version"],ans:1,
+ex:"If the computed hash matches the stored verification hash, the image is identical to the original source. Even a single bit difference would produce a completely different hash. This proves evidence integrity and is essential for chain of custody."},
+{cat:"lab02",type:"mc",q:"MD5 produces a hash of what size?",
+opts:["64 bits (16 hex characters)","128 bits (32 hex characters)","160 bits (40 hex characters)","256 bits (64 hex characters)"],ans:1,
+ex:"MD5 (Message Digest 5) produces a 128-bit hash, typically displayed as 32 hexadecimal characters. SHA-1 produces 160 bits (40 hex chars). SHA-256 produces 256 bits (64 hex chars). Both MD5 and SHA-1 are used by FTK Imager."},
+{cat:"lab02",type:"mc",q:"What is a SID (Security Identifier)?",
+opts:["A serial number assigned to hard drives","A unique alphanumeric string that Windows assigns to every user account","A file system encryption standard","A network socket identifier"],ans:1,
+ex:"A SID is a unique identifier for every user, group, and computer in Windows. Example: S-1-5-21-1929781967-25... They are used internally for access control. In the Recycler, each SID folder corresponds to a specific user who deleted files."},
+{cat:"lab02",type:"mc",q:"A SID folder ending in <code>-500</code> indicates:",
+opts:["A regular user account","The Guest account","The built-in Administrator account","A deleted account"],ans:2,
+ex:"SID ending in -500 ALWAYS means the built-in Administrator account in Windows. Regular user accounts start from -1000 onward (e.g., -1001, -1002, -1004). This is critical for attributing deleted files to specific users."},
+{cat:"lab02",type:"mc",q:"What does the INFO2 file inside a Recycler SID folder contain?",
+opts:["Encrypted user passwords","A list of files sent to the Recycle Bin with their original names, paths, and deletion dates","System driver information","Network connection logs"],ans:1,
+ex:"INFO2 is the Recycle Bin database. It records: original file name, original path, deletion date/time, and file size. Key forensic detail: restored files have NO drive letter in their INFO2 entry, allowing you to distinguish deleted vs. restored files."},
+{cat:"lab02",type:"tf",q:"True or False: If a file was restored from the Recycle Bin, its INFO2 entry will show no drive letter.",
+opts:["True","False"],ans:0,
+ex:"True. The lab states: 'restored files have no drive letter.' If you see an entry in INFO2 without a drive letter (like C: or D:), that file was once in the Recycle Bin but was later restored to the system."},
+{cat:"lab02",type:"mc",q:"What are <code>.lnk</code> files found in the <code>Recent</code> folder?",
+opts:["Linux symbolic links","Windows shortcut files that record which files a user opened","Encrypted log files","Temporary internet cache files"],ans:1,
+ex:".lnk files are Windows shortcuts. The OS creates them in the Recent folder whenever a user opens a file. Even if the ORIGINAL file is deleted, the .lnk file may persist — providing evidence that a specific file existed and was accessed."},
+{cat:"lab02",type:"mc",q:"The <code>index.dat</code> file in the TIF Netmail folder contains:",
+opts:["Email messages","Browser usage information: cookies, history, and Temporary Internet Files","Disk defragmentation logs","Antivirus scan results"],ans:1,
+ex:"index.dat is an Internet Explorer database storing browsing history, cookies, and TIF (Temporary Internet Files) references. You can correlate its entries with cached images in subfolders to reconstruct the user's browsing activity."},
+{cat:"lab02",type:"mc",q:"What is a chain of custody?",
+opts:["The encryption algorithm used to protect evidence files","The documented chronological history of who handled evidence, where it was stored, and every transfer","A chain of USB hubs connecting devices","The order in which forensic tools are installed"],ans:1,
+ex:"The chain of custody documents every person who handled the evidence, when they handled it, and where it was stored. A break in the chain can render evidence inadmissible in court. Hashing helps prove the evidence wasn't modified during the chain."},
+{cat:"lab02",type:"mc",q:"Why must a DF analyst unhide file extensions in Windows Explorer?",
+opts:["To make files open faster","To identify the true file type — a suspect could rename a .exe to .jpg to hide it","To enable drag-and-drop functionality","File extensions have no forensic relevance"],ans:1,
+ex:"Hidden extensions let malware or evidence masquerade as innocent files (e.g., report.pdf.exe appears as report.pdf). A DF analyst must see true extensions to identify file types, detect renamed files, and avoid accidentally executing malicious files."},
+{cat:"lab02",type:"mc",q:"The <code>CurrentControlSet</code> registry key refers to:",
+opts:["A backup of the system configuration","The system configuration currently in use at this moment","The default factory configuration","The configuration from the last Windows update"],ans:1,
+ex:"CurrentControlSet is the active configuration being used RIGHT NOW. The system keeps backups as ControlSet001, ControlSet002, etc. The Select key indicates which is active. When making Registry changes (like the write blocker), you modify CurrentControlSet."},
+
+// ───── LAB 03: OS Data & File Systems ──────────────
+{cat:"lab03",type:"mc",q:"The command <code>ls -l fileA</code> displays which timestamp by default?",
+opts:["Access time (atime)","Modification time (mtime)","Change time (ctime)","Creation time (crtime)"],ans:1,
+ex:"ls -l shows modification time (mtime) by default — the last time the file's content was changed. Use ls -lu for atime, ls -lc for ctime, and ls --time=birth for crtime."},
+{cat:"lab03",type:"mc",q:"Which command shows ALL timestamps for a file at once?",
+opts:["<code>ls -la fileA</code>","<code>stat fileA</code>","<code>file fileA</code>","<code>cat fileA</code>"],ans:1,
+ex:"The stat command displays all timestamps (atime, mtime, ctime, crtime/birth) plus metadata like size, blocks, inode number, and permissions. ls -la only shows mtime plus hidden files."},
+{cat:"lab03",type:"mc",q:"What is the difference between mtime and ctime?",
+opts:["They are the same thing","mtime = content changed; ctime = metadata changed (permissions, filename)","mtime = metadata changed; ctime = content changed","mtime = created; ctime = deleted"],ans:1,
+ex:"mtime updates when the file's CONTENT is modified (editing text). ctime updates when the file's METADATA changes (renaming, changing permissions, changing owner). Both are critical for DF timeline reconstruction."},
+{cat:"lab03",type:"mc",q:"Files in the <code>/proc/</code> directory report a size of 0 bytes via <code>ls</code>. Why?",
+opts:["The files are encrypted","They are in a pseudo-filesystem stored only in RAM, not on disk","They have been deleted but their inodes remain","Linux compression shows size as 0"],ans:1,
+ex:"/proc/ is a pseudo-filesystem existing only in RAM. Despite size 0, files contain readable data (via xxd). They are NOT available from a static disk image — only via live forensics. This is a critical distinction."},
+{cat:"lab03",type:"tf",q:"True or False: Process data in <code>/proc/</code> can be recovered from a forensic disk image.",
+opts:["True","False"],ans:1,
+ex:"False. /proc/ data exists only in physical memory (RAM). A static disk image will NOT contain it. You need live forensics to capture process data."},
+{cat:"lab03",type:"mc",q:"The file <code>/var/log/auth.log</code> records:",
+opts:["All file modifications","Login/authentication attempts including sudo commands","Network traffic","Application crashes"],ans:1,
+ex:"auth.log records authentication attempts: successful/failed logins, sudo sessions, which user, timestamps. This is essential for determining who accessed a system and when."},
+{cat:"lab03",type:"tf",q:"True or False: A user cannot delete their own <code>~/.bash_history</code> file.",
+opts:["True","False"],ans:1,
+ex:"False. The user CAN delete or modify ~/.bash_history since they own it with write permission. A suspect could tamper with their command history — a critical consideration for DF investigators."},
+{cat:"lab03",type:"mc",q:"The <code>&</code> symbol at the end of <code>gedit file.txt &</code> does what?",
+opts:["Encrypts the file","Opens in read-only mode","Runs the process in the background so the terminal stays usable","Appends to the file"],ans:2,
+ex:"The & runs the process in the background. Without it, the terminal is blocked until gedit closes. In the lab, you need the terminal free to run ps -a and inspect the running process."},
+{cat:"lab03",type:"mc",q:"A file is 246,779 bytes. Block size is 4,096 bytes. How many blocks are needed?",
+opts:["60","61","62","241"],ans:1,
+ex:"246,779 ÷ 4,096 = 60.248... Round UP to 61 (can't use a partial block). Slack = 61 × 4,096 − 246,779 = 249,856 − 246,779 = 3,077 bytes wasted."},
+{cat:"lab03",type:"mc",q:"What command determines the block size of your file system?",
+opts:["<code>ls -b</code>","<code>stat -fc %s .</code>","<code>df -h</code>","<code>fdisk -l</code>"],ans:1,
+ex:"stat -fc %s . reports the fundamental block size (typically 4096 bytes). Don't forget the period (.) referring to the current directory's file system."},
+{cat:"lab03",type:"mc",q:'In <code>filefrag</code> output, "2 extents found" means:',
+opts:["Two backup copies exist","The file is stored in two non-consecutive groups of blocks (fragmented)","The file spans two partitions","The file has two versions"],ans:1,
+ex:"Two extents = fragmented across two non-consecutive block groups. 1 extent = contiguous (not fragmented). Fragmented deleted files are harder to recover since pieces are scattered."},
+{cat:"lab03",type:"mc",q:"Which command shows the LAST 10 lines of a file?",
+opts:["<code>head filename</code>","<code>tail filename</code>","<code>cat filename</code>","<code>less filename</code>"],ans:1,
+ex:"tail shows the LAST lines (default 10). head shows the FIRST lines. In the lab, tail /var/log/auth.log shows the most recent authentication attempts."},
+{cat:"lab03",type:"mc",q:"The command <code>xxd /proc/PID/cmdline</code> is preferred over <code>cat</code> because:",
+opts:["xxd is faster","xxd handles non-printable characters (null bytes between arguments)","xxd decrypts the file","xxd shows file permissions"],ans:1,
+ex:"xxd creates a hex dump showing both hex values and ASCII side by side. cmdline files use null bytes between arguments that cat would skip. xxd reveals ALL bytes."},
+{cat:"lab03",type:"mc",q:"<code>ls -l</code> shows 246,779 bytes. <code>ls -lh</code> shows 241K. What conversion was used?",
+opts:["÷ 1000","÷ 1024 (1 KB = 1024 bytes)","÷ 512","− 5,779"],ans:1,
+ex:"246,779 ÷ 1024 = 240.99... ≈ 241K. In computing, 1 KB = 1024 bytes (2¹⁰), not 1000. This binary definition is standard."},
+{cat:"lab03",type:"mc",q:"<code>ls -lu fileA</code> shows which timestamp?",
+opts:["Modification time","Access time","Change time","Creation time"],ans:1,
+ex:"ls -lu shows access time (atime) — last time content was read. -l = long format, -u = use access time instead of default mtime. ls -lc shows ctime."},
+
+// ───── LAB 04: Data Hiding & MBR ─────────────────
+{cat:"lab04",type:"mc",q:"In Lab 04, which virtualisation software is used instead of VirtualBox?",
+opts:["Docker","Hyper-V","VMware Workstation Player v17","QEMU"],ans:2,
+ex:"Lab 04 switches to VMware Player v17 to expose students to different virtualisation tools. The lab notes: 'you might come across different virtualisation software or toolkits in Digital Forensics workplaces.'"},
+{cat:"lab04",type:"mc",q:"The new virtual disk added to the Windows XP VM is set to what size?",
+opts:["512 MB","1.01 GB","2 GB","10 GB"],ans:1,
+ex:"The disk is set to 1.01 GB, stored as a single file, using the SCSI interface. This creates a small disk for practising partition creation."},
+{cat:"lab04",type:"mc",q:"How many primary partitions are created on the new disk in Lab 4.1?",
+opts:["2","3","4","8"],ans:2,
+ex:"Four primary partitions are created (Part 1, Part 2, Part 3, Part 4), each about 10 MB with NTFS formatting. This is the MBR maximum — 4 primary partitions."},
+{cat:"lab04",type:"mc",q:"Each partition created in Lab 4.1 uses which file system?",
+opts:["FAT32","exFAT","NTFS","Ext4"],ans:2,
+ex:"All four partitions are formatted as NTFS (the default Windows file system). The partition type descriptor 0x07 in the MBR corresponds to NTFS."},
+{cat:"lab04",type:"mc",q:"What is the MBR?",
+opts:["A backup copy of the file system","The first 512 bytes (Sector 0) of a physical disk containing boot code and the partition table","A log file for disk errors","The last sector on the disk containing recovery data"],ans:1,
+ex:"The MBR (Master Boot Record) occupies the first 512 bytes of the disk. It contains: boot loader code (446 bytes), partition table (64 bytes for 4 entries), and signature (55 AA, 2 bytes)."},
+{cat:"lab04",type:"mc",q:"What are the last 2 bytes of a valid MBR?",
+opts:["<code>AA 55</code>","<code>55 AA</code>","<code>FF FF</code>","<code>00 00</code>"],ans:1,
+ex:"The MBR signature is 55 AA at offset 0x1FE (bytes 510–511). The BIOS checks for this to confirm a valid boot sector. Order matters: 55 first, then AA."},
+{cat:"lab04",type:"mc",q:"How many primary partitions can the MBR's partition table define?",
+opts:["2","4","8","128"],ans:1,
+ex:"The partition table is 64 bytes with 4 entries of 16 bytes each (64 ÷ 16 = 4). GPT supports up to 128 partitions."},
+{cat:"lab04",type:"mc",q:"What tool is used to view the raw MBR hex data in the lab?",
+opts:["FTK Imager","Roadkil's SectEdit","Hiren's MBRFix","Windows Disk Management"],ans:1,
+ex:"Roadkil's SectEdit is a sector editor that displays and allows editing of raw disk sectors at the hex level. You run it as Administrator, untick 'Protect my computer', then select a physical disk."},
+{cat:"lab04",type:"mc",q:"In a partition table entry, byte 0 is the Boot Indicator. What value means the partition is active (bootable)?",
+opts:["<code>0x00</code>","<code>0x80</code>","<code>0xFF</code>","<code>0x07</code>"],ans:1,
+ex:"0x80 = active/bootable partition (BIOS will try to boot from it). 0x00 = not bootable. 0x07 is the partition TYPE field (NTFS), not the boot indicator."},
+{cat:"lab04",type:"mc",q:"Partition-type descriptor <code>0x07</code> indicates which file system?",
+opts:["FAT32","Linux Ext4","NTFS","exFAT"],ans:2,
+ex:"0x07 = NTFS. Other common codes: 0x0B/0x0C = FAT32, 0x83 = Linux, 0x82 = Linux Swap, 0x05 = Extended partition."},
+{cat:"lab04",type:"mc",q:"A partition entry's size field reads <code>C1 3E 00 00</code>. In little-endian, the actual hex value is:",
+opts:["<code>C1 3E 00 00</code>","<code>00 00 3E C1</code>","<code>3E C1 00 00</code>","<code>00 C1 3E 00</code>"],ans:1,
+ex:"Little-endian: reverse the byte order. C1 3E 00 00 → 00 00 3E C1. This equals 0x3EC1 = 16,065 in decimal."},
+{cat:"lab04",type:"mc",q:"<code>0x3EC1</code> hex equals how many decimal sectors?",
+opts:["8,032","16,065","32,130","3,841"],ans:1,
+ex:"3×16³ + 14×16² + 12×16¹ + 1×16⁰ = 12,288 + 3,584 + 192 + 1 = 16,065 sectors."},
+{cat:"lab04",type:"mc",q:"16,065 sectors × 512 bytes/sector = ? Then convert to approximately how many MB?",
+opts:["~4 MB","~8 MB","~16 MB","~32 MB"],ans:1,
+ex:"16,065 × 512 = 8,225,280 bytes. ÷ 1,024 = 8,032 KB. ÷ 1,024 ≈ 7.84 MB ≈ 8 MB. This matches the ~10 MB partition (formatted usable size is smaller due to NTFS overhead)."},
+{cat:"lab04",type:"mc",q:"In Lab 4.2, the MBR is deliberately broken by:",
+opts:["Deleting the entire first sector","Swapping the last 2 bytes from <code>55 AA</code> to <code>AA 55</code>","Changing the partition type to 0x00","Overwriting the boot loader code with zeros"],ans:1,
+ex:"The lab swaps the MBR signature bytes from 55 AA to AA 55 on Physical Disc 0, then saves. The BIOS no longer recognises a valid MBR → the VM cannot boot."},
+{cat:"lab04",type:"mc",q:"After the MBR is corrupted, which tool is used to repair it?",
+opts:["Windows Recovery Console","Roadkil's SectEdit","Hiren's Boot CD (MBRFix)","Linux fdisk"],ans:2,
+ex:"Hiren's Boot CD is attached as an ISO to the VM's CD drive. You boot from it, select Mini Windows XP, then use MBRFix to repair the MBR. The command is: Mbrfix /drive 0 fixmbr."},
+{cat:"lab04",type:"mc",q:"The command to repair the MBR using MBRFix is:",
+opts:["<code>Mbrfix /drive 0 fixmbr</code>","<code>Mbrfix /repair /all</code>","<code>Mbrfix --restore-mbr</code>","<code>fixboot C:</code>"],ans:0,
+ex:"The sequence is: (1) MbrFix.exe /drive 0 driveinfo (view info), (2) Mbrfix /drive (display info, press y), (3) Mbrfix /drive 0 fixmbr (repair, press y). The VM then boots normally."},
+{cat:"lab04",type:"tf",q:"True or False: An operating system CAN be booted from a logical/extended partition.",
+opts:["True","False"],ans:1,
+ex:"False. The lab states: logical volumes 'are NOT primary partitions and an operating system cannot be booted from these.' Only primary partitions can be bootable. Logical volumes exist within extended partitions."},
+{cat:"lab04",type:"mc",q:"When using Windows 10/11 to replicate Lab 4.1, you must select which partition scheme for the 1.01 GB disk?",
+opts:["GPT","MBR","FAT","NTFS"],ans:1,
+ex:"In Windows 10/11, you must explicitly select MBR (not GPT) when initialising the disk. GPT is the modern default but doesn't have the same 4-partition structure we're studying. The partition wizard is called 'New Simple Volume' (not 'New Partition')."},
+{cat:"lab04",type:"spot",q:'Spot the Error: "The MBR signature is at offset 0x1FE and its value is AA 55. The partition table contains 4 entries of 64 bytes each."',
+opts:["The signature value is 55 AA (not AA 55), and each entry is 16 bytes (not 64)","Only the signature order is wrong — entries ARE 64 bytes","Only the entry size is wrong — the signature IS AA 55","The statement is correct"],ans:0,
+ex:"Two errors: (1) The signature is 55 AA, not AA 55 — byte order matters. (2) Each partition entry is 16 bytes, not 64. The total partition TABLE is 64 bytes (4 × 16 = 64). Confusing the total with per-entry size is a common mistake."},
+{cat:"lab04",type:"mc",q:"Why might a suspect deliberately corrupt the MBR of a disk?",
+opts:["To speed up the computer","To hide data by making the disk appear empty or unbootable","To encrypt their files","To defragment the disk"],ans:1,
+ex:"Corrupting the MBR makes the disk unbootable and may cause the system to report no valid partitions — effectively hiding all data. A DF investigator who understands MBR structure can detect and repair this, or manually locate partitions from the hex dump."},
+{cat:"lab04",type:"mc",q:"The boot loader code in the MBR occupies how many bytes?",
+opts:["64","256","446","512"],ans:2,
+ex:"MBR = 512 bytes total: Boot loader = 446 bytes (0–445), Partition table = 64 bytes (446–509), Signature = 2 bytes (510–511). 446 + 64 + 2 = 512."},
+{cat:"lab04",type:"mc",q:"Each partition table entry contains starting and ending CHS values. What does CHS stand for?",
+opts:["Cluster-Head-Sector","Cylinder-Head-Sector","Cache-Hash-Signature","Control-Hardware-Software"],ans:1,
+ex:"CHS = Cylinder-Head-Sector, the traditional method of addressing locations on a hard disk. Modern systems use LBA (Logical Block Addressing) instead, but MBR entries still contain CHS fields for compatibility."},
+{cat:"lab04",type:"mc",q:"The partition table starts at byte offset:",
+opts:["0 (the very beginning)","256","446","510"],ans:2,
+ex:"Byte 0–445 = boot loader (446 bytes). The partition table starts at byte 446 and runs to byte 509 (64 bytes). Bytes 510–511 are the 55 AA signature."},
+];
+
+// ══════════════════════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════════════════════
+const catMeta = {
+  lab01:{label:"Lab 01 — Linux & VBox",  cls:"cat-lab01", perf:"pl1", color:"var(--lab1)"},
+  lab02:{label:"Lab 02 — DF Foundations", cls:"cat-lab02", perf:"pl2", color:"var(--lab2)"},
+  lab03:{label:"Lab 03 — OS & File Sys",  cls:"cat-lab03", perf:"pl3", color:"var(--lab3)"},
+  lab04:{label:"Lab 04 — MBR & Hiding",   cls:"cat-lab04", perf:"pl4", color:"var(--lab4)"},
+};
+const typeLabels={mc:"Multiple Choice",tf:"True / False",spot:"Spot the Error"};
+let pool=[],current=0,score=0,answered=false,selectedLabs=new Set(["lab01","lab02","lab03","lab04"]);
+const catScores={};
+
+// Build splash
+function buildSplash(){
+  const counts={lab01:0,lab02:0,lab03:0,lab04:0};
+  Q.forEach(q=>counts[q.cat]++);
+  document.getElementById("labCards").innerHTML=Object.keys(catMeta).map(k=>{
+    const n=k.replace("lab0","");
+    return `<div class="lab-card l${n}"><div class="num">${counts[k]}</div><div class="lbl">${catMeta[k].label.split("—")[0].trim()}</div></div>`;
+  }).join("");
+}
+buildSplash();
+
+// Mode bar
+document.querySelectorAll(".mode-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const lab=btn.dataset.lab;
+    if(lab==="all"){
+      selectedLabs=new Set(["lab01","lab02","lab03","lab04"]);
+      document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    } else {
+      document.querySelector('[data-lab="all"]').classList.remove("active");
+      btn.classList.toggle("active");
+      if(btn.classList.contains("active")) selectedLabs.add(lab); else selectedLabs.delete(lab);
+      if(selectedLabs.size===4) {
+        document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
+        document.querySelector('[data-lab="all"]').classList.add("active");
+        selectedLabs=new Set(["lab01","lab02","lab03","lab04"]);
+      }
+      if(selectedLabs.size===0){selectedLabs.add(lab);btn.classList.add("active")}
+    }
+  });
+});
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startQuiz(){
+  pool=shuffle(Q.filter(q=>selectedLabs.has(q.cat)));
+  if(!pool.length) return;
+  current=0;score=0;answered=false;
+  Object.keys(catMeta).forEach(k=>{catScores[k]={right:0,total:0}});
+  document.getElementById("splash").classList.add("hidden");
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("quizArea").classList.remove("hidden");
+  renderQ();
+}
+
+function renderQ(){
+  answered=false;
+  const q=pool[current],cm=catMeta[q.cat];
+  catScores[q.cat].total++;
+  document.getElementById("hdrTitle").textContent=`Q${current+1} / ${pool.length}`;
+  document.getElementById("hdrScore").innerHTML=`✓ ${score}`;
+  document.getElementById("progBar").style.width=`${(current/pool.length)*100}%`;
+  const mk="ABCD";
+  let oh=q.opts.map((o,i)=>`<button class="opt" data-idx="${i}" onclick="pick(${i})"><span class="marker">${mk[i]}</span><span>${o}</span></button>`).join("");
+  document.getElementById("qContainer").innerHTML=`
+    <div class="q-card">
+      <span class="cat-badge ${cm.cls}">${cm.label}</span>
+      <span class="q-type">${typeLabels[q.type]||q.type}</span>
+      <div class="q-counter">Question ${current+1} of ${pool.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${oh}</div>
+      <div id="exArea"></div>
+      <div class="next-wrap hidden" id="nextWrap">
+        <button class="btn btn-primary" onclick="nextQ()">${current<pool.length-1?"Next Question →":"See Results →"}</button>
+      </div>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(idx){
+  if(answered) return;
+  answered=true;
+  const q=pool[current],correct=idx===q.ans;
+  if(correct){score++;catScores[q.cat].right++}
+  document.querySelectorAll(".opt").forEach(o=>{
+    o.classList.add("locked");
+    const i=+o.dataset.idx;
+    if(i===idx&&correct) o.classList.add("correct-pick");
+    else if(i===idx&&!correct) o.classList.add("wrong-pick");
+    if(i===q.ans&&!correct) o.classList.add("show-correct");
+  });
+  document.getElementById("exArea").innerHTML=`<div class="explanation ${correct?'right':'wrong'}"><strong>${correct?"✓ Correct!":"✗ Incorrect."}</strong><br>${q.ex}</div>`;
+  document.getElementById("nextWrap").classList.remove("hidden");
+  document.getElementById("hdrScore").innerHTML=`✓ ${score}`;
+}
+
+function nextQ(){
+  current++;
+  if(current>=pool.length) return showResults();
+  renderQ();
+}
+
+function showResults(){
+  document.getElementById("quizArea").classList.add("hidden");
+  const pct=Math.round(score/pool.length*100);
+  const circ=2*Math.PI*65,offset=circ-(circ*pct/100);
+  let col=pct>=90?"var(--correct)":pct>=70?"var(--accent)":pct>=50?"var(--warn)":"var(--wrong)";
+  let msg=pct>=90?"Outstanding! Total mastery.":pct>=70?"Solid. Review weak areas below.":pct>=50?"Decent, but several topics need work.":"Keep drilling — revisit the notes.";
+  let weak=[];
+  Object.keys(catScores).forEach(k=>{const c=catScores[k];if(c.total>0){const p=Math.round(c.right/c.total*100);if(p<75)weak.push({cat:catMeta[k].label,pct:p,right:c.right,total:c.total})}});
+  let perfH=Object.keys(catScores).filter(k=>catScores[k].total>0).map(k=>{
+    const c=catScores[k],p=Math.round(c.right/c.total*100);
+    const cc=p>=75?"var(--correct)":p>=50?"var(--warn)":"var(--wrong)";
+    return `<div class="perf-card ${catMeta[k].perf}"><div class="cat-name">${catMeta[k].label}</div><div class="cat-score" style="color:${cc}">${c.right}/${c.total} (${p}%)</div></div>`;
+  }).join("");
+  let weakH=weak.length?`<div class="review-section"><h3>⚠ Topics to Review</h3><ul class="review-list">${weak.map(w=>`<li><span class="dot"></span>${w.cat} — ${w.right}/${w.total} (${w.pct}%)</li>`).join("")}</ul></div>`:`<p style="color:var(--correct);margin:18px 0">All categories above 75% — excellent across the board!</p>`;
+  document.getElementById("results").innerHTML=`
+    <h2>Drill Complete</h2>
+    <div class="pct-ring">
+      <svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="65"/><circle class="fg" cx="75" cy="75" r="65" stroke="${col}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" id="ringFg"/></svg>
+      <div class="pct-label" style="color:${col}">${pct}%</div>
+    </div>
+    <p style="font-size:1.1rem;font-weight:600">${score} / ${pool.length} correct</p>
+    <p class="grade-msg">${msg}</p>
+    <h3 style="font-size:.95rem;margin-bottom:8px;color:var(--text-dim)">Performance by Lab</h3>
+    <div class="perf-grid">${perfH}</div>
+    ${weakH}
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="startQuiz()">🔁 Retake</button>
+      <button class="btn btn-secondary" onclick="location.reload()">🏠 Home</button>
+    </div>`;
+  document.getElementById("results").classList.remove("hidden");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById("ringFg").style.strokeDashoffset=offset}));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
