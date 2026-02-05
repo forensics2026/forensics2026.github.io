@@ -1008,32 +1008,6 @@
     z-index:-1;
 }
 
-
-/* ------------------------------------------------------------
-   Banner backgrounds (top bar + hero)
-   ------------------------------------------------------------ */
-.top-bar{
-    background:
-        linear-gradient(90deg, rgba(10,14,23,0.90) 0%, rgba(10,14,23,0.55) 60%, rgba(10,14,23,0.35) 100%),
-        url('videos/banner.webp');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-.top-bar::before,
-.top-bar::after{
-    display: none !important;
-}
-
-.hero-section{
-    background:
-        linear-gradient(135deg, rgba(26,34,52,0.92) 0%, rgba(17,24,39,0.92) 100%),
-        url('videos/banner.webp');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
 </style>
 </head>
 <body>
@@ -1205,7 +1179,13 @@
 <div class="video-container">
 <div class="video-wrapper" id="videoWrapper">
 <div class="video-content" data-week="0"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week0-orientation.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="1" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week1-Intro%20to%20DF.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
+<div class="video-content" data-week="1" style="display: none;">
+<div class="video-placeholder">
+<div class="vp-icon"><i class="bi bi-camera-video"></i></div>
+<div class="vp-title">Week 1 lecture video</div>
+<div class="vp-sub">Replace this placeholder with a <code>&lt;video&gt;</code> tag or an <code>&lt;iframe&gt;</code>.</div>
+<div class="vp-path"><code>videos/week1-intro-to-df.mp4</code></div>
+</div>
 </div>
 <div class="video-content" data-week="2" style="display: none;">
 <div class="video-placeholder">
@@ -1429,9 +1409,6 @@
                         </a>
 <a class="material-btn" href="#videos">
 <i class="bi bi-play-btn"></i> Week 3 Video 
-                        </a>
-<a class="material-btn" href="lectures/Lecture%20Topic%203%20--%20Technical%20Concepts_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture Topic 3 (PDF)
                         </a>
 </div>
 <div class="row g-4">
@@ -1690,7 +1667,7 @@
 <li><i class="bi bi-chevron-right"></i> Imaging / acquisition tool</li>
 </ul>
 <div class="card-materials">
-<a class="material-btn" href="https://drive.google.com/file/d/1GyGOLoCTQbZm6hgk2vWIlxFbvYfBZ5ex/view?usp=drive_link" rel="noopener" target="_blank">
+<a class="material-btn" href="resources/AccessData_FTK_Imager_4.5.0_(x64).exe">
 <i class="bi bi-download"></i> Download
                                     </a>
 </div>
