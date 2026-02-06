@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F20FO Digital Forensics — Ultimate Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e13;--surface:#14171f;--surface2:#1b1f2a;--surface3:#232838;
+  --border:#2a3045;--text:#d4daf0;--text2:#8891ab;--text3:#565e78;
+  --accent:#6ee7b7;--accent2:#34d399;--accent-dim:rgba(110,231,183,.08);
+  --red:#f87171;--red-dim:rgba(248,113,113,.08);
+  --amber:#fbbf24;--amber-dim:rgba(251,191,36,.08);
+  --blue:#60a5fa;
+  --radius:10px;--radius-lg:16px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Source Serif 4',Georgia,serif;line-height:1.65;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(110,231,183,.04),transparent);pointer-events:none;z-index:0}
+
+/* Layout */
+.container{max-width:760px;margin:0 auto;padding:2rem 1.25rem;position:relative;z-index:1}
+h1{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem}
+.subtitle{color:var(--text2);font-size:.95rem;margin-bottom:2.5rem}
+
+/* Progress */
+.progress-wrap{margin-bottom:2rem}
+.progress-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2)}
+.progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.score-display{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text2);display:flex;gap:1.5rem;margin-bottom:2rem}
+.score-display span{color:var(--accent)}
+.score-display .wrong span{color:var(--red)}
+
+/* Question Card */
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.q-badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.q-badge .type-tag{background:var(--surface3);padding:.15rem .55rem;border-radius:4px;color:var(--text2)}
+.q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:1.5rem;color:var(--text)}
+.q-text code{font-family:'JetBrains Mono',monospace;font-size:.88rem;background:var(--surface3);padding:.12rem .4rem;border-radius:4px;color:var(--amber)}
+
+/* Code block inside question */
+.code-block{background:#0a0c10;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin:.75rem 0 1.25rem;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;color:#c9d1d9;overflow-x:auto;white-space:pre}
+
+/* Options */
+.options{display:flex;flex-direction:column;gap:.6rem}
+.option-btn{display:flex;align-items:flex-start;gap:.75rem;width:100%;text-align:left;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:.85rem 1.1rem;cursor:pointer;transition:all .15s ease;font-family:inherit;font-size:.95rem;color:var(--text);line-height:1.5}
+.option-btn:hover:not(.disabled){border-color:var(--accent);background:var(--accent-dim)}
+.option-btn .marker{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:var(--text3);margin-top:1px;transition:all .15s ease}
+.option-btn:hover:not(.disabled) .marker{border-color:var(--accent);color:var(--accent)}
+.option-btn.correct{border-color:var(--accent);background:var(--accent-dim)}
+.option-btn.correct .marker{border-color:var(--accent);background:var(--accent);color:var(--bg)}
+.option-btn.incorrect{border-color:var(--red);background:var(--red-dim)}
+.option-btn.incorrect .marker{border-color:var(--red);background:var(--red);color:var(--bg)}
+.option-btn.disabled{cursor:default;opacity:.65}
+.option-btn.disabled.correct{opacity:1}
+
+/* Feedback */
+.feedback{margin-top:1.25rem;padding:1.1rem 1.25rem;border-radius:var(--radius);font-size:.9rem;line-height:1.65;animation:fadeUp .3s ease}
+.feedback.correct-fb{background:var(--accent-dim);border-left:3px solid var(--accent)}
+.feedback.incorrect-fb{background:var(--red-dim);border-left:3px solid var(--red)}
+.feedback strong{color:var(--accent)}
+.feedback.incorrect-fb strong{color:var(--red)}
+.feedback .explanation{color:var(--text2);margin-top:.4rem}
+
+/* Next button */
+.next-btn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.next-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* Results */
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;text-align:center;animation:fadeUp .5s ease}
+.results-score{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;color:var(--accent);margin:.5rem 0}
+.results-score.low{color:var(--red)}.results-score.mid{color:var(--amber)}
+.results-label{font-size:1rem;color:var(--text2);margin-bottom:2rem}
+.results-bar{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:1.5rem 0 2.5rem}
+.results-bar-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.review-section{text-align:left;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+.review-section h3{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem}
+.topic-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--surface3);font-size:.9rem}
+.topic-item .topic-score{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600}
+.topic-item .topic-score.good{color:var(--accent)}.topic-item .topic-score.ok{color:var(--amber)}.topic-item .topic-score.bad{color:var(--red)}
+.restart-btn{margin-top:2rem;padding:.8rem 2rem;background:transparent;color:var(--accent);border:2px solid var(--accent);border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s ease}
+.restart-btn:hover{background:var(--accent);color:var(--bg)}
+
+/* Start screen */
+.start-screen{text-align:center;padding:4rem 0}
+.start-screen h2{font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--accent);margin-bottom:.75rem}
+.start-screen p{color:var(--text2);max-width:500px;margin:0 auto 2rem;font-size:1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem .75rem}
+.stat-box .num{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--accent)}
+.stat-box .label{font-size:.78rem;color:var(--text3);margin-top:.2rem}
+.start-btn{margin-top:1rem;padding:.9rem 2.5rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.start-btn:hover{background:var(--accent2);transform:translateY(-2px)}
+
+@media(max-width:600px){
+  .container{padding:1.25rem 1rem}
+  .question-card{padding:1.25rem}
+  .stat-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+const QUESTIONS = [
+  // ── COMPUTER SECURITY ──
+  {
+    topic:"Computer Security",type:"mcq",
+    text:"What does the CIA triad stand for in computer security?",
+    options:["Confidentiality, Integrity, Availability","Control, Integrity, Authentication","Confidentiality, Identity, Availability","Compliance, Integrity, Availability"],
+    answer:0,
+    explanation:"The CIA triad is the foundational model: <strong>Confidentiality</strong> (prevent disclosure to unauthorised parties), <strong>Integrity</strong> (protect from intentional or accidental modification), and <strong>Availability</strong> (ensure systems/data are accessible when needed). 'Identity' and 'Compliance' are not part of the triad."
+  },
+  {
+    topic:"Computer Security",type:"mcq",
+    text:"According to the lecture, which of the following is <em>not</em> listed as a security domain?",
+    options:["Physical","Personal","Application","Communications"],
+    answer:2,
+    explanation:"The six security domains listed are: Physical, Personal, Operations, Network, Information, and Communications. <strong>Application</strong> is not listed as a separate domain in the lecture material."
+  },
+  {
+    topic:"Computer Security",type:"tf",
+    text:"True or False: Integrity in computer security refers to protecting system information from <em>intentional</em> modification only.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture defines integrity as protection from <strong>intentional or accidental</strong> modification. Accidental modifications (e.g., software bugs, hardware failures) are also integrity concerns."
+  },
+  {
+    topic:"Computer Security",type:"mcq",
+    text:"Which additional goals of computer security are mentioned alongside the CIA triad?",
+    options:["Authentication, Access Control, Authorisation, Accountability","Encryption, Hashing, Tokenisation","Risk Assessment, Penetration Testing","Firewalling, IDS, Anti-malware"],
+    answer:0,
+    explanation:"The lecture explicitly lists Authentication, Access control, Authorisation (and Anonymity), plus Accountability (maintenance of logs, back-ups, non-repudiation support) as additional goals beyond the CIA triad."
+  },
+  {
+    topic:"Computer Security",type:"tf",
+    text:"True or False: Accountability in computer security supports non-repudiation.",
+    options:["True","False"],
+    answer:0,
+    explanation:"True. The lecture states accountability involves maintenance of logs and back-ups, and provides <strong>support for non-repudiation</strong> — meaning a user cannot deny having performed an action."
+  },
+  {
+    topic:"Computer Security",type:"mcq",
+    text:"Security is defined in the lecture as:",
+    options:["The quality or state of being secure — to be free from danger","The ability to encrypt all data at rest","A software framework for managing access control","A regulatory compliance standard"],
+    answer:0,
+    explanation:"The lecture directly quotes security as: <em>\"The quality or state of being secure — to be free from danger.\"</em> The other options describe specific tools or standards, not the definition itself."
+  },
+  {
+    topic:"Computer Security",type:"mcq",
+    text:"Which of the following is listed as a necessary tool for information security?",
+    options:["Blockchain","Policy","Biometrics","Cloud computing"],
+    answer:1,
+    explanation:"The lecture lists five necessary tools: <strong>policy, awareness, training, education, and technology</strong>. Blockchain, biometrics, and cloud computing are not mentioned in this context."
+  },
+  {
+    topic:"Computer Security",type:"tf",
+    text:"True or False: Users should be able to cause damage to the operating environment if they have administrator privileges.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture states users <strong>cannot cause damage</strong> to the data, application software, or operating environment of a system — regardless of privilege level. This is a security principle, not a permissive rule."
+  },
+
+  // ── CS vs DF ──
+  {
+    topic:"CS vs DF",type:"mcq",
+    text:"What is the key distinction between computer security and digital forensics?",
+    options:["CS focuses on protecting resources; DF focuses on explaining what happened based on digital evidence","CS uses hardware tools; DF uses software tools","CS is proactive; DF is never reactive","They are the same discipline with different names"],
+    answer:0,
+    explanation:"The lecture explicitly states: Computer security is about <strong>protecting resources</strong>, while Digital Forensics aims to explain <strong>what happened</strong> (or is happening) based on digital evidence related to a suspected crime."
+  },
+  {
+    topic:"CS vs DF",type:"tf",
+    text:"True or False: Computer security and digital forensics have zero overlap.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture notes overlap with the <strong>accountability</strong> goal of computer security and states that CS & DF collaborate, e.g., in <strong>incident management</strong>."
+  },
+  {
+    topic:"CS vs DF",type:"mcq",
+    text:"When a computer-related crime occurs, what does a digital forensics practitioner primarily want to know?",
+    options:["Whether the security policy can be improved","What happened, when, and who was involved","How much the incident will cost","Which antivirus software to install"],
+    answer:1,
+    explanation:"The lecture contrasts the two perspectives: a CS practitioner wants to know if the security policy can be improved, while a <strong>DF practitioner wants to know what happened, when, who was involved</strong>, etc."
+  },
+
+  // ── COMPUTER CRIME ──
+  {
+    topic:"Computer Crime",type:"mcq",
+    text:"The lecture contrasts 'low tech crime' versus 'high tech crime'. What example is given for low tech crime?",
+    options:["Phishing attack","Smash & grab robbery using brick, crowbar, mask, bag","Social engineering via email","SQL injection on a database"],
+    answer:1,
+    explanation:"The lecture gives the specific example of a <strong>smash & grab robbery</strong> with brick, crowbar, mask, and bag as a low-tech crime, contrasted with bank account robbery using a computer and network access (high-tech)."
+  },
+  {
+    topic:"Computer Crime",type:"mcq",
+    text:"By 2025, approximately how many devices connect to the Internet according to the lecture?",
+    options:["5 billion","10 billion","More than 20 billion","50 billion"],
+    answer:2,
+    explanation:"The lecture cites that by 2025, <strong>more than 20 billion devices</strong> connect to the Internet, and 152,000 devices connect to a network every minute."
+  },
+  {
+    topic:"Computer Crime",type:"mcq",
+    text:"Which of the following is NOT mentioned as valuable data a person might hold?",
+    options:["Financial details and bank account","Passport or ID card","Social media accounts","Cryptocurrency wallet seed phrases"],
+    answer:3,
+    explanation:"The lecture mentions financial details, bank accounts, passports/ID cards, phones, laptops, messages, photos, and social media. <strong>Cryptocurrency wallet seed phrases</strong> are not specifically mentioned."
+  },
+  {
+    topic:"Computer Crime",type:"mcq",
+    text:"Which security measure can both help AND hinder digital forensics evidence collection?",
+    options:["Using strong passwords only","Encrypting data","Installing a firewall only","Using antivirus software only"],
+    answer:1,
+    explanation:"The lecture explicitly states that security techniques like back-up data <em>help</em> DF evidence collection, while <strong>encrypted data</strong> can <em>hinder</em> it. Encryption protects confidentiality but makes forensic analysis harder."
+  },
+  {
+    topic:"Computer Crime",type:"tf",
+    text:"True or False: Backing up data is listed as a step that helps digital forensics evidence collection.",
+    options:["True","False"],
+    answer:0,
+    explanation:"True. The lecture lists back-up data as an example that <strong>helps</strong> DF evidence collection, as backups can provide copies of evidence even if originals are destroyed."
+  },
+
+  // ── DIGITAL EVIDENCE ──
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"What are the three types of situations involving digital evidence and crime?",
+    options:["Device as weapon, device as shield, device as witness","Device used to conduct crime, device is target of crime, device is used as part of the crime","Device is stolen, device is broken, device is encrypted","Attack, defence, neutral"],
+    answer:1,
+    explanation:"The lecture lists exactly three situations: (1) Device <strong>used to conduct</strong> crime (e.g., fraud), (2) Device <strong>is the target</strong> of crime (e.g., security breach), (3) Device <strong>used as part of</strong> the crime (e.g., smartphone tracking suspect's location)."
+  },
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"Which of the following is an example of a device being <em>used to conduct</em> a crime?",
+    options:["A smartphone tracking a suspect's location","A security breach of a server","Child pornography/exploitation","Incident response after a DDoS attack"],
+    answer:2,
+    explanation:"The lecture lists child pornography/exploitation, threatening letters, fraud/embezzlement, and theft of IP as examples where the <strong>device is used to conduct the crime</strong>. A smartphone tracking location is 'used as part of' the crime; a security breach means the device is the <em>target</em>."
+  },
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"In the car accident scenario, which is listed as <em>digital</em> evidence (vs. physical)?",
+    options:["Skid marks","Witness statements","Car ECU (Engine Control Unit)","Pictures of scene"],
+    answer:2,
+    explanation:"Physical evidence includes skid marks, witness statements, and photos. <strong>Digital evidence</strong> from a car includes the ECU (Engine Control Unit), GPS data, and camera footage."
+  },
+  {
+    topic:"Digital Evidence",type:"tf",
+    text:"True or False: Data collection for digital evidence can follow informal, flexible procedures as long as the evidence is found.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture emphasises that data collection must follow <strong>strict procedures</strong> so evidence is legally admissible and maintains objective trust in results. A <strong>chain of custody</strong> must be maintained from the point of acquisition."
+  },
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"What percentage of criminal investigations in Europe involved mobile devices, according to the lecture?",
+    options:["50%","65%","80%","95%"],
+    answer:2,
+    explanation:"The lecture states that <strong>80%</strong> of all criminal investigations in Europe involved mobile devices, highlighting their critical importance in digital forensics."
+  },
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"A mobile device can have a 'direct' or 'indirect' effect on a crime. Which is an example of an indirect effect?",
+    options:["The device is an instrument of the crime","The device holds data such as contacts, SMS, MMS","The device is used to hack a network","The device is used to send threatening messages"],
+    answer:1,
+    explanation:"The lecture distinguishes: <strong>Direct</strong> = instrument of crime. <strong>Indirect</strong> = holds data such as contacts, SMS, MMS. The device didn't commit the crime but contains useful evidence."
+  },
+  {
+    topic:"Digital Evidence",type:"mcq",
+    text:"Which of the following is NOT listed as a data challenge for digital forensics?",
+    options:["Deleted data","Data is encrypted","Data is stored in the cloud","Computer crashed with unsaved data"],
+    answer:2,
+    explanation:"The lecture lists: deleted data (by someone else), computer crashed with unsaved data, misplaced portable storage, and encrypted data. <strong>Cloud storage</strong> is not specifically listed as a challenge in this section."
+  },
+
+  // ── FORENSICS DEFINITIONS ──
+  {
+    topic:"Forensics Definitions",type:"mcq",
+    text:"How does the lecture define 'forensics'?",
+    options:["The art of hacking computers","The use of scientific methods and technology to solve crimes — process to the legal system","A branch of mathematics","The study of network protocols"],
+    answer:1,
+    explanation:"The lecture defines forensics as <strong>the use of scientific methods and technology to solve crimes</strong>, with a process leading to the legal system. It is then split into Digital Forensics and Analogue Forensics."
+  },
+  {
+    topic:"Forensics Definitions",type:"mcq",
+    text:"Digital Forensics involves four key activities. Which list is correct?",
+    options:["Acquisition, Identification, Evaluation, Presentation","Detection, Analysis, Reporting, Archiving","Collection, Processing, Examination, Testimony","Scanning, Mapping, Extracting, Publishing"],
+    answer:0,
+    explanation:"The lecture explicitly lists: <strong>Acquisition, Identification, Evaluation, Presentation</strong> as the four key activities in digital forensics. It also notes DF is a mix of Computing, Forensic, and Legal expertise."
+  },
+  {
+    topic:"Forensics Definitions",type:"tf",
+    text:"True or False: In digital forensics, procedures must be rigidly followed with no room for flexibility.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture states: <em>\"Procedures are followed, but flexibility is expected and encouraged, because the unusual will be encountered.\"</em> Investigators must adapt to unexpected situations."
+  },
+  {
+    topic:"Forensics Definitions",type:"mcq",
+    text:"What areas of forensics are listed under 'Digital Forensics' in the taxonomy?",
+    options:["Mobile, Computer, Network, Database, Multimedia","Only Computer and Network","Mobile, Cloud, IoT, Blockchain","Hardware, Software, Firmware"],
+    answer:0,
+    explanation:"The lecture's taxonomy shows Digital Forensics subdivided into: <strong>Mobile Forensics, Computer Forensics, Network Forensics, Database Forensics, and Multimedia Forensics</strong>."
+  },
+
+  // ── WHY DF IS DIFFICULT ──
+  {
+    topic:"Challenges",type:"mcq",
+    text:"Which is listed as a reason why forensics and security is difficult?",
+    options:["Too many qualified professionals in the field","Managers unaware of value of computing resources, leading to underfunded security","Forensic tools are too simple to use","Digital evidence never degrades"],
+    answer:1,
+    explanation:"The lecture lists several reasons: managers unaware of the value of computing resources (underfunding), vague potential impacts, vague or non-existent legal definitions, difficulty of legal prosecution, and subtle technical issues."
+  },
+  {
+    topic:"Challenges",type:"tf",
+    text:"True or False: The lecture states that legal definitions related to digital forensics are often vague or non-existent.",
+    options:["True","False"],
+    answer:0,
+    explanation:"True. This is explicitly listed as one of the difficulties: <strong>legal definitions are often vague or non-existent</strong>, making prosecution challenging."
+  },
+
+  // ── INCIDENT MANAGEMENT & BLUE TEAM ──
+  {
+    topic:"Blue Team & IR",type:"mcq",
+    text:"What is the role of a 'Blue Team' in an organisation?",
+    options:["Offensive security — breaking into systems","Defensive security — hardening security, monitoring for intrusions, performing Incident Response","Marketing the organisation's security products","Developing new software features"],
+    answer:1,
+    explanation:"The lecture defines the Blue Team as focused on <strong>defensive security</strong>: hardening security, monitoring for intrusions, performing Incident Response (IR), and preparing/improving the IM plan."
+  },
+  {
+    topic:"Blue Team & IR",type:"mcq",
+    text:"Which of the following is NOT listed as Blue Team knowledge?",
+    options:["Digital Forensics","Vulnerabilities and Threats","Good communication skills","Offensive penetration testing certifications"],
+    answer:3,
+    explanation:"Blue Team knowledge includes: Digital Forensics, Vulnerabilities, Threats, Forensics and security toolkits, and Good communication skills. <strong>Offensive penetration testing certifications</strong> relate more to Red Teams."
+  },
+  {
+    topic:"Blue Team & IR",type:"tf",
+    text:"True or False: After an attack, the Blue Team should update the security policy.",
+    options:["True","False"],
+    answer:0,
+    explanation:"True. The lecture explicitly states that part of the Blue Team's role is to <strong>update security policy after attack</strong> and prepare/improve the incident management plan."
+  },
+
+  // ── VIRTUAL MACHINES ──
+  {
+    topic:"Virtual Machines",type:"mcq",
+    text:"Why are Virtual Machines commonly used in digital forensics investigations?",
+    options:["They are faster than physical machines","They provide safe, controllable environments for investigations","They are cheaper to buy","They automatically decrypt evidence"],
+    answer:1,
+    explanation:"The lecture states: <em>\"Digital Forensics investigations are typically performed in safe, controllable environments.\"</em> VMs allow running guest operating systems within a host without risking the host or contaminating evidence."
+  },
+  {
+    topic:"Virtual Machines",type:"mcq",
+    text:"In VirtualBox terminology, what is the 'host' and what is the 'guest'?",
+    options:["Host = VM software; Guest = physical hardware","Host = the computer running VirtualBox; Guest = the OS running inside the VM","Host = the network; Guest = the user","Host = the hard drive; Guest = the RAM"],
+    answer:1,
+    explanation:"The <strong>host</strong> is the physical computer running the VM software (VirtualBox). The <strong>guest</strong> is the operating system that runs inside the virtual machine."
+  },
+
+  // ── DISK IMAGES ──
+  {
+    topic:"Disk Images",type:"mcq",
+    text:"What is a .iso disk image?",
+    options:["A compressed ZIP archive","An optical disk image — a sector-by-sector copy of a storage device","A forensic bit-by-bit copy","A virtual machine configuration file"],
+    answer:1,
+    explanation:"The lecture defines a .iso as an <strong>optical disk image</strong> (e.g., software from a DVD), which is a sector-by-sector copy of a storage device. It's used to install guest OSes into VM software."
+  },
+  {
+    topic:"Disk Images",type:"mcq",
+    text:"What is the key difference between a .dd (raw) image and an .E01 (EnCase) image?",
+    options:[".dd is compressed; .E01 is not",".E01 supports integrity data (hashes), metadata (investigator notes), and compression; .dd does not include these natively",".dd is newer than .E01",".E01 can only image Linux systems"],
+    answer:1,
+    explanation:"The lecture explains: <strong>.E01</strong> is feature-rich, supporting inclusion of integrity data (hashes), metadata (investigator notes), and image compression within the image file. With a <strong>.dd</strong> file, such information must be maintained or performed separately."
+  },
+  {
+    topic:"Disk Images",type:"mcq",
+    text:"Why are .dd and .E01 formats preferred over .iso for digital forensics?",
+    options:[".iso files are larger",".iso is file-system aware (logical image) and only copies allocated sectors, missing unallocated space; .dd and .E01 are physical (bit-by-bit) copies",".iso files cannot be opened on Windows",".dd files have built-in encryption"],
+    answer:1,
+    explanation:"The lecture states: <em>\"An .iso image is often file-system aware: it only copies sectors referenced by the file system, not including unallocated space. This is a logical image, not a physical image.\"</em> Unallocated space may contain deleted evidence, so <strong>physical images (.dd, .E01) are preferred</strong>."
+  },
+  {
+    topic:"Disk Images",type:"tf",
+    text:"True or False: A logical disk image captures unallocated space on a drive.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. A <strong>logical image</strong> only copies sectors referenced by the file system. It does <strong>not</strong> include unallocated space. A <strong>physical image</strong> (like .dd or .E01) captures the entire drive including unallocated space."
+  },
+  {
+    topic:"Disk Images",type:"mcq",
+    text:"Which VM disk format does VirtualBox use natively?",
+    options:[".vmdk",".vdi",".E01",".iso"],
+    answer:1,
+    explanation:"VirtualBox uses <strong>.vdi (Virtual Disk Image)</strong> as its native format. VMware uses .vmdk. The lecture also notes VirtualBox can import/export VMware files."
+  },
+  {
+    topic:"Disk Images",type:"mcq",
+    text:"VMware uses two key file types. What are they?",
+    options:[".vdi and .iso",".vmx (configuration) and .vmdk (virtual machine disk)",".E01 and .dd",".ova and .ovf"],
+    answer:1,
+    explanation:"The lecture states VMware uses a <strong>.vmx</strong> (virtual machine configuration file) that points to the main image content in a <strong>.vmdk</strong> (virtual machine disk file)."
+  },
+  {
+    topic:"Disk Images",type:"tf",
+    text:"True or False: VirtualBox .vdi and VMware .vmdk files are forensic disk images.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lecture explicitly states: <em>\"These aren't disk images but rather support the portability of a VM.\"</em> They are VM disk formats, not forensic disk images like .dd or .E01."
+  },
+  {
+    topic:"Disk Images",type:"spot",
+    text:"Spot the Error: A student writes in their report: <em>\"We used an .iso image for forensic analysis because it captures the entire physical disk including unallocated space where deleted files may reside.\"</em>",
+    options:["The statement is correct",".iso is a logical image — it does NOT capture unallocated space; a .dd or .E01 should be used instead","The error is that .iso captures too much data",".iso images don't exist"],
+    answer:1,
+    explanation:"The error is that <strong>.iso is file-system aware (logical)</strong> and only copies allocated sectors. It does NOT include unallocated space. For forensic analysis, a <strong>.dd (raw) or .E01 (EnCase)</strong> image should be used as they are physical, bit-by-bit copies."
+  },
+
+  // ── LAB: LINUX ──
+  {
+    topic:"Lab: Linux & VirtualBox",type:"mcq",
+    text:"What is the primary objective of Lab 1.1?",
+    options:["Install Windows on VirtualBox","Get familiarised with the Linux command line","Perform a forensic analysis","Configure a network firewall"],
+    answer:1,
+    explanation:"Lab 1.1 explicitly aims to <strong>get familiarised with the basics of the Linux environment, putting emphasis on the Linux command line</strong>. This is preparatory for later forensics labs."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"mcq",
+    text:"Which LinkedIn Learning course is recommended in Lab 1.1?",
+    options:["Learning Python","Learning Linux Command Line","Learning VirtualBox","Introduction to Cybersecurity"],
+    answer:1,
+    explanation:"Lab 1.1 directs students to the <strong>\"Learning Linux Command Line\"</strong> course on LinkedIn Learning. The \"Learning VirtualBox\" course is referenced in Lab 1.2."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"mcq",
+    text:"What should students do upon completing the LinkedIn Learning Linux course?",
+    options:["Submit a written essay","Download the Certificate of Completion and save a screenshot in their logbook","Email the instructor","Nothing"],
+    answer:1,
+    explanation:"The lab sheet states: upon completing the full course, students are eligible for a <strong>Certificate of Completion</strong> and should download and save a screenshot to their logbook."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"mcq",
+    text:"Which Linux distributions does the lab suggest as examples for installation on VirtualBox?",
+    options:["Kali, Parrot, BlackArch","Ubuntu, openSUSE, Linux Mint, Manjaro","Red Hat, CentOS, Fedora","Debian, Arch, Gentoo"],
+    answer:1,
+    explanation:"The lab sheet lists <strong>Ubuntu, openSUSE, Linux Mint, Manjaro</strong> as example distros. Students can select any Linux distro they prefer."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"tf",
+    text:"True or False: There is a formal submission required at the end of Lab 01.",
+    options:["True","False"],
+    answer:1,
+    explanation:"False. The lab sheet explicitly states: <em>\"There is nothing to submit at the end of this lab.\"</em> However, students are encouraged to log and record their certificate and results in a document."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"mcq",
+    text:"Where can VirtualBox be downloaded according to the lab sheet?",
+    options:["github.com/virtualbox","virtualbox.org/wiki/Downloads","oracle.com/virtualbox","sourceforge.net/virtualbox"],
+    answer:1,
+    explanation:"The lab provides the direct link: <strong>https://www.virtualbox.org/wiki/Downloads</strong> for downloading VirtualBox."
+  },
+  {
+    topic:"Lab: Linux & VirtualBox",type:"spot",
+    text:"Spot the Error: A student says: <em>\"For Lab 01, I need to submit my logbook and screenshots to the instructor before the deadline.\"</em>",
+    options:["The statement is correct","The error is that Lab 01 has no formal submission — students are only encouraged to keep a personal logbook","The error is that screenshots aren't needed","The error is that there is no logbook"],
+    answer:1,
+    explanation:"The lab sheet states: <strong>\"There is nothing to submit at the end of this lab.\"</strong> Students are only <em>encouraged</em> to log results in a personal logbook (e.g., lab01_logbook). There is no formal submission requirement."
+  },
+
+  // ── CROSS-CUTTING / EDGE CASES ──
+  {
+    topic:"Cross-cutting",type:"mcq",
+    text:"Digital forensics is described as a mix of which three disciplines?",
+    options:["Physics, Chemistry, Biology","Computing, Forensic, Legal","Mathematics, Engineering, Law","Psychology, Sociology, Criminology"],
+    answer:1,
+    explanation:"The lecture defines digital forensics as a <strong>mix of Computing, Forensic, and Legal</strong> expertise."
+  },
+  {
+    topic:"Cross-cutting",type:"mcq",
+    text:"What must be maintained from the point of data acquisition to ensure evidence integrity?",
+    options:["A backup drive","A chain of custody","An internet connection","A witness"],
+    answer:1,
+    explanation:"The lecture states: <em>\"Collected data must be done through a <strong>chain of custody</strong> so that its integrity is maintained from the point of its acquisition.\"</em>"
+  },
+  {
+    topic:"Cross-cutting",type:"spot",
+    text:"Spot the Error: <em>\"The EnCase .E01 format is just a raw bit-by-bit copy identical to a .dd file, with no additional features.\"</em>",
+    options:["The statement is correct",".E01 adds integrity data (hashes), metadata (investigator notes), and supports compression — it is NOT identical to .dd",".dd actually has more features than .E01","Neither format supports bit-by-bit copying"],
+    answer:1,
+    explanation:"While both are physical copies, <strong>.E01 is feature-rich</strong>: it supports inclusion of integrity data (hashes), metadata (investigator notes as part of the image file), and image compression. A .dd file requires this information to be maintained separately."
+  },
+  {
+    topic:"Cross-cutting",type:"tf",
+    text:"True or False: Incident management and Blue Teams use combined contributions from computer security and digital forensics experts.",
+    options:["True","False"],
+    answer:0,
+    explanation:"True. The lecture explicitly states: <em>\"Incident management and blue teams used combined contributions from computer security and digital forensics experts.\"</em>"
+  },
+  {
+    topic:"Cross-cutting",type:"mcq",
+    text:"According to the lecture, what did a .dd file originally get its name from?",
+    options:["The 'Data Dump' utility","The Linux <code>dd</code> command (disk duplicate)","'Digital Data' abbreviation","The 'Direct Download' protocol"],
+    answer:1,
+    explanation:"The lecture states: <em>\"Raw (.dd) files. Physical disk copy created by Linux <strong>dd</strong>, and other applications.\"</em> The dd command is a Unix/Linux utility for low-level data copying."
+  },
+  {
+    topic:"Cross-cutting",type:"mcq",
+    text:"What is the 'weakest link' in organisational security, as implied by the lecture?",
+    options:["The firewall","The network","The people (humans)","The operating system"],
+    answer:2,
+    explanation:"The lecture asks <em>\"what is the weakest link?\"</em> in the context of multiple security layers. This is a well-known security principle — <strong>humans (people)</strong> are considered the weakest link, through social engineering, poor passwords, etc."
+  },
+];
+
+// ── Shuffle utility ──
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
+// ── App State ──
+let state={phase:'start',current:0,score:0,wrong:0,answered:false,questions:[],topicScores:{}};
+
+function getTopics(){
+  const t={};
+  state.questions.forEach(q=>{if(!t[q.topic])t[q.topic]={correct:0,total:0};t[q.topic].total++});
+  return t;
+}
+
+function init(){
+  state={phase:'start',current:0,score:0,wrong:0,answered:false,questions:shuffle([...QUESTIONS]),topicScores:{}};
+  state.topicScores=getTopics();
+  render();
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(state.phase==='start')return renderStart(app);
+  if(state.phase==='quiz')return renderQuiz(app);
+  if(state.phase==='results')return renderResults(app);
+}
+
+function renderStart(app){
+  const topics=[...new Set(QUESTIONS.map(q=>q.topic))];
+  app.innerHTML=`
+    <div class="start-screen">
+      <h1>F20FO / F21FO</h1>
+      <h2>Digital Forensics — Ultimate Quiz</h2>
+      <p>Topic 1: Introduction to Digital Forensics & Lab 01. Every concept, every edge case, every detail. Drill until mastery.</p>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="num">${QUESTIONS.length}</div><div class="label">Questions</div></div>
+        <div class="stat-box"><div class="num">${topics.length}</div><div class="label">Topic Areas</div></div>
+        <div class="stat-box"><div class="num">4</div><div class="label">Question Types</div></div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">Begin Drill ▸</button>
+    </div>`;
+}
+
+function startQuiz(){state.phase='quiz';render()}
+
+function renderQuiz(app){
+  const q=state.questions[state.current];
+  const pct=((state.current)/state.questions.length*100).toFixed(0);
+  const typeLabel={mcq:'Multiple Choice',tf:'True / False',spot:'Spot the Error'}[q.type];
+  const markers='ABCD';
+  
+  let optionsHtml=q.options.map((o,i)=>`
+    <button class="option-btn${state.answered?' disabled':''}${state.answered&&i===q.answer?' correct':''}${state.answered&&state.lastPick===i&&i!==q.answer?' incorrect':''}"
+      onclick="pickAnswer(${i})" ${state.answered?'disabled':''}>
+      <span class="marker">${markers[i]}</span>
+      <span>${o}</span>
+    </button>`).join('');
+
+  let feedbackHtml='';
+  if(state.answered){
+    const isCorrect=state.lastPick===q.answer;
+    feedbackHtml=`<div class="feedback ${isCorrect?'correct-fb':'incorrect-fb'}">
+      <strong>${isCorrect?'✓ Correct!':'✗ Incorrect'}</strong>
+      <div class="explanation">${q.explanation}</div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">${state.current<state.questions.length-1?'Next Question →':'See Results →'}</button>`;
+  }
+
+  app.innerHTML=`
+    <h1>Digital Forensics Quiz</h1>
+    <div class="score-display">
+      <div>Correct: <span>${state.score}</span></div>
+      <div class="wrong">Incorrect: <span>${state.wrong}</span></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-header"><span>Question ${state.current+1} of ${state.questions.length}</span><span>${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="q-badge"><span class="type-tag">${typeLabel}</span> ${q.topic}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${optionsHtml}</div>
+      ${feedbackHtml}
+    </div>`;
+}
+
+function pickAnswer(i){
+  if(state.answered)return;
+  state.answered=true;
+  state.lastPick=i;
+  const q=state.questions[state.current];
+  if(i===q.answer){state.score++;state.topicScores[q.topic].correct++}else{state.wrong++}
+  render();
+}
+
+function nextQuestion(){
+  if(state.current>=state.questions.length-1){state.phase='results';render();return}
+  state.current++;state.answered=false;state.lastPick=null;render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderResults(app){
+  const total=state.questions.length;
+  const pct=Math.round(state.score/total*100);
+  const grade=pct>=90?'high':pct>=60?'mid':'low';
+  const barColor=grade==='high'?'var(--accent)':grade==='mid'?'var(--amber)':'var(--red)';
+  const verdict=pct>=90?'Outstanding — you\'ve mastered this material.':pct>=70?'Strong performance. Review the topics below to reach mastery.':pct>=50?'Decent start, but several topics need more attention.':'Significant review needed. Focus on the weak areas below.';
+
+  let topicsHtml=Object.entries(state.topicScores).map(([name,d])=>{
+    const tp=d.total>0?Math.round(d.correct/d.total*100):0;
+    const cls=tp>=80?'good':tp>=50?'ok':'bad';
+    const needs=tp<80?'⟵ Review':'✓';
+    return`<div class="topic-item"><span>${name}</span><span class="topic-score ${cls}">${d.correct}/${d.total} (${tp}%) ${needs}</span></div>`;
+  }).join('');
+
+  app.innerHTML=`
+    <div class="results-card">
+      <h1>Quiz Complete</h1>
+      <div class="results-score ${grade}">${pct}%</div>
+      <div class="results-label">${state.score} of ${total} correct — ${verdict}</div>
+      <div class="results-bar"><div class="results-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      <div class="review-section">
+        <h3>Performance by Topic</h3>
+        ${topicsHtml}
+      </div>
+      <button class="restart-btn" onclick="init()">Retake Quiz ↻</button>
+    </div>`;
+  // animate bar
+  setTimeout(()=>{const b=document.querySelector('.results-bar-fill');if(b)b.style.width=pct+'%'},50);
+}
+
+init();
+</script>
+</body>
+</html>

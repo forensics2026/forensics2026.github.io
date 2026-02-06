@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F20FO Topic 2 & Lab 02 — Ultimate Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0d12;--surface:#12151e;--surface2:#191d2a;--surface3:#212637;
+  --border:#283048;--text:#d2d8ee;--text2:#8790aa;--text3:#545d76;
+  --accent:#a78bfa;--accent2:#8b5cf6;--accent-dim:rgba(167,139,250,.08);
+  --green:#6ee7b7;--green-dim:rgba(110,231,183,.08);
+  --red:#f87171;--red-dim:rgba(248,113,113,.08);
+  --amber:#fbbf24;--amber-dim:rgba(251,191,36,.08);
+  --blue:#60a5fa;
+  --radius:10px;--radius-lg:16px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Source Serif 4',Georgia,serif;line-height:1.65;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 50% -15%,rgba(167,139,250,.05),transparent);pointer-events:none;z-index:0}
+
+.container{max-width:760px;margin:0 auto;padding:2rem 1.25rem;position:relative;z-index:1}
+h1{font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem}
+.subtitle{color:var(--text2);font-size:.95rem;margin-bottom:2.5rem}
+
+.progress-wrap{margin-bottom:2rem}
+.progress-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2)}
+.progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.score-display{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text2);display:flex;gap:1.5rem;margin-bottom:2rem}
+.score-display span{color:var(--green)}
+.score-display .wrong span{color:var(--red)}
+
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.q-badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.q-badge .type-tag{background:var(--surface3);padding:.15rem .55rem;border-radius:4px;color:var(--text2)}
+.q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:1.5rem;color:var(--text)}
+.q-text code{font-family:'JetBrains Mono',monospace;font-size:.86rem;background:var(--surface3);padding:.12rem .4rem;border-radius:4px;color:var(--amber)}
+.q-text em{color:var(--accent);font-style:italic}
+
+.options{display:flex;flex-direction:column;gap:.6rem}
+.option-btn{display:flex;align-items:flex-start;gap:.75rem;width:100%;text-align:left;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:.85rem 1.1rem;cursor:pointer;transition:all .15s ease;font-family:inherit;font-size:.95rem;color:var(--text);line-height:1.5}
+.option-btn:hover:not(.disabled){border-color:var(--accent);background:var(--accent-dim)}
+.option-btn .marker{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:var(--text3);margin-top:1px;transition:all .15s ease}
+.option-btn:hover:not(.disabled) .marker{border-color:var(--accent);color:var(--accent)}
+.option-btn.correct{border-color:var(--green);background:var(--green-dim)}
+.option-btn.correct .marker{border-color:var(--green);background:var(--green);color:var(--bg)}
+.option-btn.incorrect{border-color:var(--red);background:var(--red-dim)}
+.option-btn.incorrect .marker{border-color:var(--red);background:var(--red);color:var(--bg)}
+.option-btn.disabled{cursor:default;opacity:.65}
+.option-btn.disabled.correct{opacity:1}
+
+.feedback{margin-top:1.25rem;padding:1.1rem 1.25rem;border-radius:var(--radius);font-size:.9rem;line-height:1.65;animation:fadeUp .3s ease}
+.feedback.correct-fb{background:var(--green-dim);border-left:3px solid var(--green)}
+.feedback.incorrect-fb{background:var(--red-dim);border-left:3px solid var(--red)}
+.feedback strong{color:var(--green)}
+.feedback.incorrect-fb strong{color:var(--red)}
+.feedback .explanation{color:var(--text2);margin-top:.4rem}
+
+.next-btn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.next-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;text-align:center;animation:fadeUp .5s ease}
+.results-score{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;color:var(--green);margin:.5rem 0}
+.results-score.low{color:var(--red)}.results-score.mid{color:var(--amber)}
+.results-label{font-size:1rem;color:var(--text2);margin-bottom:2rem}
+.results-bar{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:1.5rem 0 2.5rem}
+.results-bar-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.review-section{text-align:left;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+.review-section h3{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem}
+.topic-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--surface3);font-size:.9rem}
+.topic-item .topic-score{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600}
+.topic-item .topic-score.good{color:var(--green)}.topic-item .topic-score.ok{color:var(--amber)}.topic-item .topic-score.bad{color:var(--red)}
+.restart-btn{margin-top:2rem;padding:.8rem 2rem;background:transparent;color:var(--accent);border:2px solid var(--accent);border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s ease}
+.restart-btn:hover{background:var(--accent);color:var(--bg)}
+
+.start-screen{text-align:center;padding:4rem 0}
+.start-screen h2{font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--accent);margin-bottom:.75rem}
+.start-screen p{color:var(--text2);max-width:520px;margin:0 auto 2rem;font-size:1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem .75rem}
+.stat-box .num{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--accent)}
+.stat-box .label{font-size:.78rem;color:var(--text3);margin-top:.2rem}
+.start-btn{margin-top:1rem;padding:.9rem 2.5rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.start-btn:hover{background:var(--accent2);transform:translateY(-2px)}
+
+@media(max-width:600px){
+  .container{padding:1.25rem 1rem}
+  .question-card{padding:1.25rem}
+  .stat-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+const QUESTIONS = [
+  // ═══ DF DEFINITIONS & PROCESS ═══
+  {topic:"DF Definitions",type:"mcq",text:"According to the lecture, what is the output of a digital forensics process?",options:["A software patch","Data that is used as evidence in a court of law","A network security report","A malware signature"],answer:1,explanation:"The lecture states: <em>\"The output of a digital forensics process is to produce data. The data is used as evidence in a court of law that a crime occurred (what, when, who, how).\"</em>"},
+  {topic:"DF Definitions",type:"mcq",text:"What are the three core steps of the digital forensics process?",options:["Detect, Contain, Eradicate","Collection, Analysis, Reporting","Scan, Quarantine, Delete","Encrypt, Decrypt, Archive"],answer:1,explanation:"The DF process is: <strong>Collection</strong> (acquiring data sources), <strong>Analysis</strong> (iterative examination), and <strong>Reporting</strong> (results grounded in evidence). The 4-phase model maps to these same core activities."},
+  {topic:"DF Definitions",type:"tf",text:"True or False: 'Digital forensics' and 'computer forensics' mean exactly the same thing with no distinction.",options:["True","False"],answer:1,explanation:"False. <strong>'Digital forensics'</strong> is now preferred because it more clearly includes technologies beyond traditional computers — phones, cameras, cloud systems, networks, doorbell cameras, etc."},
+  {topic:"DF Definitions",type:"mcq",text:"Which is NOT a tangible goal of digital forensics mentioned in the lecture?",options:["Deleted file recovery","Timeline analysis","Metadata extraction","Network bandwidth optimisation"],answer:3,explanation:"The three tangible DF goals: <strong>Deleted file recovery</strong>, <strong>Timeline analysis</strong> (reconstructing via metadata), and <strong>Metadata extraction</strong> (file owner, origin device). Network bandwidth optimisation is unrelated."},
+  {topic:"DF Definitions",type:"mcq",text:"During the <em>collection</em> phase, which question is the DF practitioner NOT expected to consider?",options:["Should I focus on static data or also RAM?","Should I anticipate encrypted data?","How many devices to examine?","What marketing strategy should the company adopt?"],answer:3,explanation:"Collection-phase questions include: static vs. RAM, anticipating encryption, number of devices, cloud sources. All answered with the investigation team. <strong>Marketing strategy</strong> is irrelevant."},
+  {topic:"DF Definitions",type:"tf",text:"True or False: The analysis phase of DF should remain objective.",options:["True","False"],answer:0,explanation:"True. The lecture states: <em>\"Any 'evaluation' of the data should remain objective.\"</em> Bias can compromise integrity and admissibility."},
+  {topic:"DF Definitions",type:"mcq",text:"The lecture states the DF process steps might vary, but the core activities always include:",options:["Only data collection","Acquire/collect data, Evaluate/analyse data, Report/present results","Only encryption and decryption","Only presenting in court"],answer:1,explanation:"Regardless of naming, DF always involves: <strong>Acquire devices, identify and collect data → Evaluate/analyse the data → Report/present the results</strong>."},
+
+  // ═══ DF EVOLUTION ═══
+  {topic:"DF Evolution",type:"mcq",text:"Who made the first-ever recorded study of fingerprints, and in what year?",options:["Hans Gross in 1893","Albert Osborn in 1910","Francis Galton in 1888","The FBI in 1932"],answer:2,explanation:"<strong>1888 — Francis Galton</strong> made the first recorded study of fingerprints. Hans Gross (1893) applied science to criminal investigation; Albert Osborn (1910) developed evidence documentation."},
+  {topic:"DF Evolution",type:"mcq",text:"What happened in 1984 regarding digital forensics?",options:["First international conference on computer evidence","Scotland Yard Computer Crime Unit & FBI computer forensics departments established","The Computer Misuse Act was passed","IOCE was formed"],answer:1,explanation:"In <strong>1984</strong>, Scotland Yard established the Computer Crime Unit and the FBI created computer forensics departments. Conference = 1993, CMA = 1990, IOCE = 1995."},
+  {topic:"DF Evolution",type:"mcq",text:"What was IOCE, and when was it formed?",options:["International Organisation on Computer Evidence, formed 1995","Internet Operations for Cyber Enforcement, formed 2000","International Office of Criminal Evidence, formed 1990","Institute of Computer Engineering, formed 1984"],answer:0,explanation:"<strong>1995 — IOCE (International Organization on Computer Evidence)</strong> was formed to provide a forum for global law enforcement to exchange information on cyber crime investigation."},
+  {topic:"DF Evolution",type:"mcq",text:"In the 1980s, which tool became the best for finding deleted files?",options:["EnCase","FTK Imager","Norton DiskEdit","Autopsy"],answer:2,explanation:"Mid-1980s: Xtree Gold appeared, then <strong>Norton DiskEdit</strong> became the best tool for finding deleted files. EnCase and FTK are later tools."},
+  {topic:"DF Evolution",type:"mcq",text:"When was the Computer Misuse Act (CMA) passed?",options:["1984","1988","1990","1995"],answer:2,explanation:"The <strong>Computer Misuse Act was passed in 1990</strong>. This is a key UK law addressing unauthorised computer access."},
+  {topic:"DF Evolution",type:"mcq",text:"What characterised the 2000–2010s era?",options:["Only desktops investigated","Mobile device forensics, cloud forensics, live forensics, and network forensics","AI replaced all investigators","Forensics was abandoned"],answer:1,explanation:"The 2000-2010s <strong>Mobile and Cloud Era</strong>: specialized mobile tools, cloud forensics, live forensics/memory analysis, and network forensics."},
+  {topic:"DF Evolution",type:"tf",text:"True or False: The first FBI RCFL was established in 1993.",options:["True","False"],answer:1,explanation:"False. The FBI RCFL was established in <strong>2000</strong>. In 1993, the first international conference on computer evidence was held."},
+  {topic:"DF Evolution",type:"mcq",text:"The 2010s–present era is characterised by:",options:["Return to analogue methods","Big data analytics, machine learning, handling encrypted data/cryptocurrencies, and IoT forensics","Only email forensics","Abandonment of hash verification"],answer:1,explanation:"The lecture describes the current era: <strong>big data analytics, ML for pattern recognition, handling encrypted data/cryptocurrencies, and IoT device forensics</strong>."},
+
+  // ═══ NEED FOR DF ═══
+  {topic:"Need for DF",type:"mcq",text:"Which is NOT listed as a reason for needing digital forensics?",options:["Tracks CSE cases","Saves money and time","Replaces the need for traditional law enforcement","Helps capture info when systems are compromised"],answer:2,explanation:"DF does NOT replace law enforcement. Listed reasons include: ensuring system integrity, capturing info when compromised, extracting/interpreting evidence, tracking criminals, saving money/time, tracking CSE."},
+
+  // ═══ DIGITAL EVIDENCE ═══
+  {topic:"Digital Evidence",type:"mcq",text:"How does the lecture define 'digital evidence'?",options:["Any software on a computer","Any information of probative value stored or transmitted in digital form","Only hard drive data","Scanned documents"],answer:1,explanation:"SWGDE definition: <em>\"Digital Evidence is any information of probative value, which is stored or transmitted in digital form.\"</em>"},
+  {topic:"Digital Evidence",type:"mcq",text:"Which organisation defined the digital evidence standard cited in the lecture?",options:["IOCE","ACPO","SWGDE","FBI"],answer:2,explanation:"<strong>SWGDE — Scientific Working Group on Digital Evidence</strong> (swgde.org). ACPO provides investigation guidelines; IOCE is an international forum."},
+  {topic:"Digital Evidence",type:"mcq",text:"Which is a characteristic of digital evidence?",options:["Always permanent","Data is fragile","Simple to associate with reality","Always small in volume"],answer:1,explanation:"Five characteristics: viewed at different abstraction levels, requires interpretation, <strong>is fragile</strong>, is voluminous, difficult to associate with reality."},
+  {topic:"Digital Evidence",type:"mcq",text:"What are the five rules of collecting electronic evidence?",options:["Fast, Accurate, Digital, Encrypted, Verified","Admissible, Authentic, Complete, Reliable, Believable","Original, Copied, Hashed, Stored, Presented","Collected, Processed, Examined, Analysed, Reported"],answer:1,explanation:"Evidence must be: <strong>Admissible, Authentic, Complete, Reliable, Believable</strong>."},
+  {topic:"Digital Evidence",type:"mcq",text:"Which evidence is MOST volatile?",options:["Hard drive data","Router configuration","Registers and cache","Temporary file systems"],answer:2,explanation:"Volatility order (most → least): <strong>Registers/cache</strong> → Routing tables → Process table → Main memory → Temp file systems → Router config."},
+  {topic:"Digital Evidence",type:"tf",text:"True or False: Main memory (RAM) is more volatile than router configuration.",options:["True","False"],answer:0,explanation:"True. RAM loses data when power is cut; router configuration is typically stored persistently."},
+  {topic:"Digital Evidence",type:"mcq",text:"A search warrant is issued when law enforcement provides:",options:["A written request only","Sufficient proof of probable cause a crime was committed","A verbal statement","An anonymous tip"],answer:1,explanation:"Search warrants require <strong>sufficient proof that there is probable cause a crime has been committed</strong>. The officer must specify premises, things, or persons to be searched."},
+
+  // ═══ CASE STUDIES ═══
+  {topic:"Case Studies",type:"mcq",text:"In Criminal Case 2 (murder), what key evidence convicted suspect A?",options:["Fingerprints on victim's computer","IMEI from phone connected to a tower near the crime scene","CCTV footage","Browser history"],answer:1,explanation:"The <strong>IMEI</strong> from A's phone was used to confirm the phone connected to a mobile tower near the crime scene during the crime window — disproving the alibi."},
+  {topic:"Case Studies",type:"mcq",text:"In Corporate Case 3, how was the Trojan traced to the employee?",options:["IP address matched by police","USB identifier linked back to a company-issued USB","Email logs","Witness testimony"],answer:1,explanation:"The Trojan was installed from a USB. The <strong>identifier from the USB was linked back to the employee via a company-issued USB</strong>. The employee was confronted and admitted guilt."},
+  {topic:"Case Studies",type:"mcq",text:"What does IMEI stand for, and how do you find yours?",options:["International Mobile Equipment Identity — dial *#06#","Internet Mobile Encryption ID — check settings","Integrated Memory Exchange Interface — run diagnostic","International Media Exchange Index — contact carrier"],answer:0,explanation:"<strong>IMEI = International Mobile Equipment Identity</strong>. Dial <code>*#06#</code> on your phone to see it."},
+
+  // ═══ DF METHODOLOGY ═══
+  {topic:"DF Methodology",type:"mcq",text:"What happens during Phase 1 — Acquisition?",options:["Analysing recovered data","Physically or remotely obtaining the computer, network mappings, and external storage","Presenting to court","Writing the final report"],answer:1,explanation:"Phase 1: <strong>Physically or remotely obtaining possession of the computer, all network mappings, and external storage devices</strong>."},
+  {topic:"DF Methodology",type:"mcq",text:"Phase 4 — Presentation must be understood by:",options:["Only forensic experts","Only the judge","Lawyers, non-technical staff/management, and suitable as evidence","Only the suspect"],answer:2,explanation:"Phase 4 requires reporting <strong>understood by lawyers, non-technical staff/management, and suitable as evidence</strong>."},
+
+  // ═══ FORENSIC ASSURANCE & LOCARD ═══
+  {topic:"Forensic Assurance",type:"mcq",text:"'Prevention of contamination of evidence' means:",options:["Deleting irrelevant files","No data corruption introduced during the analysis process","Encrypting all evidence","Sharing evidence with the media"],answer:1,explanation:"<strong>Prevention of contamination</strong> = no data corruption introduced to the computer being investigated during analysis."},
+  {topic:"Forensic Assurance",type:"tf",text:"True or False: The forensic expert must ensure minimum interference with the organisation's normal operations.",options:["True","False"],answer:0,explanation:"True. Explicitly listed as one of the assurances a forensic expert must provide."},
+  {topic:"Forensic Assurance",type:"mcq",text:"Locard's Exchange Principle states:",options:["Digital evidence cannot be recovered","Every contact leaves a trace — serves as a silent witness","Evidence must be encrypted","Only physical evidence is admissible"],answer:1,explanation:"<em>\"Wherever he steps, whatever he touches, whatever he leaves, even unconsciously, will serve as a silent witness against him.\"</em> Originally for traditional forensics, significant for DF too."},
+  {topic:"Forensic Assurance",type:"mcq",text:"Which assurance principle involves complete documentation of the investigation?",options:["Preservation of evidence","Prevention of contamination","Accountability of the evidence","Ethics of investigation"],answer:2,explanation:"<strong>Accountability of the evidence</strong> requires a complete documentation of the investigation procedure. Ethics covers client-attorney privilege; preservation covers not damaging evidence."},
+
+  // ═══ ACPO & STANDARDS ═══
+  {topic:"ACPO & Standards",type:"mcq",text:"ACPO Principle 1 states:",options:["All evidence must be encrypted","No action by law enforcement should change data on a computer that may be relied upon in court","Only digital hard drive evidence is admissible","The forensic expert must testify in person"],answer:1,explanation:"Principle 1: <strong>No action taken by law enforcement should change data</strong> held on a computer or storage media which may be relied upon in court."},
+  {topic:"ACPO & Standards",type:"mcq",text:"ACPO Principle 2 addresses:",options:["Routine backup","Exceptional circumstances where original data must be accessed — person must be competent and explain their actions","Deleting duplicates","Publishing evidence"],answer:1,explanation:"Principle 2: In <strong>exceptional circumstances</strong>, the person accessing original data must be <strong>competent</strong> and able to explain the relevance and implications."},
+  {topic:"ACPO & Standards",type:"mcq",text:"ACPO Principle 3 requires:",options:["Evidence destroyed after trial","An audit trail of all processes; an independent third party should replicate results","Only one examiner handles evidence","Cloud storage required"],answer:1,explanation:"Principle 3: <strong>Audit trail of all processes</strong> must be created. An <strong>independent third party</strong> should achieve the same result — ensuring reproducibility."},
+  {topic:"ACPO & Standards",type:"mcq",text:"Who has overall responsibility under ACPO Principle 4?",options:["Forensic examiner","IT department","The case officer","Court clerk"],answer:2,explanation:"Principle 4: <strong>The case officer (person in charge)</strong> has overall responsibility for ensuring law and principles are followed."},
+  {topic:"ACPO & Standards",type:"mcq",text:"Which ISO standards are mentioned for forensic labs?",options:["ISO 14001, 45001, 50001","ISO 9001, 17025, 27001","ISO 31000, 22301, 20000","ISO 3166, 8601, 4217"],answer:1,explanation:"The lecture lists <strong>ISO 9001, ISO 17025, and ISO 27001</strong>. Individual accreditations: EnCE (EnCase) and ACE (FTK)."},
+  {topic:"ACPO & Standards",type:"mcq",text:"Which is a DISADVANTAGE of standards?",options:["Promote market efficiency","Can constrain innovation and entrench inferior technologies","Enable interoperability","Foster trade"],answer:1,explanation:"When standards work poorly: raise transaction costs, <strong>constrain innovation/entrench inferior technologies</strong>, hinder interoperability."},
+  {topic:"ACPO & Standards",type:"tf",text:"True or False: The UAE adopted its first e-crime law in 2006, first in the GCC.",options:["True","False"],answer:0,explanation:"True. <em>\"Law to address e-crime adopted in 2006 — first in GCC.\"</em> UAE's CPL deals with electronic evidence."},
+
+  // ═══ CHAIN OF CUSTODY ═══
+  {topic:"Chain of Custody",type:"mcq",text:"Chain of custody means:",options:["Keeping evidence locked in a safe","A complete log (time, date, actions, reasons) from seizure to presentation so results can be reproduced","Emailing evidence to prosecution","Only photographing the scene"],answer:1,explanation:"Chain of custody: <strong>complete log (time, date, actions, reasons) from seizure to presentation</strong> so one can follow steps and obtain the same results."},
+  {topic:"Chain of Custody",type:"mcq",text:"In CoC documentation, what belongs in 'Evidence description'?",options:["Case number and lead investigator","Evidence ID, description (name, colour, marking), serial number, location, reason, date/time","Only hash values","Just the suspect's name"],answer:1,explanation:"Evidence description includes: <strong>Evidence ID, Description (name/colour/marking), Serial number, Location, Reason, Date/time</strong>. Case number goes in 'Case description'."},
+  {topic:"Chain of Custody",type:"mcq",text:"In the CoC example, what is recorded as the phone's serial number?",options:["MAC address","SIM number","IMEI","IP address"],answer:2,explanation:"The example records the <strong>IMEI</strong> as the item serial number — it uniquely identifies the mobile device."},
+  {topic:"Chain of Custody",type:"mcq",text:"The CoC log table documents:",options:["Only the final report","The exchange of evidence between people","Software versions used","Internet search history"],answer:1,explanation:"The CoC log table should <strong>document the exchange of evidence between people</strong>. Location is optional for some cases."},
+
+  // ═══ TOOLS & HASHING ═══
+  {topic:"Tools & Hashing",type:"mcq",text:"What is the purpose of a hash function in DF?",options:["Encrypt evidence","Compress for storage","Produce a fixed-length fingerprint validating data integrity","Delete duplicates"],answer:2,explanation:"A hash function produces a <strong>fixed-length output (fingerprint)</strong> that validates data integrity has not been altered."},
+  {topic:"Tools & Hashing",type:"mcq",text:"MD5 and SHA-1 output sizes are:",options:["256-bit and 512-bit","128-bit and 160-bit","64-bit and 128-bit","160-bit and 128-bit"],answer:1,explanation:"<strong>MD5 = 128-bit</strong>, <strong>SHA-1 = 160-bit</strong>. SHA-256 produces 256-bit output."},
+  {topic:"Tools & Hashing",type:"mcq",text:"'Known Files' hash matching has two categories:",options:["Public and private","Innocent files (e.g., OS components) and contraband files (e.g., child pornography, hacker tools)","Encrypted and unencrypted","Local and remote"],answer:1,explanation:"<strong>Innocent files</strong> (MS Windows, off-the-shelf software — safely ignored) and <strong>Contraband files</strong> (child pornography, hacker tools — flagged)."},
+  {topic:"Tools & Hashing",type:"mcq",text:"Forensic data duplication must be stored on:",options:["Any USB drive","Forensically sterile media — no other data, no viruses, no defects","The suspect's computer","Cloud storage"],answer:1,explanation:"<strong>Forensically sterile media</strong>: no other data, no viruses, no defects."},
+  {topic:"Tools & Hashing",type:"mcq",text:"A bitstream copy captures what a standard copy would miss:",options:["Only file names","Hidden files, temp files, deleted files, file fragments, slack space, unallocated space","Just directory structure","Only encrypted files"],answer:1,explanation:"Bitstream copies each physical sector: hidden files, temp files, corrupted files, deleted files, file fragments, <strong>slack space</strong>, and unallocated data."},
+  {topic:"Tools & Hashing",type:"mcq",text:"A hardware write blocker:",options:["Encrypts data","Sits between computer and storage device, preventing writes to the disk","Formats the disk","Speeds up transfer"],answer:1,explanation:"A hardware write blocker <strong>sits in the connection between computer and storage device</strong>, monitors commands, and prevents data being written."},
+  {topic:"Tools & Hashing",type:"tf",text:"True or False: Write blockers are only hardware — no software alternative exists.",options:["True","False"],answer:1,explanation:"False. Lab 02 teaches creating a <strong>software write blocker</strong> via Windows Registry (StorageDevicePolicies key)."},
+
+  // ═══ IMAGING & SSD CHALLENGES ═══
+  {topic:"Imaging & Challenges",type:"mcq",text:"A 'forensic duplicate' is:",options:["A compressed ZIP","A bit-for-bit copy of the original disk","A screenshot of the file system","Only user files"],answer:1,explanation:"Forensic duplicate = <strong>bit-for-bit copies of the original disk (full disk or some partitions)</strong>."},
+  {topic:"Imaging & Challenges",type:"mcq",text:"A 'digital artefact' is defined as:",options:["A physical device","A reproducible file, setting, or system change that occurs every time an app/OS performs an action","An encrypted file","A backup copy"],answer:1,explanation:"Digital artefact = <strong>a reproducible file, setting or system change occurring every time an application or OS performs an action</strong>."},
+  {topic:"Imaging & Challenges",type:"mcq",text:"Which SSD-specific issues cause unallocated space to be overwritten earlier than on HDDs?",options:["Defragmentation and compression","Program-Erase Cycles and Wear Levelling","Encryption and decryption","Partitioning and formatting"],answer:1,explanation:"<strong>Program-Erase Cycles</strong> (write-erase-rewrite) and <strong>Wear Levelling</strong> (distributing rewrites evenly) can overwrite unallocated space earlier on SSDs."},
+  {topic:"Imaging & Challenges",type:"mcq",text:"Which is NOT a current digital evidence challenge?",options:["Pervasive encryption","RAM-only malware","Cloud computing","Decreasing storage device sizes"],answer:3,explanation:"Challenge is <strong>increasing</strong> storage sizes, not decreasing. Other challenges: embedded flash, OS proliferation, multi-device analysis, encryption, cloud, RAM-only malware, legal limits."},
+
+  // ═══ FORENSIC TOOLS & SUITES ═══
+  {topic:"Forensic Tools",type:"mcq",text:"Which tool is 'most used by LEA and private companies'?",options:["FTK Imager","ProDiscover","Guidance Software — EnCase","CAINE"],answer:2,explanation:"<strong>EnCase</strong> is described as most used by LEA and private companies with good support."},
+  {topic:"Forensic Tools",type:"mcq",text:"CAINE and PALADIN are:",options:["Hardware write blockers","Linux live distributions with open-source forensic tool collections","Windows-only commercial suites","Cloud services"],answer:1,explanation:"<strong>CAINE</strong> (Computer Aided INvestigative Environment) and <strong>PALADIN</strong> are both Linux live distributions containing forensic tools used by LEAs."},
+  {topic:"Forensic Tools",type:"mcq",text:"DD imaging integrity verification involves:",options:["Compare file sizes only","Create MD5 checksums of original disk and image, then compare","Run antivirus on both","Check file names match"],answer:1,explanation:"DD process: Create MD5 of disk → dd image → Create MD5 of image → <strong>Compare checksums</strong>. Match = faithful copy."},
+
+  // ═══ LAB 02: VM SETUP ═══
+  {topic:"Lab 02: VM Setup",type:"mcq",text:"Default Windows 10 VM credentials in Lab 02:",options:["Admin / admin123","IEUser / Passw0rd!","Student / HWU2025","root / toor"],answer:1,explanation:"<strong>User: IEUser, Password: Passw0rd!</strong> (note the zero)."},
+  {topic:"Lab 02: VM Setup",type:"mcq",text:"The Windows 10 VM is valid for:",options:["30 days","60 days","90 days","Indefinitely"],answer:2,explanation:"Valid for <strong>90 days</strong>. Take a snapshot when first added to VirtualBox."},
+  {topic:"Lab 02: VM Setup",type:"mcq",text:"What command enables UEFI firmware on restart?",options:["shutdown /s /t 0","reboot --uefi","shutdown /r /fw /t 0","bcdedit /set firmware"],answer:2,explanation:"<code>shutdown /r /fw /t 0</code> — /r=restart, /fw=firmware (UEFI), /t 0=no delay."},
+  {topic:"Lab 02: VM Setup",type:"tf",text:"True or False: Lab 02 requires a formal submission.",options:["True","False"],answer:1,explanation:"False. <em>\"There is nothing to submit at the end of this lab.\"</em>"},
+
+  // ═══ LAB 02: FILE PROPERTIES ═══
+  {topic:"Lab 02: File Properties",type:"mcq",text:"A file attribute is:",options:["The file's encryption key","Metadata that describes or is associated with a computer file","Physical location on disk","Network address"],answer:1,explanation:"<strong>Metadata</strong> describing a file: creation date, modification date, size, extension, permissions."},
+  {topic:"Lab 02: File Properties",type:"mcq",text:"After enabling hidden files on C:, you should see:",options:["cmd.exe and notepad.exe","hiberfil.sys, msdia80.dll, pagefile.sys, swapfile.sys","boot.ini and config.sys","Nothing new"],answer:1,explanation:"<strong>hiberfil.sys, msdia80.dll, pagefile.sys, swapfile.sys</strong> — system files normally hidden from basic users."},
+  {topic:"Lab 02: File Properties",type:"spot",text:"Spot the Error: <em>\"I left default Windows Explorer settings because they show all file information needed for forensic investigation.\"</em>",options:["Correct","Default settings HIDE important info — must enable hidden files, show extensions, show system files","Windows Explorer can't be used for forensics","Only Linux shows hidden files"],answer:1,explanation:"Default settings <strong>hide</strong> important forensic data. <em>\"Microsoft like to hide things from basic users.\"</em> Must change Folder Options."},
+
+  // ═══ LAB 02: WRITE BLOCKER ═══
+  {topic:"Lab 02: Write Blocker",type:"mcq",text:"Registry path for the software write blocker:",options:["HKEY_CURRENT_USER\\Software\\USB","HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control","HKEY_CLASSES_ROOT\\StorageDevices","HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\USB"],answer:1,explanation:"Navigate to <strong>HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control</strong>, then create the StorageDevicePolicies key."},
+  {topic:"Lab 02: Write Blocker",type:"mcq",text:"The new Registry key under Control is named:",options:["USBWriteBlock","StorageDevicePolicies","WriteProtection","USBProtect"],answer:1,explanation:"Create key named <strong>StorageDevicePolicies</strong>. Inside it, create DWORD value called WriteProtect."},
+  {topic:"Lab 02: Write Blocker",type:"mcq",text:"WriteProtect = 1 means:",options:["Write protection OFF","Write protection ON (USB writes blocked)","Format the USB","Delete the key"],answer:1,explanation:"<strong>1 = ON</strong> (writes blocked), <strong>0 = OFF</strong> (writes allowed)."},
+  {topic:"Lab 02: Write Blocker",type:"mcq",text:"How to automate toggling write protection:",options:["PowerShell script","Export StorageDevicePolicies as .REG files — one On (value=1), one Off (value=0), double-click to toggle","Group Policy only","Manual edit each time"],answer:1,explanation:"Export as .reg files: 'USB Write Protection On' (value=1) and 'USB Write Protection Off' (value=0). Double-click to apply."},
+  {topic:"Lab 02: Write Blocker",type:"spot",text:"Spot the Error: <em>\"I set WriteProtect to 0 to enable USB write protection on my forensic workstation.\"</em>",options:["Correct","WriteProtect=0 DISABLES protection; need WriteProtect=1 to ENABLE","Key should be USBProtection","Cannot modify registry in Windows"],answer:1,explanation:"<strong>0 = OFF</strong>, <strong>1 = ON</strong>. The student has values backwards — evidence media could be written to!"},
+
+  // ═══ LAB 02: FTK IMAGER ═══
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"FTK Imager is described as:",options:["Network monitor","A data preview and imaging tool for assessing electronic evidence","Dark web browser","Disk defragmenter"],answer:1,explanation:"<strong>Data preview and imaging tool</strong> for quick assessment and creating forensic images."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"FTK Imager supports which hash functions?",options:["SHA-256 and SHA-512","MD5 and SHA-1","CRC32 and Adler32","HMAC and BLAKE2"],answer:1,explanation:"Supports <strong>MD5</strong> and <strong>SHA-1</strong> for verifying image integrity."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"The Evidence Tree pane displays:",options:["Running processes","Evidence items in a hierarchical tree with sources at root","Only deleted files","Network connections"],answer:1,explanation:"<strong>Evidence Tree</strong> (upper-left): hierarchical tree of evidence items, sources at root, folders/files below."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"Image types available in FTK Imager:",options:["Only Raw (dd)","Raw (dd), SMART, E01, AFF","Only E01 and AFF","ISO and VDI"],answer:1,explanation:"Four types: <strong>Raw (dd), SMART, E01, AFF</strong>."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"Source evidence types in FTK Imager include:",options:["Only Physical Drive","Physical Drive, Logical Drive, Image File, Contents of a Folder, Fernico Device","Only Image File","Physical Drive and Network Share"],answer:1,explanation:"Five sources: <strong>Physical Drive, Logical Drive, Image File, Contents of a Folder, Fernico Device</strong>. 'Contents of a Folder' is logical-only."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"In real scenarios, what connects between forensic station and evidence device?",options:["Network switch","Hardware-based write blocker","USB hub","Power supply"],answer:1,explanation:"A <strong>hardware-based write blocker</strong> prevents the OS from altering the original source drive."},
+  {topic:"Lab 02: FTK Imager",type:"tf",text:"True or False: FTK Imager can recover files deleted from the Recycle Bin not yet overwritten.",options:["True","False"],answer:0,explanation:"True. FTK Imager can <strong>see and recover files deleted from the Recycle Bin but not yet overwritten</strong>."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"A SID folder in Recycler is:",options:["Compressed archive","Security Identifier folder — each user account has a unique SID for their recycled files","System log","Encryption container"],answer:1,explanation:"<strong>SID = Security Identifier</strong>. Each Windows user has a unique SID; their deleted files go in their SID folder."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"A SID ending in 500 indicates:",options:["Guest account","Service account","Built-in Administrator account","Deleted user"],answer:2,explanation:"SID ending in <strong>500 = built-in Administrator</strong>. SIDs ending in 1000+ are regular user accounts."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"The INFO2 file in Recycler contains:",options:["System config","Names of files in Recycle Bin and files deleted/restored (restored = no drive letter)","Encryption keys","Bookmarks"],answer:1,explanation:"INFO2 lists <strong>names of Recycle Bin files and deleted/restored files</strong>. Restored files have no drive letter."},
+  {topic:"Lab 02: FTK Imager",type:"mcq",text:"index.dat in TIF Netmail contains:",options:["User credentials","Browser usage information — cookies, history, TIF files","OS logs","Installed software"],answer:1,explanation:"<strong>Browser usage information: cookies, history, TIF files</strong> — valuable for web activity timelines."},
+  {topic:"Lab 02: FTK Imager",type:"spot",text:"Spot the Error: <em>\"I selected 'Contents of a Folder' in FTK Imager to capture all data including deleted files and unallocated space.\"</em>",options:["Correct","'Contents of a Folder' is logical-only and EXCLUDES deleted/unallocated — use Physical Drive instead","FTK cannot image folders","E01 doesn't support folders"],answer:1,explanation:"'Contents of a Folder' = <strong>logical file-level analysis only; excludes deleted, unallocated</strong>. Must use Physical Drive for complete capture."},
+];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let state={phase:'start',current:0,score:0,wrong:0,answered:false,questions:[],topicScores:{}};
+function getTopics(){const t={};state.questions.forEach(q=>{if(!t[q.topic])t[q.topic]={correct:0,total:0};t[q.topic].total++});return t}
+function init(){state={phase:'start',current:0,score:0,wrong:0,answered:false,questions:shuffle([...QUESTIONS]),topicScores:{}};state.topicScores=getTopics();render()}
+function render(){const app=document.getElementById('app');if(state.phase==='start')return renderStart(app);if(state.phase==='quiz')return renderQuiz(app);if(state.phase==='results')return renderResults(app)}
+
+function renderStart(app){
+  const topics=[...new Set(QUESTIONS.map(q=>q.topic))];
+  app.innerHTML=`<div class="start-screen"><h1>F20FO / F21FO</h1><h2>Topic 2 & Lab 02 — Ultimate Quiz</h2><p>Digital Forensics & Digital Evidence, DF Evolution, ACPO Guidelines, Chain of Custody, Hashing, Write Blockers, FTK Imager, and full Lab 02 procedures. Every detail drilled.</p><div class="stat-grid"><div class="stat-box"><div class="num">${QUESTIONS.length}</div><div class="label">Questions</div></div><div class="stat-box"><div class="num">${topics.length}</div><div class="label">Topic Areas</div></div><div class="stat-box"><div class="num">4</div><div class="label">Question Types</div></div></div><button class="start-btn" onclick="startQuiz()">Begin Drill ▸</button></div>`;
+}
+function startQuiz(){state.phase='quiz';render()}
+
+function renderQuiz(app){
+  const q=state.questions[state.current];const pct=((state.current)/state.questions.length*100).toFixed(0);
+  const typeLabel={mcq:'Multiple Choice',tf:'True / False',spot:'Spot the Error'}[q.type];const markers='ABCD';
+  let opts=q.options.map((o,i)=>`<button class="option-btn${state.answered?' disabled':''}${state.answered&&i===q.answer?' correct':''}${state.answered&&state.lastPick===i&&i!==q.answer?' incorrect':''}" onclick="pickAnswer(${i})" ${state.answered?'disabled':''}><span class="marker">${markers[i]}</span><span>${o}</span></button>`).join('');
+  let fb='';
+  if(state.answered){const ok=state.lastPick===q.answer;fb=`<div class="feedback ${ok?'correct-fb':'incorrect-fb'}"><strong>${ok?'✓ Correct!':'✗ Incorrect'}</strong><div class="explanation">${q.explanation}</div></div><button class="next-btn" onclick="nextQuestion()">${state.current<state.questions.length-1?'Next Question →':'See Results →'}</button>`}
+  app.innerHTML=`<h1>Topic 2 & Lab 02 Quiz</h1><div class="score-display"><div>Correct: <span>${state.score}</span></div><div class="wrong">Incorrect: <span>${state.wrong}</span></div></div><div class="progress-wrap"><div class="progress-header"><span>Question ${state.current+1} of ${state.questions.length}</span><span>${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div><div class="question-card"><div class="q-badge"><span class="type-tag">${typeLabel}</span> ${q.topic}</div><div class="q-text">${q.text}</div><div class="options">${opts}</div>${fb}</div>`;
+}
+
+function pickAnswer(i){if(state.answered)return;state.answered=true;state.lastPick=i;const q=state.questions[state.current];if(i===q.answer){state.score++;state.topicScores[q.topic].correct++}else{state.wrong++}render()}
+function nextQuestion(){if(state.current>=state.questions.length-1){state.phase='results';render();return}state.current++;state.answered=false;state.lastPick=null;render();window.scrollTo({top:0,behavior:'smooth'})}
+
+function renderResults(app){
+  const total=state.questions.length;const pct=Math.round(state.score/total*100);
+  const grade=pct>=90?'high':pct>=60?'mid':'low';const barColor=grade==='high'?'var(--green)':grade==='mid'?'var(--amber)':'var(--red)';
+  const verdict=pct>=90?'Outstanding — complete mastery of Topic 2 & Lab 02.':pct>=70?'Strong performance. Review topics flagged below.':pct>=50?'Decent, but several areas need attention.':'Significant review needed. Focus on weak areas below.';
+  let topicsHtml=Object.entries(state.topicScores).map(([n,d])=>{const tp=d.total>0?Math.round(d.correct/d.total*100):0;const c=tp>=80?'good':tp>=50?'ok':'bad';return`<div class="topic-item"><span>${n}</span><span class="topic-score ${c}">${d.correct}/${d.total} (${tp}%) ${tp<80?'⟵ Review':'✓'}</span></div>`}).join('');
+  app.innerHTML=`<div class="results-card"><h1>Quiz Complete</h1><div class="results-score ${grade}">${pct}%</div><div class="results-label">${state.score} of ${total} correct — ${verdict}</div><div class="results-bar"><div class="results-bar-fill" style="width:0%;background:${barColor}"></div></div><div class="review-section"><h3>Performance by Topic</h3>${topicsHtml}</div><button class="restart-btn" onclick="init()">Retake Quiz ↻</button></div>`;
+  setTimeout(()=>{const b=document.querySelector('.results-bar-fill');if(b)b.style.width=pct+'%'},50);
+}
+init();
+</script>
+</body>
+</html>
