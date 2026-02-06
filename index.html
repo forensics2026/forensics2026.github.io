@@ -1012,6 +1012,329 @@ isolation: isolate;
 .top-bar::after{
     display:none !important;
 }
+/* ============================================
+   FLOATING MUSIC PLAYER
+   ============================================ */
+@keyframes waveformBounce {
+    0%   { height: 30%; }
+    100% { height: 100%; }
+}
+
+.music-fab {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 6rem;
+    z-index: 1050;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #0e7490, #06b6d4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(6,182,212,0.3);
+}
+
+.music-fab:hover { transform: scale(1.1); }
+.music-fab.playing {
+    box-shadow: 0 0 20px rgba(6,182,212,0.6), 0 0 40px rgba(6,182,212,0.3);
+}
+
+.music-fab .waveform-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 24px;
+}
+
+.music-fab .waveform-bars .bar {
+    width: 3px;
+    border-radius: 2px;
+    background: #fff;
+    transition: height 0.3s ease;
+}
+
+.music-fab.playing .bar { animation: waveformBounce 0.6s ease-in-out infinite alternate; }
+.music-fab .bar:nth-child(1) { height: 60%; animation-delay: 0s; }
+.music-fab .bar:nth-child(2) { height: 80%; animation-delay: 0.15s; }
+.music-fab .bar:nth-child(3) { height: 100%; animation-delay: 0.3s; }
+.music-fab .bar:nth-child(4) { height: 70%; animation-delay: 0.1s; }
+.music-fab .bar:nth-child(5) { height: 90%; animation-delay: 0.25s; }
+
+.music-player-panel {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1049;
+    width: 340px;
+    max-height: 540px;
+    background: linear-gradient(180deg, #1e293b, #0f172a);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(6,182,212,0.15), 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    transform: translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.music-player-panel.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.15rem;
+    border-bottom: 1px solid rgba(6,182,212,0.15);
+}
+
+.mp-header .mp-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.mp-header .mp-title i { color: var(--accent-cyan); }
+
+.mp-header .mp-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.mp-header .mp-close:hover { background: rgba(255,255,255,0.1); }
+
+.mp-now-playing { padding: 0.85rem 1.15rem 0; }
+.mp-now-playing .mp-track-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mp-now-playing .mp-track-artist {
+    font-size: 0.8rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-visualizer {
+    padding: 0.5rem 1.15rem;
+}
+
+.mp-visualizer canvas {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+}
+
+.mp-controls { padding: 0 1.15rem 0.5rem; }
+
+/* Progress bar */
+.mp-progress { margin-bottom: 0.5rem; }
+
+.mp-progress input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #334155;
+    outline: none;
+    cursor: pointer;
+}
+
+.mp-progress input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #06b6d4;
+    border: 2px solid #0e7490;
+    cursor: pointer;
+}
+
+.mp-progress input[type=range]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #06b6d4;
+    border: 2px solid #0e7490;
+    cursor: pointer;
+}
+
+.mp-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Buttons row */
+.mp-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mp-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mp-btn:hover { color: #e2e8f0; transform: scale(1.1); }
+.mp-btn.active { color: #06b6d4; }
+
+.mp-btn-play {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #0e7490, #06b6d4);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(6,182,212,0.4);
+    transition: transform 0.2s;
+}
+
+.mp-btn-play:hover { transform: scale(1.1); }
+
+/* Volume */
+.mp-volume {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
+}
+
+.mp-volume input[type=range] {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: #334155;
+    outline: none;
+    cursor: pointer;
+}
+
+.mp-volume input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #06b6d4;
+    border: 2px solid #0e7490;
+}
+
+.mp-volume input[type=range]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #06b6d4;
+    border: 2px solid #0e7490;
+}
+
+/* Playlist */
+.mp-playlist {
+    border-top: 1px solid rgba(6,182,212,0.1);
+    padding: 0.5rem 0.75rem 0.75rem;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.mp-playlist-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+    padding: 0.25rem 0.4rem 0.5rem;
+}
+
+.mp-playlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.mp-playlist-item:hover { background: rgba(255,255,255,0.05); }
+.mp-playlist-item.active {
+    background: rgba(6,182,212,0.12);
+    border-left-color: #06b6d4;
+}
+
+.mp-playlist-item .mp-pl-name {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-playlist-item.active .mp-pl-name { color: #e2e8f0; }
+
+.mp-playlist-item .mp-pl-artist {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.mp-playlist-item .mp-pl-dur {
+    font-size: 0.7rem;
+    color: #475569;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+
+/* Responsive: move FAB when sidebar is hidden */
+@media (max-width: 1024px) {
+    .music-fab { right: 1.5rem; bottom: 5.5rem; }
+    .music-player-panel { right: 1rem; bottom: 5.5rem; width: 310px; }
+}
+
+@media (max-width: 480px) {
+    .music-player-panel { width: calc(100vw - 2rem); right: 1rem; left: 1rem; }
+}
 </style>
 </head>
 <body>
@@ -1789,6 +2112,54 @@ isolation: isolate;
 </div>
 </footer>
 </main>
+<!-- ============================================ -->
+<!-- FLOATING MUSIC PLAYER                        -->
+<!-- ============================================ -->
+<button class="music-fab" id="musicFab" title="Music Player">
+    <div class="waveform-bars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+</button>
+
+<div class="music-player-panel" id="musicPanel">
+    <div class="mp-header">
+        <div class="mp-title"><i class="bi bi-music-note-beamed"></i> Music Player</div>
+        <button class="mp-close" id="mpClose"><i class="bi bi-chevron-down"></i></button>
+    </div>
+    <div class="mp-now-playing">
+        <div class="mp-track-title" id="mpTrackTitle">No track selected</div>
+        <div class="mp-track-artist" id="mpTrackArtist">—</div>
+    </div>
+    <div class="mp-visualizer">
+        <canvas id="mpCanvas" width="300" height="60"></canvas>
+    </div>
+    <div class="mp-controls">
+        <div class="mp-progress">
+            <input type="range" id="mpSeek" min="0" max="100" value="0" step="0.1">
+            <div class="mp-time">
+                <span id="mpTimeCurrent">0:00</span>
+                <span id="mpTimeTotal">0:00</span>
+            </div>
+        </div>
+        <div class="mp-buttons">
+            <button class="mp-btn" id="mpShuffle" title="Shuffle"><i class="bi bi-shuffle"></i></button>
+            <button class="mp-btn" id="mpPrev" title="Previous"><i class="bi bi-skip-start-fill"></i></button>
+            <button class="mp-btn-play" id="mpPlayPause" title="Play"><i class="bi bi-play-fill" id="mpPlayIcon"></i></button>
+            <button class="mp-btn" id="mpNext" title="Next"><i class="bi bi-skip-end-fill"></i></button>
+            <button class="mp-btn" id="mpRepeat" title="Repeat"><i class="bi bi-arrow-repeat" id="mpRepeatIcon"></i></button>
+        </div>
+        <div class="mp-volume">
+            <button class="mp-btn" id="mpMute" title="Mute"><i class="bi bi-volume-up" id="mpVolIcon"></i></button>
+            <input type="range" id="mpVolume" min="0" max="1" step="0.01" value="0.7">
+        </div>
+    </div>
+    <div class="mp-playlist" id="mpPlaylist">
+        <div class="mp-playlist-title">Playlist</div>
+    </div>
+</div>
+
+<audio id="mpAudio" preload="metadata"></audio>
+
 </div>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -2074,6 +2445,321 @@ isolation: isolate;
         document.querySelectorAll('.content-card, .assessment-card').forEach(card => {
             observer.observe(card);
         });
+    // ============================================
+    // FLOATING MUSIC PLAYER ENGINE
+    // ============================================
+    (function() {
+        const playlist = [
+            { title: 'Cyber Pulse',       artist: 'Digital Forensics OST', src: 'audio/track1.mp3', duration: 215 },
+            { title: 'Network Drift',     artist: 'Digital Forensics OST', src: 'audio/track2.mp3', duration: 188 },
+            { title: 'Encrypted Echoes',  artist: 'Digital Forensics OST', src: 'audio/track3.mp3', duration: 243 },
+            { title: 'Binary Rain',       artist: 'Digital Forensics OST', src: 'audio/track4.mp3', duration: 197 },
+            { title: 'Packet Storm',      artist: 'Digital Forensics OST', src: 'audio/track5.mp3', duration: 226 },
+        ];
+
+        const audio     = document.getElementById('mpAudio');
+        const fab       = document.getElementById('musicFab');
+        const panel     = document.getElementById('musicPanel');
+        const closeBtn  = document.getElementById('mpClose');
+        const playBtn   = document.getElementById('mpPlayPause');
+        const playIcon  = document.getElementById('mpPlayIcon');
+        const prevBtn   = document.getElementById('mpPrev');
+        const nextBtn   = document.getElementById('mpNext');
+        const seekBar   = document.getElementById('mpSeek');
+        const timeCur   = document.getElementById('mpTimeCurrent');
+        const timeTotal = document.getElementById('mpTimeTotal');
+        const volSlider = document.getElementById('mpVolume');
+        const muteBtn   = document.getElementById('mpMute');
+        const volIcon   = document.getElementById('mpVolIcon');
+        const shuffBtn  = document.getElementById('mpShuffle');
+        const repBtn    = document.getElementById('mpRepeat');
+        const repIcon   = document.getElementById('mpRepeatIcon');
+        const titleEl   = document.getElementById('mpTrackTitle');
+        const artistEl  = document.getElementById('mpTrackArtist');
+        const plContainer = document.getElementById('mpPlaylist');
+        const canvas    = document.getElementById('mpCanvas');
+        const canvasCtx = canvas.getContext('2d');
+
+        let currentIndex = 0;
+        let isPlaying    = false;
+        let shuffleOn    = false;
+        let repeatMode   = 'off'; // off, all, one
+        let shuffleOrder = [];
+        let audioCtx, analyser, source, animFrame;
+
+        // Format seconds → m:ss
+        function fmt(s) {
+            if (!s || isNaN(s)) return '0:00';
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m + ':' + String(sec).padStart(2, '0');
+        }
+
+        // Build playlist DOM
+        function renderPlaylist() {
+            const titleDiv = plContainer.querySelector('.mp-playlist-title');
+            plContainer.innerHTML = '';
+            plContainer.appendChild(titleDiv);
+
+            playlist.forEach((t, i) => {
+                const div = document.createElement('div');
+                div.className = 'mp-playlist-item' + (i === currentIndex ? ' active' : '');
+                div.innerHTML = `
+                    <div style="overflow:hidden">
+                        <div class="mp-pl-name">${t.title}</div>
+                        <div class="mp-pl-artist">${t.artist}</div>
+                    </div>
+                    <span class="mp-pl-dur">${fmt(t.duration)}</span>
+                `;
+                div.addEventListener('click', () => playTrack(i));
+                plContainer.appendChild(div);
+            });
+        }
+
+        // Load & play a specific track
+        function playTrack(index) {
+            currentIndex = index;
+            const track = playlist[currentIndex];
+            audio.src = track.src;
+            audio.load();
+            titleEl.textContent = track.title;
+            artistEl.textContent = track.artist;
+            audio.play().then(() => {
+                isPlaying = true;
+                updatePlayState();
+            }).catch(() => {});
+            renderPlaylist();
+        }
+
+        // Update play/pause visual state
+        function updatePlayState() {
+            if (isPlaying) {
+                playIcon.classList.remove('bi-play-fill');
+                playIcon.classList.add('bi-pause-fill');
+                fab.classList.add('playing');
+            } else {
+                playIcon.classList.remove('bi-pause-fill');
+                playIcon.classList.add('bi-play-fill');
+                fab.classList.remove('playing');
+            }
+        }
+
+        // Shuffle order generation
+        function generateShuffleOrder() {
+            shuffleOrder = playlist.map((_, i) => i);
+            for (let i = shuffleOrder.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
+            }
+        }
+
+        function getNextIndex() {
+            if (shuffleOn) {
+                const pos = shuffleOrder.indexOf(currentIndex);
+                return shuffleOrder[(pos + 1) % shuffleOrder.length];
+            }
+            return (currentIndex + 1) % playlist.length;
+        }
+
+        function getPrevIndex() {
+            if (shuffleOn) {
+                const pos = shuffleOrder.indexOf(currentIndex);
+                return shuffleOrder[(pos - 1 + shuffleOrder.length) % shuffleOrder.length];
+            }
+            return (currentIndex - 1 + playlist.length) % playlist.length;
+        }
+
+        // Setup Web Audio API visualizer
+        function initVisualizer() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            source = audioCtx.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+        }
+
+        function drawVisualizer() {
+            animFrame = requestAnimationFrame(drawVisualizer);
+            if (!analyser) return;
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+
+            const w = canvas.width;
+            const h = canvas.height;
+            canvasCtx.clearRect(0, 0, w, h);
+
+            const barCount = 32;
+            const barWidth = w / barCount - 2;
+            const step = Math.floor(bufferLength / barCount);
+
+            for (let i = 0; i < barCount; i++) {
+                const value = dataArray[i * step];
+                const barHeight = (value / 255) * h * 0.85;
+                const x = i * (barWidth + 2);
+                const y = h - barHeight;
+
+                const gradient = canvasCtx.createLinearGradient(x, y, x, h);
+                gradient.addColorStop(0, '#06b6d4');
+                gradient.addColorStop(1, '#0e7490');
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fillRect(x, y, barWidth, barHeight);
+            }
+        }
+
+        function stopVisualizer() {
+            cancelAnimationFrame(animFrame);
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- EVENT LISTENERS ---
+
+        // Toggle panel
+        fab.addEventListener('click', () => {
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) fab.style.display = 'none';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            panel.classList.remove('open');
+            fab.style.display = 'flex';
+        });
+
+        // Play / Pause
+        playBtn.addEventListener('click', () => {
+            if (!audio.src || audio.src === window.location.href) {
+                playTrack(0);
+                return;
+            }
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                stopVisualizer();
+            } else {
+                initVisualizer();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                audio.play().catch(() => {});
+                isPlaying = true;
+                drawVisualizer();
+            }
+            updatePlayState();
+        });
+
+        // Skip
+        nextBtn.addEventListener('click', () => playTrack(getNextIndex()));
+        prevBtn.addEventListener('click', () => {
+            if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+            playTrack(getPrevIndex());
+        });
+
+        // Seek
+        seekBar.addEventListener('input', () => {
+            audio.currentTime = parseFloat(seekBar.value);
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            if (!seekBar.matches(':active')) {
+                seekBar.value = audio.currentTime;
+            }
+            timeCur.textContent = fmt(audio.currentTime);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            seekBar.max = audio.duration;
+            timeTotal.textContent = fmt(audio.duration);
+        });
+
+        audio.addEventListener('durationchange', () => {
+            seekBar.max = audio.duration;
+            timeTotal.textContent = fmt(audio.duration);
+        });
+
+        // Track ended
+        audio.addEventListener('ended', () => {
+            if (repeatMode === 'one') {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } else {
+                const next = getNextIndex();
+                if (repeatMode === 'off' && next === 0 && !shuffleOn) {
+                    isPlaying = false;
+                    updatePlayState();
+                    stopVisualizer();
+                } else {
+                    playTrack(next);
+                }
+            }
+        });
+
+        // Audio play/pause events for visualizer sync
+        audio.addEventListener('play', () => {
+            initVisualizer();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            isPlaying = true;
+            updatePlayState();
+            drawVisualizer();
+        });
+
+        audio.addEventListener('pause', () => {
+            isPlaying = false;
+            updatePlayState();
+            stopVisualizer();
+        });
+
+        // Volume
+        volSlider.addEventListener('input', () => {
+            audio.volume = parseFloat(volSlider.value);
+            audio.muted = false;
+            updateVolIcon();
+        });
+
+        muteBtn.addEventListener('click', () => {
+            audio.muted = !audio.muted;
+            updateVolIcon();
+        });
+
+        function updateVolIcon() {
+            if (audio.muted || audio.volume === 0) {
+                volIcon.className = 'bi bi-volume-mute';
+            } else if (audio.volume < 0.5) {
+                volIcon.className = 'bi bi-volume-down';
+            } else {
+                volIcon.className = 'bi bi-volume-up';
+            }
+        }
+
+        // Shuffle
+        shuffBtn.addEventListener('click', () => {
+            shuffleOn = !shuffleOn;
+            shuffBtn.classList.toggle('active', shuffleOn);
+            if (shuffleOn) generateShuffleOrder();
+        });
+
+        // Repeat
+        repBtn.addEventListener('click', () => {
+            if (repeatMode === 'off') {
+                repeatMode = 'all';
+                repBtn.classList.add('active');
+                repIcon.className = 'bi bi-arrow-repeat';
+            } else if (repeatMode === 'all') {
+                repeatMode = 'one';
+                repIcon.className = 'bi bi-repeat-1';
+            } else {
+                repeatMode = 'off';
+                repBtn.classList.remove('active');
+                repIcon.className = 'bi bi-arrow-repeat';
+            }
+        });
+
+        // Init
+        audio.volume = 0.7;
+        titleEl.textContent = playlist[0].title;
+        artistEl.textContent = playlist[0].artist;
+        renderPlaylist();
+    })();
     </script>
 </body>
 </html>
