@@ -221,7 +221,6 @@
             max-height: 400px;
             overflow-y: auto;
             display: none;
-            z-index: 2000;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
@@ -1005,8 +1004,8 @@
 /* Top bar banner background (local asset) */
 .top-bar{
     background: transparent !important;
-    overflow: visible;
-isolation: isolate;
+    overflow: hidden;
+    isolation: isolate;
 }
 .top-bar::before,
 .top-bar::after{
@@ -1177,14 +1176,37 @@ isolation: isolate;
 <button class="video-tab active" data-week="0">Intro</button>
 <button class="video-tab" data-week="1">Week 1</button>
 <button class="video-tab" data-week="2">Week 2</button>
-<button class="video-tab" data-week="3">Week 3–4</button>
+<button class="video-tab" data-week="3">Week 3</button>
+<button class="video-tab" data-week="4">Week 4</button>
 </div>
 <div class="video-container">
 <div class="video-wrapper" id="videoWrapper">
 <div class="video-content" data-week="0"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week0-orientation.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
 <div class="video-content" data-week="1" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week1-Intro%20to%20DF.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="2" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week2-digital-evidence.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="3" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week3-4-linux-artefacts.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
+<div class="video-content" data-week="2" style="display: none;">
+<div class="video-placeholder">
+<div class="vp-icon"><i class="bi bi-camera-video"></i></div>
+<div class="vp-title">Week 2 lecture video</div>
+<div class="vp-sub">Keep naming consistent so you don’t hunt links later.</div>
+<div class="vp-path"><code>videos/week2-digital-evidence.mp4</code></div>
+</div>
+</div>
+<div class="video-content" data-week="3" style="display: none;">
+<div class="video-placeholder">
+<div class="vp-icon"><i class="bi bi-camera-video"></i></div>
+<div class="vp-title">Week 3 lab walkthrough</div>
+<div class="vp-sub">Good place for Linux commands + artefacts demo.</div>
+<div class="vp-path"><code>videos/week3-linux-artefacts.mp4</code></div>
+</div>
+</div>
+<div class="video-content" data-week="4" style="display: none;">
+<div class="video-placeholder">
+<div class="vp-icon"><i class="bi bi-camera-video"></i></div>
+<div class="vp-title">Week 4 technical concepts</div>
+<div class="vp-sub">Topic 3 content + Lab 04 (data hiding/recovery) walkthrough.</div>
+<div class="vp-path"><code>videos/week4-technical-concepts.mp4</code></div>
+</div>
+</div>
 </div>
 <div class="video-info">
 <h3 class="video-title" id="videoTitle">Intro — Orientation</h3>
@@ -1266,10 +1288,6 @@ isolation: isolate;
 <i class="bi bi-file-play"></i> Video 2 (MP4)
                         </a>
 
-
-<a class="material-btn" href="quizzes/Quiz-topic1-lab1.html" rel="noopener" target="_blank">
-<i class="bi bi-lightning"></i> Quiz (Topic 1 / Lab 1)
-</a>
 </div>
 <div class="row g-4">
 <div class="col-lg-6">
@@ -1333,13 +1351,6 @@ isolation: isolate;
 <a class="material-btn" href="#videos">
 <i class="bi bi-play-btn"></i> Week 2 Video 
                         </a>
-
-<a class="material-btn" href="videos/week2-digital-evidence.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Video (MP4)
-</a>
-<a class="material-btn" href="quizzes/Quiz-topic2-lab2.html" rel="noopener" target="_blank">
-<i class="bi bi-lightning"></i> Quiz (Topic 2 / Lab 2)
-</a>
 </div>
 <div class="row g-4">
 <div class="col-lg-6">
@@ -1399,10 +1410,6 @@ isolation: isolate;
 <a class="material-btn" href="#videos">
 <i class="bi bi-play-btn"></i> Week 3 Video 
                         </a>
-
-<a class="material-btn" href="videos/week3-4-linux-artefacts.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Week 3–4 Video (MP4)
-</a>
 </div>
 <div class="row g-4">
 <div class="col-lg-6">
@@ -1488,10 +1495,6 @@ isolation: isolate;
 <a class="material-btn" href="#videos">
 <i class="bi bi-play-btn"></i> Week 4 Video 
                         </a>
-
-<a class="material-btn" href="videos/week3-4-linux-artefacts.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Week 3–4 Video (MP4)
-</a>
 </div>
 <div class="row g-4">
 <div class="col-lg-6">
@@ -1622,7 +1625,6 @@ isolation: isolate;
 </div>
 </div>
 </div>
-
 <div class="col-lg-6">
 <div class="content-card quiz-card" data-search="quiz topic 3 technical concepts week 4 digital forensics practice">
 <div class="card-header">
@@ -1638,44 +1640,6 @@ isolation: isolate;
 </ul>
 <div class="card-materials">
 <a class="material-btn" href="quizzes/Topic3_Lab03_Ultimate_Quiz.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz topic 1 lab 1 intro to digital forensics week 1 practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-topic1-lab1" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Quiz — Topic 1 / Lab 1</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Week 1 fundamentals + Lab 01 basics</li>
-<li><i class="bi bi-chevron-right"></i> Good warm-up before Labs and exams</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Quiz-topic1-lab1.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz topic 2 lab 2 digital evidence week 2 practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-topic2-lab2" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Quiz — Topic 2 / Lab 2</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Evidence integrity, chain of custody, hashing</li>
-<li><i class="bi bi-chevron-right"></i> Matches Week 2 lecture + Lab 02 workflow</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Quiz-topic2-lab2.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
 </div>
 </div>
 </div>
@@ -2018,7 +1982,8 @@ isolation: isolate;
             '0': { title: 'Intro — Orientation', duration: 'TBD', topic: 'Dubai introduction + course setup' },
             '1': { title: 'Week 1 — Intro to DF', duration: 'TBD', topic: 'Fundamentals + workflow overview' },
             '2': { title: 'Week 2 — Digital Evidence', duration: 'TBD', topic: 'Evidence, integrity, handling, acquisition vs analysis' },
-            '3': { title: 'Week 3–4 — Linux Artefacts', duration: 'TBD', topic: 'Linux artefacts + Topic 3 technical concepts walkthrough' }
+            '3': { title: 'Week 3 — Linux Artefacts', duration: 'TBD', topic: 'Linux commands + artefact hunting walkthrough' },
+            '4': { title: 'Week 4 — Technical Concepts', duration: 'TBD', topic: 'Topic 3 concepts + Lab 04 hiding/recovery' }
         };
 
         const setActiveVideoWeek = (week) => {
