@@ -2,13 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>F20FO CW1 Context Pack</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #eee; }
+        h2 { color: #e67e22; margin-top: 30px; border-left: 5px solid #e67e22; padding-left: 10px; }
+        h3 { color: #2980b9; }
+        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        pre { background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .requirement-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .important { color: #c0392b; font-weight: bold; }
+        hr { border: 0; border-top: 1px solid #ddd; margin: 40px 0; }
+    </style>
 </head>
 <body>
-    <h1>ls -lh ~/dc3dd_out/sample.dd
-tail -n 25 ~/dc3dd_out/dc3dd.log
-sha256sum ~/dc3dd_out/sample.dd | tee ~/dc3dd_out/sample.dd.sha256
-</h1>
+
+    <h1>F20FO CW1 Context Pack (2025–26)</h1>
+    <p>According to the <strong>F20FO CW1 coursework sheet</strong>, your job is to build a specific prototype DF lab with strict deliverables. Use this as your single source of truth.</p>
+
+    <hr>
+
+    <section id="requirements">
+        <h2>CW1 Non-Negotiable Requirements</h2>
+        <h3>What the coursework <em>actually</em> requires</h3>
+        <ul>
+            <li>Build a <strong>prototype virtual DF lab</strong> with <strong>two VMs</strong>: one Windows + one Linux (no security-suites like Kali).</li>
+            <li>Install <strong>at least two distinct DF tools on each VM</strong> (4 total).</li>
+            <li>Evaluate <strong>2 tools total</strong> (1 Windows, 1 Linux) using literature and practical findings.</li>
+            <li>Provide <strong>3 practical examples per evaluated tool</strong> (6 total).</li>
+            <li>Evidence resources from labs <em>can</em> be used for examples.</li>
+        </ul>
+
+        <h3>Video + Report Rules</h3>
+        <div class="requirement-box">
+            <p><span class="important">Video:</span> Max 5 minutes. >5 mins = <strong>Zero marks</strong>.</p>
+            <p><span class="important">Report:</span> 1500 words ±10%. No first-person language. Must include diagrams and references.</p>
+        </div>
+
+        <h3>The "No Lab Tools" Rule</h3>
+        <p>It is not a hard ban, but the rubric flags "All tools from labs" as weak. To hit the top-band marks, <strong>select two tools not covered in lab sessions</strong> for your deep evaluation.</p>
+    </section>
+
+    <hr>
+
+    <section id="phase-1">
+        <h2>Phase 1 Summary: VM &amp; Networking</h2>
+        <h3>Goal</h3>
+        <p>Proof of communication (ping) between Windows and Debian VMs without using security-specific distros.</p>
+
+        <h3>Verified Configuration</h3>
+        <pre><code># Check OS and Disk Install
+cat /etc/os-release
+df -h /
+
+# Verify Network (Target: 10.0.2.15/24)
+ip a</code></pre>
+
+        <h3>Networking Setup (NAT Network)</h3>
+        <ol>
+            <li><strong>Create Network:</strong> VirtualBox Tools > Network Manager > NAT Networks.</li>
+            <li><strong>Name:</strong> <code>ForensicsNet</code> | <strong>Prefix:</strong> <code>10.0.2.0/24</code>.</li>
+            <li><strong>Apply:</strong> Settings > Network > Attached to: NAT Network.</li>
+        </ol>
+
+        <h3>Verification Commands</h3>
+        <p><strong>Windows (Allow Ping):</strong></p>
+        <pre><code>netsh advfirewall firewall add rule name="Allow ICMPv4" protocol=icmpv4:8,any dir=in action=allow</code></pre>
+        <p><strong>Debian (Test Connection):</strong></p>
+        <pre><code>ping -c 4 [WINDOWS_IP]</code></pre>
+    </section>
+
+    <hr>
+
+    <section id="housekeeping">
+        <h2>VM Housekeeping</h2>
+        <ul>
+            <li><strong>Shutdown:</strong> Use normal shutdown. Take <strong>one snapshot</strong> only when Phase 2 tools are stable.</li>
+            <li><strong>ISO:</strong> Disconnect the Debian ISO from storage settings to prevent rebooting into the installer.</li>
+            <li><strong>Windows VM:</strong> The <code>MSEdge - Win10.ova</code> is acceptable. Import via <em>File > Import Appliance</em>.</li>
+        </ul>
+    </section>
+
+    <hr>
+
+    <section id="phase-2">
+        <h2>Phase 2: Tool Installation Objective</h2>
+        <p>Install 4 tools, select 2 for deep evaluation, and ensure they are not "lab tools" if aiming for high marks.</p>
+        <pre><code># Commands you will need frequently:
+sudo apt update
+ipconfig / ip a
+ping [target_ip]</code></pre>
+    </section>
+
 </body>
 </html>
