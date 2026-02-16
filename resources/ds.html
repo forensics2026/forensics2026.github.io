@@ -3,62 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #24292e; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #24292e; }
         h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 1.5em; }
-        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 90%; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 92%; }
         pre { background-color: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; border: 1px solid #dfe1e4; font-family: monospace; }
         ul { padding-left: 2em; }
         li { margin-bottom: 0.5em; }
-        strong { color: #000; }
+        .checklist { list-style-type: none; padding-left: 0; }
+        .checklist li:before { content: "✅ "; }
+        strong { color: #d73a49; } /* Subtle red for emphasis */
     </style>
 </head>
 <body>
 
-    <p>You’re fine. Your mount is working. <code>dc3dd</code> is failing because your <code>dc3dd</code> build does <strong>NOT</strong> accept <code>bs=...</code>. So stop using <code>bs=</code> entirely.</p>
-    <p>Also stop chaining random commands on one line — Linux doesn’t “guess” you meant to run 3 commands.</p>
+    <p>You hit a dead end with <code>dc3dd</code>, and it’s not because you’re stupid — it’s because your <code>dc3dd</code> build is refusing the dd-style keywords (<code>bs=</code>, <code>count=</code>). You can waste hours brute-forcing syntax, or you can be smart and stop.</p>
 
-    <h3>What we’re trying to do with dc3dd (1 sentence)</h3>
-    <p>Make a small forensic copy from the mounted E01 stream (<code>/mnt/ewf/ewf1</code>) and generate a hash to prove integrity. That’s it.</p>
+    <h3>What that error means</h3>
+    <p><code>unrecognized option bs=...</code> / <code>unrecognized option count=...</code> = your <code>dc3dd</code> binary is not accepting those parameters on this system. So you can’t do the “small sample copy” demo the way we planned.</p>
 
-    <h3>Do this now (fresh run, no bs=)</h3>
-    <p>Copy/paste exactly:</p>
-    <pre><code>mkdir -p ~/dc3dd_out
-sudo rm -f ~/dc3dd_out/sample.dd ~/dc3dd_out/dc3dd_sample.log ~/dc3dd_out/sample.dd.sha256
+    <h3>The important part</h3>
+    <p><strong>You do NOT need dc3dd practical examples.</strong><br>
+    CW1 only demands 3 examples each for the 2 evaluated tools (Foremost + Autopsy). <code>dc3dd</code> only needs a brief description + proof it’s installed.</p>
 
-sudo dc3dd if=/mnt/ewf/ewf1 of=/home/vboxuser/dc3dd_out/sample.dd count=131072 hash=sha256 log=/home/vboxuser/dc3dd_out/dc3dd_sample.log</code></pre>
-    <p><strong>Why count=131072?</strong> With the default block size (usually 512 bytes) that’s ~64MB. Fast enough, big enough to look real.</p>
+    <hr>
 
-    <h3>Now run these one at a time:</h3>
-    <pre><code>ls -lh ~/dc3dd_out/sample.dd
-tail -n 30 ~/dc3dd_out/dc3dd_sample.log
-sha256sum ~/dc3dd_out/sample.dd | tee ~/dc3dd_out/sample.dd.sha256</code></pre>
-    <p>If <code>sample.dd</code> exists and <code>tail</code> shows it completed, you’re done with <code>dc3dd</code>.</p>
-
-    <h3>What evidence to collect for the report (for what you just did)</h3>
-    <p>You need screenshots, not essays. Save these:</p>
-
-    <strong>Foremost evidence (Linux evaluated tool – 3 examples)</strong>
-    <ul>
-        <li><strong>Mount proof:</strong> <code>sudo ls -la /mnt/ewf</code> → shows <code>ewf1</code></li>
-        <li><strong>Default carve output:</strong> <code>ls -la ~/foremost_out1 | head</code> → shows folders + <code>audit.txt</code></li>
-        <li><strong>Audit trail:</strong> <code>head -n 40 ~/foremost_out1/audit.txt</code></li>
-        <li><strong>Targeted carve output:</strong> <code>ls -la ~/foremost_out2 | head</code></li>
+    <h2>Debian status right now</h2>
+    
+    <ul class="checklist">
+        <li><strong>Foremost (evaluated tool)</strong> — DONE once you captured these screenshots:
+            <ul>
+                <li><strong>Mount proof:</strong> <code>sudo ls -la /mnt/ewf</code> (show <code>ewf1</code>)</li>
+                <li><strong>Default carve output:</strong> <code>ls -la ~/foremost_out1 | head</code></li>
+                <li><strong>Audit trail:</strong> <code>head -n 40 ~/foremost_out1/audit.txt</code></li>
+                <li><strong>Targeted carve:</strong> <code>ls -la ~/foremost_out2 | head</code></li>
+            </ul>
+        </li>
+        <li><strong>dc3dd (non-evaluated tool)</strong> — only collect this and move on:
+            <pre><code>dc3dd --help | head -n 40</code></pre>
+            <p>In the report: <em>"dc3dd is a forensic imaging tool installed as the second Linux tool; Foremost was selected for deep evaluation."</em></p>
+        </li>
     </ul>
 
-    <strong>dc3dd evidence (Linux “second tool” – proof it works)</strong>
+    <hr>
+
+    <h2>Windows Phase 4 — Autopsy WITHOUT fighting E01</h2>
+    <p>Autopsy being slow + not seeing the image = you stop feeding it E01. You’ll give Autopsy a folder of artefacts instead (Logical Files). This is valid for CW examples and way easier.</p>
+
+    <h3>Step A — Move carved artefacts to Windows</h3>
+    <p>Pick a small set: <code>audit.txt</code> and a handful of recovered files (jpg/zip). Copy them to your shared folder:</p>
+    <pre><code>mkdir -p ~/share_to_windows
+cp -r ~/foremost_out1 ~/share_to_windows/</code></pre>
+
+    <h3>Step B — Autopsy 3 examples (fast, guaranteed)</h3>
+    <ol>
+        <li><strong>New Case:</strong> Add Data Source → Logical Files → select the folder <code>foremost_out1</code>.</li>
+        <li><strong>Keyword Search:</strong> Search for "password", "login", or "PK". <em>(Capture results screenshot)</em>.</li>
+        <li><strong>File Metadata:</strong> Pick a recovered <code>.jpg</code> or <code>.txt</code> and show the preview/metadata.</li>
+    </ol>
+
+    <hr>
+
+    <h2>Evidence checklist to save now</h2>
+    
+    <p><strong>Debian (Phase 3)</strong></p>
     <ul>
-        <li><strong>dc3dd log tail:</strong> <code>tail -n 30 ~/dc3dd_out/dc3dd_sample.log</code></li>
-        <li><strong>Hash output:</strong> <code>sha256sum ... | tee ...</code></li>
+        <li>Fig-P3-L1: <code>/mnt/ewf</code> showing <code>ewf1</code></li>
+        <li>Fig-P3-L2: <code>ls ~/foremost_out1 | head</code></li>
+        <li>Fig-P3-L3: <code>head audit.txt</code></li>
+        <li>Fig-P3-L4: <code>ls ~/foremost_out2 | head</code></li>
+        <li>Fig-P3-L5: <code>dc3dd --help | head</code> (tool proof only)</li>
     </ul>
-    <p>That’s it. Don’t bloat it.</p>
 
-    <h3>What’s next for Debian?</h3>
-    <p>Nothing important. Debian side is essentially finished once <code>dc3dd</code> sample works.</p>
+    <p><strong>Windows (Phase 4)</strong></p>
+    <ul>
+        <li>Fig-P4-W1: Autopsy case + logical data source added</li>
+        <li>Fig-P4-W2: Keyword search results</li>
+        <li>Fig-P4-W3: File preview/extraction/metadata</li>
+    </ul>
 
-    <h3>Next overall step = Windows Phase 4</h3>
-    <p>You now go to Windows and get 3 Windows examples (Autopsy OR MFTECmd). If Autopsy keeps wasting time, you switch and evaluate MFTECmd instead — better to finish cleanly than die on Autopsy.</p>
-
-    <p>Run the <code>dc3dd</code> command above and tell me: does <code>ls -lh ~/dc3dd_out/sample.dd</code> show a file now?</p>
+    <p><strong>Did you successfully copy <code>foremost_out1</code> into Windows (yes/no)?</strong></p>
 
 </body>
 </html>
