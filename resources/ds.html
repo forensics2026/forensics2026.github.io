@@ -4,40 +4,61 @@
     <meta charset="UTF-8">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #24292e; }
-        h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
-        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; }
+        h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 1.5em; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 90%; }
         pre { background-color: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; border: 1px solid #dfe1e4; font-family: monospace; }
         ul { padding-left: 2em; }
         li { margin-bottom: 0.5em; }
+        strong { color: #000; }
     </style>
 </head>
 <body>
 
-    <p>Good news: mount is fine and your E01 is there. The only issue now is <code>dc3dd</code> syntax.</p>
-    <p>It aborted because it thinks <code>bs=4M</code> is an “option”. That happens when <code>dc3dd</code> expects GNU-style <code>bs=4M</code> is NOT accepted on your build and wants <code>bs=4096k</code> or <code>bs=4m</code> (lowercase), or you accidentally pasted a weird character before <code>bs</code>.</p>
-    <p>Stop fighting it. Use a safe block size that <code>dc3dd</code> definitely accepts.</p>
+    <p>You’re fine. Your mount is working. <code>dc3dd</code> is failing because your <code>dc3dd</code> build does <strong>NOT</strong> accept <code>bs=...</code>. So stop using <code>bs=</code> entirely.</p>
+    <p>Also stop chaining random commands on one line — Linux doesn’t “guess” you meant to run 3 commands.</p>
 
-    <h3>Run this (copy/paste)</h3>
+    <h3>What we’re trying to do with dc3dd (1 sentence)</h3>
+    <p>Make a small forensic copy from the mounted E01 stream (<code>/mnt/ewf/ewf1</code>) and generate a hash to prove integrity. That’s it.</p>
+
+    <h3>Do this now (fresh run, no bs=)</h3>
+    <p>Copy/paste exactly:</p>
     <pre><code>mkdir -p ~/dc3dd_out
-sudo dc3dd if=/mnt/ewf/ewf1 of=/home/vboxuser/dc3dd_out/sample.dd bs=4096k count=64 hash=sha256 log=/home/vboxuser/dc3dd_out/dc3dd.log</code></pre>
+sudo rm -f ~/dc3dd_out/sample.dd ~/dc3dd_out/dc3dd_sample.log ~/dc3dd_out/sample.dd.sha256
 
-    <h3>Then proof commands (separately):</h3>
+sudo dc3dd if=/mnt/ewf/ewf1 of=/home/vboxuser/dc3dd_out/sample.dd count=131072 hash=sha256 log=/home/vboxuser/dc3dd_out/dc3dd_sample.log</code></pre>
+    <p><strong>Why count=131072?</strong> With the default block size (usually 512 bytes) that’s ~64MB. Fast enough, big enough to look real.</p>
+
+    <h3>Now run these one at a time:</h3>
     <pre><code>ls -lh ~/dc3dd_out/sample.dd
-tail -n 25 ~/dc3dd_out/dc3dd.log
+tail -n 30 ~/dc3dd_out/dc3dd_sample.log
 sha256sum ~/dc3dd_out/sample.dd | tee ~/dc3dd_out/sample.dd.sha256</code></pre>
+    <p>If <code>sample.dd</code> exists and <code>tail</code> shows it completed, you’re done with <code>dc3dd</code>.</p>
 
-    <h3>What to screenshot (dc3dd evidence)</h3>
+    <h3>What evidence to collect for the report (for what you just did)</h3>
+    <p>You need screenshots, not essays. Save these:</p>
+
+    <strong>Foremost evidence (Linux evaluated tool – 3 examples)</strong>
     <ul>
-        <li><code>sudo ls -la /mnt/ewf</code> showing <code>ewf1</code> (mount proof) ✅ you already basically have this</li>
-        <li><code>tail -n 25 ~/dc3dd_out/dc3dd.log</code> showing it completed + hash</li>
-        <li><code>sha256sum ... | tee ...</code> output</li>
+        <li><strong>Mount proof:</strong> <code>sudo ls -la /mnt/ewf</code> → shows <code>ewf1</code></li>
+        <li><strong>Default carve output:</strong> <code>ls -la ~/foremost_out1 | head</code> → shows folders + <code>audit.txt</code></li>
+        <li><strong>Audit trail:</strong> <code>head -n 40 ~/foremost_out1/audit.txt</code></li>
+        <li><strong>Targeted carve output:</strong> <code>ls -la ~/foremost_out2 | head</code></li>
     </ul>
 
-    <h3>What you did (one-liner for report)</h3>
-    <p>You demonstrated forensic imaging from the mounted E01 stream (<code>/mnt/ewf/ewf1</code>) using <code>dc3dd</code> and generated SHA-256 to prove integrity.</p>
+    <strong>dc3dd evidence (Linux “second tool” – proof it works)</strong>
+    <ul>
+        <li><strong>dc3dd log tail:</strong> <code>tail -n 30 ~/dc3dd_out/dc3dd_sample.log</code></li>
+        <li><strong>Hash output:</strong> <code>sha256sum ... | tee ...</code></li>
+    </ul>
+    <p>That’s it. Don’t bloat it.</p>
 
-    <p><strong>Also:</strong> ignore those <code>~ls / ~[200~ls</code> lines — that’s just your terminal receiving garbage from a keybind/paste. Not relevant.</p>
-    <p>Run the <code>dc3dd</code> command with <code>bs=4096k</code> and tell me if it finishes or errors.</p>
+    <h3>What’s next for Debian?</h3>
+    <p>Nothing important. Debian side is essentially finished once <code>dc3dd</code> sample works.</p>
+
+    <h3>Next overall step = Windows Phase 4</h3>
+    <p>You now go to Windows and get 3 Windows examples (Autopsy OR MFTECmd). If Autopsy keeps wasting time, you switch and evaluate MFTECmd instead — better to finish cleanly than die on Autopsy.</p>
+
+    <p>Run the <code>dc3dd</code> command above and tell me: does <code>ls -lh ~/dc3dd_out/sample.dd</code> show a file now?</p>
 
 </body>
 </html>
