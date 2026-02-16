@@ -4,95 +4,190 @@
     <meta charset="UTF-8">
     <title>F20FO CW1 Context Pack</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 20px auto; padding: 0 20px; }
-        h1 { color: #2c3e50; border-bottom: 2px solid #eee; }
-        h2 { color: #e67e22; margin-top: 30px; border-left: 5px solid #e67e22; padding-left: 10px; }
-        h3 { color: #2980b9; }
-        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
-        pre { background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .requirement-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        .important { color: #c0392b; font-weight: bold; }
-        hr { border: 0; border-top: 1px solid #ddd; margin: 40px 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #24292e; }
+        h1, h2 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; }
+        pre { background-color: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; border: 1px solid #dfe1e4; }
+        pre code { background-color: transparent; padding: 0; }
+        hr { height: 0.25em; background-color: #e1e4e8; border: 0; margin: 24px 0; }
+        ul { padding-left: 2em; }
+        li { margin-bottom: 0.5em; }
     </style>
 </head>
 <body>
 
-    <h1>F20FO CW1 Context Pack (2025–26)</h1>
-    <p>According to the <strong>F20FO CW1 coursework sheet</strong>, your job is to build a specific prototype DF lab with strict deliverables. Use this as your single source of truth.</p>
+    <p>According to a document from the <strong>F20FO CW1 coursework sheet (2025–26)</strong>, your job is <strong>not</strong> “install random forensics stuff and hope” — it’s a specific prototype DF lab with strict deliverables and marking traps. Here’s a <strong>copy-paste “Context Pack”</strong> you can drop into a new thread and use as your single source of truth.</p>
 
     <hr>
 
-    <section id="requirements">
-        <h2>CW1 Non-Negotiable Requirements</h2>
-        <h3>What the coursework <em>actually</em> requires</h3>
-        <ul>
-            <li>Build a <strong>prototype virtual DF lab</strong> with <strong>two VMs</strong>: one Windows + one Linux (no security-suites like Kali).</li>
-            <li>Install <strong>at least two distinct DF tools on each VM</strong> (4 total).</li>
-            <li>Evaluate <strong>2 tools total</strong> (1 Windows, 1 Linux) using literature and practical findings.</li>
-            <li>Provide <strong>3 practical examples per evaluated tool</strong> (6 total).</li>
-            <li>Evidence resources from labs <em>can</em> be used for examples.</li>
-        </ul>
+    <h2>CW1 Non-Negotiable Requirements (read this before Phase 2)</h2>
 
-        <h3>Video + Report Rules</h3>
-        <div class="requirement-box">
-            <p><span class="important">Video:</span> Max 5 minutes. >5 mins = <strong>Zero marks</strong>.</p>
-            <p><span class="important">Report:</span> 1500 words ±10%. No first-person language. Must include diagrams and references.</p>
-        </div>
+    <h3>What the coursework <em>actually</em> requires</h3>
+    <ul>
+        <li>Build a <strong>prototype virtual DF lab</strong> with <strong>two VMs</strong>: <strong>one Windows + one Linux</strong> that <strong>can communicate</strong> with each other. <strong>Avoid security-suite VMs (e.g., Kali).</strong></li>
+        <li>Install <strong>at least two distinct DF tools on each VM</strong> → <strong>4 distinct tools total</strong>.</li>
+        <li><strong>Briefly describe all 4 tools</strong>, but <strong>deeply evaluate 2 tools total</strong> (1 from Windows, 1 from Linux) using <strong>literature + practical findings</strong>.</li>
+        <li>For the <strong>2 evaluated tools</strong>, you must show <strong>3 illustrative practical examples each</strong> → <strong>6 examples total</strong>.</li>
+        <li>You <strong>can use the evidence resources provided in labs</strong> for the examples (that is explicitly allowed).</li>
+    </ul>
 
-        <h3>The "No Lab Tools" Rule</h3>
-        <p>It is not a hard ban, but the rubric flags "All tools from labs" as weak. To hit the top-band marks, <strong>select two tools not covered in lab sessions</strong> for your deep evaluation.</p>
-    </section>
+    <h3>Video + report rules that can nuke marks</h3>
+    <ul>
+        <li>Video is <strong>max 5 minutes</strong>. If it’s longer than 5 minutes → <strong>not assessed (zero marks)</strong>.</li>
+        <li>Report must be <strong>1500 words ±10%</strong> (title/appendix/references not included), <strong>not written in first person</strong>, must include references + appendices, and diagrams where appropriate.</li>
+    </ul>
+
+    <h3>“No lab tools allowed” — correction (important)</h3>
+    <p>The sheet does <strong>not</strong> say “lab tools are banned”. What it says (via marking guidelines) is: using <strong>tools covered in labs</strong> hurts your chance of top-band marks (the “Above Threshold” band mentions “selected two tools not covered in the lab session” for the best band).<br>
+    Also, the DF lab marking rubric explicitly flags “All tools from labs” as weak/low-mark behaviour.<br>
+    So the smart move is: <strong>don’t pick lab tools as your evaluated tools</strong> if you want the top band — but it’s not written as a hard ban.</p>
 
     <hr>
 
-    <section id="phase-1">
-        <h2>Phase 1 Summary: VM &amp; Networking</h2>
-        <h3>Goal</h3>
-        <p>Proof of communication (ping) between Windows and Debian VMs without using security-specific distros.</p>
+    <h2>Phase 1 Summary (what we actually did in this thread)</h2>
 
-        <h3>Verified Configuration</h3>
-        <pre><code># Check OS and Disk Install
+    <h3>Goal of Phase 1</h3>
+    <p>Meet the CW requirement: <strong>one Windows VM + one Linux VM that can communicate</strong> (ping proof) and <strong>avoid Kali/security suite VM</strong>.</p>
+
+    <h3>What happened (real sequence)</h3>
+    <ol>
+        <li><strong>Dropped Ubuntu</strong> because your install attempts were messy/flaky and you kept landing in “live” behaviour.</li>
+        <li>Built a fresh <strong>Debian VM</strong> named <strong><code>F20FO-Debian</code></strong> in VirtualBox.</li>
+        <li>Debian install completed and boots to a GUI desktop.</li>
+        <li>Verified it is installed to disk (not “live”) using:
+            <pre><code>bash
 cat /etc/os-release
-df -h /
+df -h /</code></pre>
+            Your screenshot shows <strong>Debian GNU/Linux 13 (trixie)</strong> and <code>/</code> mounted from <code>/dev/sda1</code> → that is a real install.
+        </li>
+    </ol>
 
-# Verify Network (Target: 10.0.2.15/24)
+    <h3>Your Debian network state (confirmed)</h3>
+    <p>You ran:</p>
+    <pre><code>bash
 ip a</code></pre>
-
-        <h3>Networking Setup (NAT Network)</h3>
-        <ol>
-            <li><strong>Create Network:</strong> VirtualBox Tools > Network Manager > NAT Networks.</li>
-            <li><strong>Name:</strong> <code>ForensicsNet</code> | <strong>Prefix:</strong> <code>10.0.2.0/24</code>.</li>
-            <li><strong>Apply:</strong> Settings > Network > Attached to: NAT Network.</li>
-        </ol>
-
-        <h3>Verification Commands</h3>
-        <p><strong>Windows (Allow Ping):</strong></p>
-        <pre><code>netsh advfirewall firewall add rule name="Allow ICMPv4" protocol=icmpv4:8,any dir=in action=allow</code></pre>
-        <p><strong>Debian (Test Connection):</strong></p>
-        <pre><code>ping -c 4 [WINDOWS_IP]</code></pre>
-    </section>
+    <p>and got an IPv4 like <strong>10.0.2.15/24</strong> on <code>enp0s3</code> — that’s consistent with VirtualBox NAT-style networking (good sign).</p>
 
     <hr>
 
-    <section id="housekeeping">
-        <h2>VM Housekeeping</h2>
-        <ul>
-            <li><strong>Shutdown:</strong> Use normal shutdown. Take <strong>one snapshot</strong> only when Phase 2 tools are stable.</li>
-            <li><strong>ISO:</strong> Disconnect the Debian ISO from storage settings to prevent rebooting into the installer.</li>
-            <li><strong>Windows VM:</strong> The <code>MSEdge - Win10.ova</code> is acceptable. Import via <em>File > Import Appliance</em>.</li>
-        </ul>
-    </section>
+    <h2>How we set up networking so the VMs can ping each other (Phase 1 core proof)</h2>
+
+    <h3>Why this matters</h3>
+    <p>CW explicitly requires the two VMs <strong>communicate</strong>.<br>
+    The cleanest VirtualBox approach is <strong>NAT Network</strong> (not Host-Only).</p>
+
+    <h3>VirtualBox steps (GUI clicks)</h3>
+    <ol>
+        <li><strong>VirtualBox Manager → File → Tools → Network Manager</strong></li>
+        <li>Go to <strong>NAT Networks</strong> tab (NOT “Host-only Networks”)</li>
+        <li>Click <strong>Create</strong> and set:
+            <ul>
+                <li>Name: <code>ForensicsNet</code></li>
+                <li>IPv4 Prefix: <code>10.0.2.0/24</code></li>
+                <li>DHCP: <strong>Enabled</strong></li>
+            </ul>
+        </li>
+        <li>For <strong>each VM</strong> (Windows + Debian):
+            <ul>
+                <li>Right-click VM → <strong>Settings → Network → Adapter 1</strong></li>
+                <li>Attached to: <strong>NAT Network</strong></li>
+                <li>Name: <strong>ForensicsNet</strong></li>
+                <li>OK</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>Ping verification commands (what you show in the video + screenshots)</h3>
+    <p><strong>On Windows VM (CMD):</strong></p>
+    <pre><code>bat
+ipconfig</code></pre>
+    <p>Note the IPv4 address (example: <code>10.0.2.x</code>)</p>
+    <p>If Windows blocks ping, allow ICMP once (Admin CMD):</p>
+    <pre><code>bat
+netsh advfirewall firewall add rule name="Allow ICMPv4" protocol=icmpv4:8,any dir=in action=allow</code></pre>
+
+    <p><strong>On Debian (Terminal):</strong></p>
+    <pre><code>bash
+ip a
+ping -c 4 &lt;WINDOWS_IP&gt;</code></pre>
+
+    <p><strong>Back on Windows (CMD):</strong></p>
+    <pre><code>bat
+ping &lt;DEBIAN_IP&gt;</code></pre>
+    <p><strong>Phase 1 is only “done” when you have a screenshot of successful ping.</strong></p>
 
     <hr>
 
-    <section id="phase-2">
-        <h2>Phase 2: Tool Installation Objective</h2>
-        <p>Install 4 tools, select 2 for deep evaluation, and ensure they are not "lab tools" if aiming for high marks.</p>
-        <pre><code># Commands you will need frequently:
-sudo apt update
-ipconfig / ip a
-ping [target_ip]</code></pre>
-    </section>
+    <h2>VM housekeeping decisions we made (so you don’t screw yourself later)</h2>
+
+    <h3>Saved State vs Snapshot (your question)</h3>
+    <ul>
+        <li><strong>Saved State</strong> = VirtualBox writes RAM state to disk and resumes later. It can cause weirdness and isn’t “clean” for demos.</li>
+        <li><strong>Snapshot</strong> = checkpoint you can revert to (fine, but don’t spam them).</li>
+    </ul>
+    <p><strong>Recommendation for CW:</strong><br>
+    Use <strong>normal shutdown</strong> for daily use. Take <strong>one snapshot</strong> only when Phase 2 is stable (tools installed + working), so you can revert if you break stuff.</p>
+
+    <h3>“Where is the saved state stored?”</h3>
+    <p>Typically in the VM folder with files like <code>.sav</code> / snapshot folders. In VirtualBox Manager you can right-click the VM → <strong>Show in Explorer</strong> to open the folder (you already saw this option).</p>
+
+    <h3>“Delete the ISO?”</h3>
+    <p>Yes — after Debian is installed:</p>
+    <ul>
+        <li>VM → <strong>Settings → Storage</strong></li>
+        <li>Under Optical Drive / Controller IDE (or SATA Optical), ensure it shows <strong>Empty</strong></li>
+        <li>That prevents booting back into installer.</li>
+    </ul>
+
+    <hr>
+
+    <h2>Windows VM decision (lab VM / provided OVA)</h2>
+
+    <h3>Can you use the Lab 2 Windows VM?</h3>
+    <p>Yes, as long as it’s <strong>a Windows VM</strong> you control, can install software on, and it isn’t a security-suite VM. CW cares that you have <strong>Windows + Linux</strong> and that you install tools and demonstrate them.</p>
+
+    <h3>Your file <code>MSEdge - Win10.ova</code></h3>
+    <p>That’s an appliance export. You import it via:</p>
+    <ul>
+        <li>VirtualBox Manager → <strong>File → Import Appliance…</strong> → select the <code>.ova</code> → Import</li>
+    </ul>
+
+    <hr>
+
+    <h2>Evidence you must have saved from Phase 1 (report + video proof)</h2>
+    <p>Create folder on your host: <code>F20FO_CW1/Evidence/Phase1/</code></p>
+    <p>Minimum screenshots:</p>
+    <ol>
+        <li>VirtualBox Manager showing <strong>both VMs exist</strong> (and ideally running)</li>
+        <li>Debian terminal: <code>cat /etc/os-release</code> and <code>df -h /</code></li>
+        <li>Debian terminal <code>ip a</code> showing IP</li>
+        <li>Windows CMD <code>ipconfig</code> showing IP</li>
+        <li><strong>Ping success screenshot</strong> (either direction)</li>
+        <li>VirtualBox <strong>Network settings</strong> page for each VM showing “NAT Network: ForensicsNet”</li>
+    </ol>
+
+    <hr>
+
+    <h2>What Phase 2 is (next target) so the new thread starts clean</h2>
+
+    <h3>Phase 2 objective</h3>
+    <p>Install <strong>4 distinct DF tools</strong> (2 on Windows, 2 on Debian), then do:</p>
+    <ul>
+        <li>brief description of all 4</li>
+        <li>select <strong>1 Windows tool + 1 Linux tool</strong> for deep evaluation</li>
+        <li>prepare for 3 examples per evaluated tool (Phase 3)</li>
+    </ul>
+
+    <h3>Tool selection strategy (to avoid mark traps)</h3>
+    <ul>
+        <li>Don’t pick <strong>two “lab tools”</strong> as your evaluated tools if you want top band (rubric punishes it).</li>
+        <li>You <em>can</em> still use <strong>lab evidence files</strong> for examples (allowed).</li>
+    </ul>
+
+    <hr>
+
+    <h2>“Significant code changes”</h2>
+    <p>None. Phase 1 was <strong>VM + networking setup</strong> only. No codebase was modified.</p>
 
 </body>
 </html>
