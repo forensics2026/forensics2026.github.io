@@ -3,99 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #24292e; }
-        h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 1.5em; }
-        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 92%; }
-        pre { background-color: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; border: 1px solid #dfe1e4; font-family: monospace; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #24292e; background-color: #ffffff; }
+        h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 1.5em; color: #1a1a1a; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 90%; color: #d73a49; }
+        pre { background-color: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; border: 1px solid #dfe1e4; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; line-height: 1.45; }
+        pre code { color: #24292e; background: none; padding: 0; }
         ul { padding-left: 2em; }
         li { margin-bottom: 0.5em; }
-        .error-list { list-style-type: "❌ "; }
-        .success-list { list-style-type: "✅ "; }
-        strong { color: #24292e; }
+        .spec-ref { color: #586069; font-size: 0.9em; font-style: italic; }
+        .important { border-left: 4px solid #e36209; padding-left: 15px; background: #fff5ee; margin: 20px 0; padding-top: 10px; padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <p>Yeah, I’m going to be blunt: <code>dc3dd</code> is failing because you’re using the wrong syntax (you keep typing <code>bs=</code> and <code>count=</code> like GNU <code>dd</code>). <code>dc3dd</code> does <strong>NOT</strong> use <code>bs=</code> or <code>count=</code>. It uses:</p>
+    <div class="important">
+        <p>You’re not allowed to “drop Windows because it’s annoying.” The CW brief explicitly expects two operating systems (Windows + Linux) in your prototype DF lab. If you ditch Windows, you’re basically self-sabotaging the spec.</p>
+        <p class="spec-ref">2025_2026_F20FO Coursework 1 (1)</p>
+    </div>
+
+    <p>So the move is: keep Windows VM, but stop trying to use Autopsy if it won’t launch. Swap to lightweight Windows DF tools.</p>
+
+    <h2>What are sample.dd and sample.dd.sha256?</h2>
     <ul>
-        <li><code>ssz=</code> = sector size (bytes)</li>
-        <li><code>cnt=</code> = number of sectors to read (not “blocks”)</li>
-        <li><code>bufsz=</code> = internal buffer size (optional)</li>
-        <li>plus <code>if=</code>, <code>of=</code>, <code>hash=</code>, <code>log=</code> ✅</li>
+        <li><strong>sample.dd</strong> = a raw disk image copy you created with <code>dc3dd</code>. It’s a copy of data, not the original USB.</li>
+        <li><strong>sample.dd.sha256</strong> = the SHA-256 hash of that image, so you can prove integrity (the image wasn’t altered).</li>
     </ul>
+    <p>The connection to “USB” is: your evidence is <code>usb_a.E01</code> (a forensic image of a USB). You mounted it to get a raw stream (<code>/mnt/ewf/ewf1</code>) and then <code>dc3dd</code> produced a raw <code>.dd</code> copy from that data stream. That’s why it’s related.</p>
 
-    <p>So stop fighting it. Copy/paste this exactly.</p>
-
-    <h2>Get dc3dd working (copy/paste, no improvising)</h2>
+    <h2>The Windows tools (lightweight, CLI, no Autopsy)</h2>
     
-    <h3>0) First, make sure your E01 mount is present</h3>
-    <pre><code>sudo mkdir -p /mnt/ewf
-sudo umount /mnt/ewf 2>/dev/null || true
-sudo ewfmount ~/cases/usb_a.E01 /mnt/ewf
-sudo ls -la /mnt/ewf</code></pre>
-    <p>You must see a file called <strong>ewf1</strong> in <code>/mnt/ewf</code> (that’s the “raw view” of the E01). If you don’t see <code>ewf1</code>, <code>dc3dd</code> cannot work.</p>
-
-    <h3>1) Make a small forensic image sample (fast) + hash + log</h3>
-    <p>This copies 64 MiB from the start of the evidence (safe + quick). Why 64 MiB? Because <code>cnt=131072</code> sectors × <code>ssz=512</code> bytes = 67,108,864 bytes (~64 MiB).</p>
-    <pre><code>mkdir -p ~/dc3dd_out
-sudo rm -f ~/dc3dd_out/sample.dd ~/dc3dd_out/dc3dd_sample.log ~/dc3dd_out/sample.dd.sha256
-
-sudo dc3dd if=/mnt/ewf/ewf1 \
-  of=/home/vboxuser/dc3dd_out/sample.dd \
-  hash=sha256 \
-  log=/home/vboxuser/dc3dd_out/dc3dd_sample.log \
-  ssz=512 \
-  cnt=131072</code></pre>
-
-    <h3>2) Verify outputs (this is your “proof”)</h3>
-    <pre><code>ls -lh ~/dc3dd_out/sample.dd
-tail -n 25 ~/dc3dd_out/dc3dd_sample.log
-sha256sum ~/dc3dd_out/sample.dd | tee ~/dc3dd_out/sample.dd.sha256</code></pre>
-
-    <hr>
-
-    <h2>What you did wrong (so you stop repeating it)</h2>
-    <ul class="error-list">
-        <li><code>count=</code> → <code>dc3dd</code> wants <code>cnt=</code> (sectors).</li>
-        <li><code>bs=</code> → <code>dc3dd</code> doesn’t use it; use <code>bufsz=</code> (optional) and <code>ssz=</code>.</li>
-        <li>You also typed <code>/mnt.ewf</code> sometimes — that’s a different path. It must be <code>/mnt/ewf</code>.</li>
-    </ul>
-    <p>Your own screenshots literally show “unrecognized option bs=…” and “unrecognized option count=…”. That’s not “Linux being annoying”, that’s you using the wrong tool syntax.</p>
-
-    <hr>
-
-    <h2>What we are showing (for the report)</h2>
-    <p><strong>Tool explanation (2–3 lines you can reuse):</strong><br>
-    <em>dc3dd is a forensic-imaging tool (a patched dd) used to create bit-for-bit copies while producing hashes and logs for integrity verification. In your demo, you create a small sample image from the mounted E01 and record a SHA-256 hash + acquisition log to show integrity and repeatability.</em></p>
-
-    <h3>Evidence you must capture RIGHT NOW (screenshots)</h3>
+    <h3>1) EvtxECmd (Windows Event Log parser)</h3>
+    <p>Parses <code>.evtx</code> event logs (Security/Application/System) and exports to CSV/JSON/XML.</p>
     <ul>
-        <li><strong>Mount proof:</strong> <code>sudo ls -la /mnt/ewf</code> showing <code>ewf1</code></li>
-        <li><strong>Acquisition run:</strong> The <code>dc3dd</code> command and the “completed” lines</li>
-        <li><strong>Log proof:</strong> <code>tail -n 25 ~/dc3dd_out/dc3dd_sample.log</code> showing bytes copied/hashed + digest output</li>
-        <li><strong>Hash proof:</strong> <code>sha256sum ~/dc3dd_out/sample.dd | tee ...</code> output</li>
+        <li><code>-f</code> = process one <code>.evtx</code> file</li>
+        <li><code>-d</code> = process a directory of <code>.evtx</code> files</li>
+        <li><code>--csv</code> + <code>--csvf</code> = export CSV to a folder with a chosen filename</li>
+        <li><code>--inc</code> = include only specific Event IDs (e.g., 4624 logons)</li>
     </ul>
+
+    <h3>2) MFTECmd (NTFS $MFT parser)</h3>
+    <p>Parses the NTFS $MFT (Master File Table) and exports CSV/JSON/bodyfile timelines. Since your CW only needs proof for the non-evaluated tool, you can keep MFTECmd as “proof it runs.”</p>
 
     <hr>
 
-    <h2>What’s next on Debian (don’t jump to Windows yet)</h2>
-    <p>You already did Foremost carving. Now you just need to finalise the 3 Foremost examples cleanly:</p>
+    <h2>How to run them (exact steps)</h2>
+    <p><strong>A) Put both tools in one folder:</strong> <code>C:\Tools\EZ\</code></p>
+    <p><strong>B) Open PowerShell in that folder:</strong> Shift + Right-click → <em>Open PowerShell window here</em></p>
+    <p><strong>C) “Proof it runs” commands:</strong></p>
+    <pre><code>.\EvtxECmd.exe -h
+.\MFTECmd.exe -h</code></pre>
 
-    <p><strong>Foremost Example 1: Default carve results</strong></p>
-    <pre><code>sudo chown -R vboxuser:vboxuser ~/foremost_out1 2>/dev/null || true
-ls -la ~/foremost_out1 | head
-find ~/foremost_out1 -maxdepth 2 -type f | head</code></pre>
+    <hr>
 
-    <p><strong>Foremost Example 2: Audit log evidence</strong></p>
-    <pre><code>head -n 40 ~/foremost_out1/audit.txt</code></pre>
+    <h2>Phase 4 Windows — 3 examples using EvtxECmd</h2>
 
-    <p><strong>Foremost Example 3: Targeted carve (jpg + pdf only)</strong></p>
-    <pre><code>mkdir -p ~/foremost_out2
-sudo foremost -t jpg,pdf -i /mnt/ewf/ewf1 -o ~/foremost_out2
-sudo chown -R vboxuser:vboxuser ~/foremost_out2
-head -n 40 ~/foremost_out2/audit.txt</code></pre>
+    <h3>Example W1 — Parse ONE log file (single-file mode)</h3>
+    <pre><code>mkdir C:\F20FO_CW1\Phase4\out -Force
+.\EvtxECmd.exe -f "C:\Windows\System32\winevt\Logs\Security.evtx" --csv "C:\F20FO_CW1\Phase4\out" --csvf Security.csv
+dir C:\F20FO_CW1\Phase4\out</code></pre>
 
-    <p>If you run the <code>dc3dd</code> commands above and it still errors, paste one screenshot of the exact <code>dc3dd</code> command + the error text. Don’t paraphrase it.</p>
+    <h3>Example W2 — Parse a DIRECTORY of logs (bulk mode)</h3>
+    <pre><code>.\EvtxECmd.exe -d "C:\Windows\System32\winevt\Logs" --csv "C:\F20FO_CW1\Phase4\out" --csvf AllLogs.csv</code></pre>
+
+    <h3>Example W3 — Filter to specific Event IDs</h3>
+    <pre><code>.\EvtxECmd.exe -f "C:\Windows\System32\winevt\Logs\Security.evtx" --inc 4624,4625 --csv "C:\F20FO_CW1\Phase4\out" --csvf LogonsOnly.csv</code></pre>
+
+    <hr>
+
+    <h2>Why this doesn’t break the CW</h2>
+    <ul>
+        <li>You still have Windows + Linux lab. <span class="spec-ref">Required.</span></li>
+        <li>You still have 2 tools on Windows (EvtxECmd + MFTECmd) and 2 on Linux (Foremost + dc3dd).</li>
+        <li>You still deeply evaluate one Windows tool + one Linux tool, each with 3 examples. <span class="spec-ref">Required.</span></li>
+    </ul>
+
+    <p><strong>Run the EvtxECmd commands above and tell me: does C:\F20FO_CW1\Phase4\out show a CSV file now?</strong></p>
 
 </body>
 </html>
