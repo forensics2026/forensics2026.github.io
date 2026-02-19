@@ -1,0 +1,19 @@
+REM WINDOWS VM — VIDEO DEMO COMMANDS
+REM Copy-paste these in order during recording
+REM ⚠️ FIRST: Replace the paths below with YOUR actual EvtxECmd/MFTECmd locations
+
+REM --- SHOW TOOLS INSTALLED ---
+C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe --version
+C:\Tools\ZimmermanTools\MFTECmd\MFTECmd.exe --version
+
+REM --- EXAMPLE 1: Security Log ---
+C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Security.evtx --csv C:\Evidence\EvtxOutput --csvf Security_output.csv
+
+REM --- EXAMPLE 2: System Log ---
+C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\System.evtx --csv C:\Evidence\EvtxOutput --csvf System_output.csv
+
+REM --- EXAMPLE 3: Application Log ---
+C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Application.evtx --csv C:\Evidence\EvtxOutput --csvf Application_output.csv
+
+REM --- SHOW OUTPUT FILES ---
+dir C:\Evidence\EvtxOutput

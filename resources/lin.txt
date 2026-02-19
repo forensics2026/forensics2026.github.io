@@ -1,0 +1,17 @@
+# DEBIAN VM — VIDEO DEMO COMMANDS
+# Copy-paste these in order during recording
+
+# --- SHOW TOOLS INSTALLED ---
+foremost -V
+dc3dd --version
+
+# --- EXAMPLE 1: Default Carve ---
+sudo foremost -t all -o ~/Evidance/output_default -i /mnt/ewf/ewf1
+ls ~/Evidance/output_default/
+
+# --- EXAMPLE 2: Audit Trail ---
+cat ~/Evidance/output_default/audit.txt
+
+# --- EXAMPLE 3: Targeted Carve (images only) ---
+sudo foremost -c ~/Evidance/custom_foremost.conf -o ~/Evidance/output_custom -i /mnt/ewf/ewf1
+ls ~/Evidance/output_custom/
