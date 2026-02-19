@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VIDEO DEMO SCRIPT — F20FO CW1</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --border: #dddddd;
+      --code-bg: #f6f8fa;
+      --blockquote-bg: #f8f8f8;
+      --link: #0969da;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f14;
+        --fg: #e6edf3;
+        --muted: #9aa4ad;
+        --border: #2b3138;
+        --code-bg: #111821;
+        --blockquote-bg: #0f141b;
+        --link: #2f81f7;
+      }
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.55;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3, h4 {
+      line-height: 1.2;
+      margin: 1.0em 0 0.5em;
+    }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.45rem; }
+    h3 { font-size: 1.2rem; }
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    p { margin: 0.6em 0; }
+    ul, ol { margin: 0.6em 0 0.9em 1.2em; }
+    li { margin: 0.25em 0; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow: auto;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.1em 0.35em;
+      font-size: 0.95em;
+    }
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-size: 0.95rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.9em 0 1.2em;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    th {
+      background: rgba(127,127,127,0.08);
+      text-align: left;
+    }
+    blockquote {
+      margin: 0.9em 0;
+      padding: 12px 14px;
+      background: var(--blockquote-bg);
+      border-left: 4px solid var(--border);
+      border-radius: 10px;
+    }
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    input[type="checkbox"] {
+      transform: translateY(1px);
+      margin-right: 0.4em;
+    }
+    @media print {
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --fg: #000000;
+        --muted: #333333;
+        --border: #cfcfcf;
+        --code-bg: #f3f3f3;
+        --blockquote-bg: #f7f7f7;
+        --link: #0000ee;
+      }
+      a { text-decoration: underline; }
+      .container { max-width: none; padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="video-demo-script-f20fo-cw1">VIDEO DEMO SCRIPT — F20FO CW1</h1>
+
+<h1 id="maximum-500-videos-over-5-min-zero-marks">MAXIMUM 5:00 (videos over 5 min = ZERO marks)</h1>
+
+<h1 id="target-430-30-second-safety-buffer">Target: 4:30 (30-second safety buffer)</h1>
+
+<hr />
+
+<h2 id="critical-rules">⚠️ CRITICAL RULES</h2>
+
+<ul>
+<li><strong>NEVER go over 5:00.</strong> Set a timer on your phone. If you hit 4:30, skip to the closing line.</li>
+<li><strong>Do NOT ad-lib.</strong> Read the script. If you mess up a line, just keep going — do NOT restart.</li>
+<li><strong>Record your SCREEN + your VOICE.</strong> Use OBS Studio (free) or Windows Game Bar (Win+G).</li>
+<li><strong>Resolution:</strong> 1920×1080. If your screen is smaller, that's fine.</li>
+<li><strong>Do NOT show your face.</strong> Just screen + voice.</li>
+</ul>
+
+<hr />
+
+<h2 id="pre-recording-setup-do-all-of-this-before-you-hit-record">🔧 PRE-RECORDING SETUP (Do ALL of this BEFORE you hit Record)</h2>
+
+<p>Do these steps the day before or at least 1 hour before recording.<br />
+Check off each one. If any step fails, fix it before proceeding.</p>
+
+<h3 id="a-virtualbox-setup">A. VirtualBox Setup</h3>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Open VirtualBox Manager</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Both VMs visible in sidebar: <strong>Debian 13</strong> and <strong>Windows 10</strong></li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Both VMs are <strong>powered off</strong> (you will start them on camera)</li>
+</ul>
+
+<h3 id="b-debian-vm-get-everything-ready">B. Debian VM — Get Everything Ready</h3>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Start Debian VM, log in</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Open a terminal (right-click desktop → Terminal, or find it in applications)</li>
+</ul>
+
+<p><strong>Install ewf-tools (needed to mount .E01 files):</strong></p>
+
+<pre><code>sudo apt update
+sudo apt install ewf-tools -y
+</code></pre>
+
+<p><strong>Install foremost:</strong></p>
+
+<pre><code>sudo apt install foremost -y
+</code></pre>
+
+<p><strong>Copy usb_a.E01 to the VM</strong> (drag-and-drop, shared folder, or USB):</p>
+
+<ul>
+<li>Put it somewhere simple like: <code>/home/YOUR_USERNAME/evidence/usb_a.E01</code></li>
+<li>If you can't transfer files, download it from Canvas inside the VM's browser</li>
+</ul>
+
+<p><strong>Mount the evidence image (do this NOW, before recording):</strong></p>
+
+<pre><code>sudo mkdir -p /mnt/ewf
+sudo ewfmount /home/YOUR_USERNAME/evidence/usb_a.E01 /mnt/ewf
+</code></pre>
+
+<ul>
+<li>You should now see a file at <code>/mnt/ewf/ewf1</code> — this is the raw disk stream</li>
+<li><strong>Test it:</strong> <code>ls -la /mnt/ewf/</code> — you should see <code>ewf1</code></li>
+</ul>
+
+<p><strong>Create the custom foremost config (for Example 3):</strong></p>
+
+<pre><code>cp /etc/foremost.conf ~/evidence/custom_foremost.conf
+</code></pre>
+
+<p>Now edit it to keep ONLY image types:</p>
+
+<pre><code>nano ~/evidence/custom_foremost.conf
+</code></pre>
+
+<ul>
+<li>Scroll down. You'll see lines for jpg, gif, png, bmp, etc.</li>
+<li><strong>Delete or comment out (put # in front of) EVERY line that is NOT an image type</strong></li>
+<li>Keep these lines uncommented: <code>jpg</code>, <code>gif</code>, <code>png</code>, <code>bmp</code></li>
+<li>Comment out everything else: <code>doc</code>, <code>xls</code>, <code>pdf</code>, <code>zip</code>, <code>avi</code>, <code>mov</code>, <code>exe</code>, <code>htm</code>, etc.</li>
+<li>Save: press <code>Ctrl+X</code>, then <code>Y</code>, then <code>Enter</code></li>
+</ul>
+
+<p><strong>Clean up any old foremost output:</strong></p>
+
+<pre><code>rm -rf ~/evidence/output_default
+rm -rf ~/evidence/output_custom
+</code></pre>
+
+<p><strong>Verify foremost works (quick test run — delete output after):</strong></p>
+
+<pre><code>foremost -V
+</code></pre>
+
+<p>Should print version number. If it says "command not found", go back and install it.</p>
+
+<p><strong>Shut down the Debian VM:</strong></p>
+
+<pre><code>sudo shutdown now
+</code></pre>
+
+<h3 id="c-windows-vm-get-everything-ready">C. Windows VM — Get Everything Ready</h3>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Start Windows 10 VM, log in</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Make sure EvtxECmd is ready:
+<ul>
+<li>Open File Explorer</li>
+<li>Navigate to wherever you put the Zimmerman tools (e.g., <code>C:\Tools\ZimmermanTools\</code>)</li>
+<li>Find <code>EvtxECmd.exe</code> — note the FULL path (e.g., <code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe</code>)</li>
+</ul></li>
+</ul>
+
+<p><strong>Test EvtxECmd works:</strong></p>
+
+<ul>
+<li>Open <strong>Command Prompt</strong> (search "cmd" in Start menu, right-click → Run as Administrator)</li>
+<li>Type:</li>
+</ul>
+
+<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe --help
+</code></pre>
+
+<p>(Use YOUR actual path if different)</p>
+
+<ul>
+<li>Should print help text. If it says "not recognized" or gives a .NET error, fix the path or install .NET 6 Runtime.</li>
+</ul>
+
+<p><strong>Create output folder:</strong></p>
+
+<pre><code>mkdir C:\Evidence\EvtxOutput
+</code></pre>
+
+<p><strong>Copy the event logs to a working folder (so you don't touch originals):</strong></p>
+
+<pre><code>mkdir C:\Evidence\EventLogs
+copy C:\Windows\System32\winevt\Logs\Security.evtx C:\Evidence\EventLogs\
+copy C:\Windows\System32\winevt\Logs\System.evtx C:\Evidence\EventLogs\
+copy C:\Windows\System32\winevt\Logs\Application.evtx C:\Evidence\EventLogs\
+</code></pre>
+
+<p>(You need the admin Command Prompt for this)</p>
+
+<p><strong>Shut down the Windows VM:</strong></p>
+
+<pre><code>shutdown /s /t 0
+</code></pre>
+
+<h3 id="d-screen-recorder-setup">D. Screen Recorder Setup</h3>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Install OBS Studio (https://obsproject.com) OR use Windows Game Bar (Win+G)</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>OBS Settings:</strong>
+<ul>
+<li>Sources → + → Display Capture → select your monitor</li>
+<li>Sources → + → Audio Input Capture → select your microphone</li>
+<li>Output → Recording Path → set to Desktop or a folder you can find</li>
+<li>Output → Recording Format → mp4</li>
+<li>Settings → Video → Output Resolution → 1920×1080 (or your native)</li>
+</ul></li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Test:</strong> Record 10 seconds, play it back. Can you hear your voice? Can you see the screen clearly?</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Phone timer:</strong> Set a countdown timer for 4 minutes 30 seconds. Place phone where you can see it.</li>
+</ul>
+
+<h3 id="e-final-pre-recording-checklist">E. Final Pre-Recording Checklist</h3>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> VirtualBox open, both VMs powered off, visible in sidebar</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> This script open on your phone or a printed copy (NOT on the screen you're recording)</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Glass of water nearby (dry mouth kills audio quality)</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Room is quiet, door closed</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> Phone timer ready at 4:30</li>
+</ul>
+
+<hr />
+
+<h2 id="the-script">🎬 THE SCRIPT</h2>
+
+<h3 id="how-to-read-this">How to read this:</h3>
+
+<ul>
+<li><strong>🎤 SAY:</strong> = Read these words out loud (you can paraphrase slightly, but stick close)</li>
+<li><strong>⌨️ TYPE:</strong> = Type this exact command in the terminal</li>
+<li><strong>🖱️ DO:</strong> = Click/move your mouse to do this action</li>
+<li><strong>⏱️ TIME:</strong> = Where you should roughly be in the video</li>
+<li><strong>👀 WAIT:</strong> = Pause and let the output appear on screen before continuing</li>
+</ul>
+
+<hr />
+
+<h3 id="000020-opening-virtualbox-manager">⏱️ 0:00–0:20 — OPENING (VirtualBox Manager)</h3>
+
+<p>You should be looking at VirtualBox Manager with both VMs visible but powered off.</p>
+
+<p><strong>🖱️ DO:</strong> Start your screen recorder. Start your phone timer (4:30).</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"This video demonstrates the virtual digital forensics laboratory built for the F20FO coursework. The lab consists of two virtual machines managed in Oracle VirtualBox: a Debian 13 Linux system and a Windows 10 system, connected via a NAT Network called ForensicsNet."</p>
+</blockquote>
+
+<p><strong>🖱️ DO:</strong> While saying this, slowly move your mouse pointer to hover over the Debian VM name in the sidebar, then hover over the Windows VM name.</p>
+
+<hr />
+
+<h3 id="020050-start-both-vms-show-connectivity">⏱️ 0:20–0:50 — START BOTH VMs + SHOW CONNECTIVITY</h3>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Both virtual machines will now be started to confirm they are operational and can communicate."</p>
+</blockquote>
+
+<p><strong>🖱️ DO:</strong> Double-click the <strong>Debian VM</strong> to start it. While it boots:</p>
+
+<p><strong>🖱️ DO:</strong> Go back to VirtualBox Manager (click the VirtualBox icon in taskbar). Double-click the <strong>Windows VM</strong> to start it.</p>
+
+<p><strong>🖱️ DO:</strong> Switch to the Debian VM window. It should be at the login screen or desktop by now. Log in if needed.</p>
+
+<p><strong>🖱️ DO:</strong> Open a terminal in Debian.</p>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>ping -c 3 10.0.2.15
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let the 3 ping replies appear on screen.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The ping confirms successful communication between the two machines on the ForensicsNet subnet."</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>⚠️ NOTE:</strong> The IP <code>10.0.2.15</code> is the default NAT address. If your Windows VM has a different IP, use that instead. Check it beforehand by running <code>ipconfig</code> in Windows Command Prompt and noting the IPv4 address. Similarly, if the ping doesn't work to the other VM (because NAT Network may not allow VM-to-VM ping by default), you can instead just say: "Both VMs are running and connected to the ForensicsNet NAT Network" and show the network settings in VirtualBox → each VM → Settings → Network → "Attached to: NAT Network". <strong>This is an acceptable alternative.</strong></p>
+</blockquote>
+
+<hr />
+
+<h3 id="050110-show-all-4-tools-installed">⏱️ 0:50–1:10 — SHOW ALL 4 TOOLS INSTALLED</h3>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The lab has four forensic tools installed — two on each virtual machine. On the Debian system: Foremost and dc3dd."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>foremost -V
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Version number appears.</p>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>dc3dd --version
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Version info appears.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Now switching to the Windows VM to confirm EvtxECmd and MFTECmd."</p>
+</blockquote>
+
+<p><strong>🖱️ DO:</strong> Click on the Windows VM window in your taskbar to switch to it.</p>
+
+<p><strong>🖱️ DO:</strong> You should have Command Prompt already open (if not: Start → type "cmd" → Enter).</p>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe --version
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Version prints.</p>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>C:\Tools\ZimmermanTools\MFTECmd\MFTECmd.exe --version
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Version prints.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"All four tools are confirmed installed and operational."</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>⚠️ ADAPT:</strong> Replace <code>C:\Tools\ZimmermanTools\...</code> with YOUR actual paths. If you get a long help output instead of a version, that's fine — it still proves the tool runs.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="110250-foremost-examples-switch-back-to-debian">⏱️ 1:10–2:50 — FOREMOST EXAMPLES (Switch back to Debian)</h3>
+
+<p><strong>🖱️ DO:</strong> Click on the Debian VM window to switch back.</p>
+
+<h4 id="example-1-default-carving">Example 1: Default Carving</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The first tool being demonstrated is Foremost, a file carving utility. The evidence image usb underscore a dot E01, provided as a lab resource, has been mounted using ewfmount. Foremost will now perform a default carve to recover all recognisable file types."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>foremost -t all -o ~/evidence/output_default -i /mnt/ewf/ewf1
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let it run. It should take 5–30 seconds depending on image size. You'll see a progress line and then it returns to the prompt.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Foremost has completed the carve. The output directory contains subdirectories organised by recovered file type."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>ls ~/evidence/output_default/
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> You should see folders like <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>ole</code>, <code>zip</code>, etc., plus <code>audit.txt</code>.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Files have been recovered across multiple types including images, documents, and archives — all extracted without relying on the filesystem metadata. This demonstrates Foremost's filesystem-independent recovery capability."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="example-2-audit-trail">Example 2: Audit Trail</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The second example examines the audit dot txt file generated by Foremost, which serves as a forensic audit trail."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>cat ~/evidence/output_default/audit.txt
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let the full output display. Don't rush — let the viewer see it for 3–4 seconds.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The audit log records the command used, the source image path, the timestamp, and the precise byte offset of each recovered file. This information supports chain-of-custody documentation and provides a reproducible record of the recovery process."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="example-3-targeted-carving">Example 3: Targeted Carving</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The third example uses a custom configuration file to restrict carving to image file types only — JPEG, PNG, GIF, and BMP — reducing irrelevant output."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>foremost -c ~/evidence/custom_foremost.conf -o ~/evidence/output_custom -i /mnt/ewf/ewf1
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let it finish.</p>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>ls ~/evidence/output_custom/
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Should show ONLY image-type folders (jpg, png, gif, bmp) plus audit.txt. Fewer folders than Example 1.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Compared to the default carve, the output now contains only image file directories. This demonstrates how an investigator can scope recovery to case-relevant file types, saving time and reducing analytical noise."</p>
+</blockquote>
+
+<hr />
+
+<h3 id="250415-evtxecmd-examples-switch-to-windows">⏱️ 2:50–4:15 — EVTXECMD EXAMPLES (Switch to Windows)</h3>
+
+<p><strong>🖱️ DO:</strong> Click on the Windows VM window.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The second tool is EvtxECmd, a Windows Event Log parser from Eric Zimmerman's forensic toolkit. It converts binary E-V-T-X event log files into structured CSV format for analysis."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="example-1-security-log">Example 1: Security Log</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The first example parses the Windows Security event log, which records authentication attempts and privilege changes."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Security.evtx --csv C:\Evidence\EvtxOutput --csvf Security_output.csv
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> EvtxECmd will print processing lines showing the number of records parsed. Wait until it says "Completed" or returns to prompt.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The Security log has been parsed. The output CSV contains records of logon events, logoff events, and privilege escalation — information essential for reconstructing user authentication timelines."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="example-2-system-log">Example 2: System Log</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The second example processes the System event log, which records service operations, driver activity, and shutdown events."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\System.evtx --csv C:\Evidence\EvtxOutput --csvf System_output.csv
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let it process and complete.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"System events are critical for establishing when a device was powered on or shut down, and for detecting unexpected system restarts."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="example-3-application-log">Example 3: Application Log</h4>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"The third example processes the Application event log, which captures software installation, crash, and configuration events."</p>
+</blockquote>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Application.evtx --csv C:\Evidence\EvtxOutput --csvf Application_output.csv
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Let it process and complete.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"Application events help an investigator correlate user activity with software behaviour during a period under investigation."</p>
+</blockquote>
+
+<hr />
+
+<h4 id="show-the-csv-output-files">Show the CSV output files</h4>
+
+<p><strong>⌨️ TYPE:</strong></p>
+
+<pre><code>dir C:\Evidence\EvtxOutput
+</code></pre>
+
+<p><strong>👀 WAIT:</strong> Should list three CSV files: <code>Security_output.csv</code>, <code>System_output.csv</code>, <code>Application_output.csv</code>.</p>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"All three event logs have been successfully parsed into structured CSV files, ready for timeline analysis in a spreadsheet or forensic analysis platform."</p>
+</blockquote>
+
+<hr />
+
+<h3 id="415430-closing">⏱️ 4:15–4:30 — CLOSING</h3>
+
+<p><strong>🎤 SAY:</strong></p>
+
+<blockquote>
+  <p>"To summarise: this lab demonstrated Foremost performing filesystem-independent file carving with configurable scope, and EvtxECmd parsing Windows event logs into structured data for forensic timeline analysis. Both tools are open-source, operate on distinct platforms, and address complementary phases of the forensic workflow. Thank you."</p>
+</blockquote>
+
+<p><strong>🖱️ DO:</strong> Stop your screen recorder.</p>
+
+<hr />
+
+<h2 id="post-recording-checklist">📋 POST-RECORDING CHECKLIST</h2>
+
+<ul>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Play back the entire video.</strong> Can you hear your voice clearly throughout?</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Check the duration.</strong> Is it under 5:00? If over, re-record (do NOT try to speed it up — the marker will notice).</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Can you read the terminal text?</strong> If not, zoom in during the next recording or increase terminal font size.</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Upload to OneDrive</strong> (use your Heriot-Watt OneDrive):
+<ul>
+<li>Go to https://onedrive.live.com or your HW OneDrive</li>
+<li>Upload the video file</li>
+<li>Right-click → Share → "People you specify can view"</li>
+<li>Add: <code>r.soobhany@hw.ac.uk</code></li>
+<li>Copy the sharing link</li>
+</ul></li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Test the link:</strong> Open an incognito/private browser window, paste the link, confirm the video plays.</li>
+<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Paste the link</strong> into your LaTeX report (the video link box above the Introduction in <code>main.tex</code>).</li>
+</ul>
+
+<hr />
+
+<h2 id="emergency-fallbacks">🆘 EMERGENCY FALLBACKS</h2>
+
+<h3 id="ewfmount-says-command-not-found">"ewfmount says command not found"</h3>
+
+<pre><code>sudo apt install ewf-tools -y
+</code></pre>
+
+<p>Then try the mount command again.</p>
+
+<h3 id="foremost-says-command-not-found">"foremost says command not found"</h3>
+
+<pre><code>sudo apt install foremost -y
+</code></pre>
+
+<h3 id="the-e01-wont-mount-permission-denied">"The E01 won't mount / Permission denied"</h3>
+
+<p>Make sure you're using <code>sudo</code>:</p>
+
+<pre><code>sudo ewfmount /home/YOUR_USERNAME/evidence/usb_a.E01 /mnt/ewf
+</code></pre>
+
+<h3 id="foremost-says-output-directory-already-exists">"foremost says output directory already exists"</h3>
+
+<p>Delete the old output first:</p>
+
+<pre><code>rm -rf ~/evidence/output_default
+</code></pre>
+
+<p>Then run foremost again.</p>
+
+<h3 id="evtxecmd-gives-a-net-error">"EvtxECmd gives a .NET error"</h3>
+
+<p>Download and install .NET 6 Desktop Runtime from:<br />
+https://dotnet.microsoft.com/en-us/download/dotnet/6.0<br />
+Pick the "x64" Windows installer under ".NET Desktop Runtime". Install, restart Command Prompt, try again.</p>
+
+<h3 id="evtxecmd-says-access-denied-on-the-evtx-file">"EvtxECmd says Access Denied on the .evtx file"</h3>
+
+<p>You need an <strong>Administrator</strong> Command Prompt:</p>
+
+<ul>
+<li>Click Start</li>
+<li>Type <code>cmd</code></li>
+<li>Right-click "Command Prompt"</li>
+<li>Click "Run as administrator"</li>
+<li>Click Yes</li>
+</ul>
+
+<h3 id="my-ping-between-vms-doesnt-work">"My ping between VMs doesn't work"</h3>
+
+<p>That's okay. Skip the ping. Instead:</p>
+
+<ul>
+<li>In VirtualBox, click on each VM → Settings → Network</li>
+<li>Show both are set to "NAT Network" → "ForensicsNet"</li>
+<li>Say: "Both VMs are configured on the ForensicsNet NAT Network as shown in the network settings"</li>
+</ul>
+
+<h3 id="im-running-out-of-time-at-330">"I'm running out of time at 3:30"</h3>
+
+<p>Skip Example 3 for EvtxECmd (Application log). Go straight to:</p>
+
+<ul>
+<li><code>dir C:\Evidence\EvtxOutput</code> (show the files you DO have)</li>
+<li>Jump to the closing script</li>
+</ul>
+
+<h3 id="i-messed-up-a-command-got-an-error">"I messed up a command / got an error"</h3>
+
+<p>Don't panic. Don't restart the recording. Just say:</p>
+
+<blockquote>
+  <p>"Let me correct that."<br />
+  Fix the typo and re-run the command. Markers expect real terminal work — small mistakes actually look more authentic than a perfect run.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="timing-cheat-sheet-stick-to-your-phone-timer">📐 TIMING CHEAT SHEET (Stick to your phone timer)</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Phone Timer Shows</th>
+  <th>You Should Be At</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>4:30 remaining</td>
+  <td>Opening — showing VirtualBox Manager</td>
+</tr>
+<tr>
+  <td>4:10 remaining</td>
+  <td>Starting both VMs</td>
+</tr>
+<tr>
+  <td>3:40 remaining</td>
+  <td>Showing tool versions (foremost, dc3dd, EvtxECmd, MFTECmd)</td>
+</tr>
+<tr>
+  <td>3:20 remaining</td>
+  <td>Foremost Example 1 (default carve)</td>
+</tr>
+<tr>
+  <td>2:40 remaining</td>
+  <td>Foremost Example 2 (audit.txt)</td>
+</tr>
+<tr>
+  <td>2:10 remaining</td>
+  <td>Foremost Example 3 (custom config)</td>
+</tr>
+<tr>
+  <td>1:40 remaining</td>
+  <td>EvtxECmd Example 1 (Security.evtx)</td>
+</tr>
+<tr>
+  <td>1:10 remaining</td>
+  <td>EvtxECmd Example 2 (System.evtx)</td>
+</tr>
+<tr>
+  <td>0:45 remaining</td>
+  <td>EvtxECmd Example 3 (Application.evtx)</td>
+</tr>
+<tr>
+  <td>0:15 remaining</td>
+  <td>Closing statement — MUST start this by now</td>
+</tr>
+<tr>
+  <td>0:00</td>
+  <td>STOP. You should already be done.</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="pronunciation-guide">🗣️ PRONUNCIATION GUIDE</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Term</th>
+  <th>Say It Like</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Foremost</td>
+  <td>"FOUR-most"</td>
+</tr>
+<tr>
+  <td>EvtxECmd</td>
+  <td>"E-V-T-X-E-C-M-D" (spell it out)</td>
+</tr>
+<tr>
+  <td>MFTECmd</td>
+  <td>"M-F-T-E-C-M-D" (spell it out)</td>
+</tr>
+<tr>
+  <td>dc3dd</td>
+  <td>"D-C-three-D-D"</td>
+</tr>
+<tr>
+  <td>ewfmount</td>
+  <td>"E-W-F-mount"</td>
+</tr>
+<tr>
+  <td>.evtx</td>
+  <td>"dot E-V-T-X"</td>
+</tr>
+<tr>
+  <td>.E01</td>
+  <td>"dot E-zero-one"</td>
+</tr>
+<tr>
+  <td>usb_a.E01</td>
+  <td>"U-S-B underscore A dot E-zero-one"</td>
+</tr>
+<tr>
+  <td>CSV</td>
+  <td>"C-S-V"</td>
+</tr>
+<tr>
+  <td>forensic</td>
+  <td>"fuh-REN-sick"</td>
+</tr>
+<tr>
+  <td>JPEG</td>
+  <td>"JAY-peg"</td>
+</tr>
+<tr>
+  <td>authentication</td>
+  <td>"aw-then-tih-KAY-shun"</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="voice-tips">💡 VOICE TIPS</h2>
+
+<ul>
+<li><strong>Speak slowly.</strong> Slower than you think you need to. The marker is reading terminal output while listening to you.</li>
+<li><strong>Pause after each command.</strong> Give 2–3 seconds for output to appear before speaking again.</li>
+<li><strong>Don't whisper.</strong> Project your voice like you're explaining to someone across a table.</li>
+<li><strong>It's okay to sound like you're reading.</strong> You ARE reading. That's fine. Clarity beats performance.</li>
+<li><strong>Don't say "um" or "uh".</strong> If you need to think, just pause silently. Silence is better than filler.</li>
+</ul>
+
+    <div class="meta">Generated from VIDEO_SCRIPT.md on 2026-02-18 08:36 UTC.</div>
+  </div>
+</body>
+</html>
