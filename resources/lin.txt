@@ -15,3 +15,81 @@ cat ~/Evidance/output_default/audit.txt
 # --- EXAMPLE 3: Targeted Carve (images only) ---
 sudo foremost -c ~/Evidance/custom_foremost.conf -o ~/Evidance/output_custom -i /mnt/ewf/ewf1
 ls ~/Evidance/output_custom/
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# DEBIAN VM — VIDEO DEMO COMMANDS (FULL COLD-START)
+# Copy-paste these TOP TO BOTTOM during recording
+# ⚠️ The ewf mount does NOT survive a reboot — you MUST remount every time
+
+# ============================================
+# STEP 1: REMOUNT THE EVIDENCE IMAGE
+# (ewfmount disappears after shutdown)
+# ============================================
+sudo mkdir -p /mnt/ewf
+sudo ewfmount /home/vboxuser/Evidance/usb_a.E01 /mnt/ewf
+sudo ls -la /mnt/ewf/
+
+# ✅ You should see "ewf1" in the listing
+#
+# ❌ If it says "Resource busy" or "already mounted":
+#   sudo umount /mnt/ewf
+#   sudo ewfmount /home/vboxuser/Evidance/usb_a.E01 /mnt/ewf
+#
+# ❌ If it says "No such file or directory":
+#   Check spelling — your folder is Evidance not Evidence
+#
+# ❌ If "ewfmount: command not found":
+#   sudo apt install ewf-tools -y
+
+# ============================================
+# STEP 2: DELETE OLD OUTPUT FOLDERS
+# (foremost refuses to write if dir exists)
+# ============================================
+rm -rf ~/Evidance/output_default
+rm -rf ~/Evidance/output_custom
+
+# ============================================
+# STEP 3: SHOW TOOLS INSTALLED (on camera)
+# ============================================
+foremost -V
+dc3dd --version
+
+# ============================================
+# STEP 4: EXAMPLE 1 — Default Carve
+# ============================================
+sudo foremost -t all -o ~/Evidance/output_default -i /mnt/ewf/ewf1
+ls ~/Evidance/output_default/
+
+# ============================================
+# STEP 5: EXAMPLE 2 — Audit Trail
+# ============================================
+cat ~/Evidance/output_default/audit.txt
+
+# ============================================
+# STEP 6: EXAMPLE 3 — Targeted Carve
+# ============================================
+sudo foremost -c ~/Evidance/custom_foremost.conf -o ~/Evidance/output_custom -i /mnt/ewf/ewf1
+ls ~/Evidance/output_custom/
+
+# ============================================
+# 🆘 QUICK FIXES IF SOMETHING BREAKS MID-RECORDING
+# ============================================
+#
+# "Permission denied" on anything in /mnt/ewf/:
+#   → Put sudo in front of the command
+#
+# "output directory already exists":
+#   rm -rf ~/Evidance/output_default
+#   (then re-run the foremost command)
+#
+# "foremost: command not found":
+#   sudo apt install foremost -y
+#
+# audit.txt is empty or missing:
+#   → Example 1 didn't run properly. Re-run Step 4 first.
+#
+# custom_foremost.conf not found:
+#   sudo cp /etc/foremost.conf /home/vboxuser/Evidance/custom_foremost.conf
+#   (then edit it with nano to comment out non-image types)
