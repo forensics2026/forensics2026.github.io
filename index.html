@@ -1,2947 +1,1613 @@
-<!DOCTYPE html>
-
-<html data-bs-theme="dark" lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Digital Forensics | Course Hub (2025–26)</title>
-<meta content="Course hub for Digital Forensics (2025–26): lectures, labs, weekly notes, quizzes, and tools." name="description"/>
-<!-- Bootstrap 5.3 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
-<style>
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #111827;
-            --bg-card: #1a2234;
-            --bg-card-hover: #232d42;
-            --accent-cyan: #06b6d4;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-pink: #ec4899;
-            --accent-green: #10b981;
-            --accent-orange: #f97316;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #2d3a4f;
-            --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.3);
-            --glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
-            --gradient-primary: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            --gradient-purple: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-cyan);
-        }
-
-        /* Layout */
-        .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Navigation */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-        }
-
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .sidebar-brand .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-brand span {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-
-        .nav-section-title {
-            padding: 0.75rem 1.5rem 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-muted);
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border-left-color: var(--accent-cyan);
-        }
-
-        .nav-link.active {
-            background: var(--bg-card);
-            color: var(--accent-cyan);
-            border-left-color: var(--accent-cyan);
-        }
-
-        .nav-link i {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            min-height: 100vh;
-        }
-
-        /* Top Bar */
-        .top-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(10, 14, 23, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-        }
-
-        .search-container {
-            position: relative;
-            max-width: 500px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-top: 0.5rem;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-            z-index: 2000;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .search-results.active {
-            display: block;
-        }
-
-        .search-result-item {
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-item:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .search-result-item .badge {
-            font-size: 0.65rem;
-        }
-
-        /* Page Content */
-        .page-content {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-            border-radius: 24px;
-            padding: 3rem;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            isolation: isolate;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
-            background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        
-
-        .hero-section::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: url('banner.webp');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transform: scale(1.03);
-            filter: brightness(0.35) saturate(1.1);
-            opacity: 0.35;
-            z-index: -2;
-            pointer-events: none;
-        }
-
-.hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 50px;
-            font-size: 0.8rem;
-            color: var(--accent-cyan);
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-title {
-            font-size: 2.75rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        .instructor-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .instructor-avatar {
-            width: 56px;
-            height: 56px;
-            background: var(--gradient-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .instructor-details h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .instructor-details p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .stat-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-cyan);
-        }
-
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Bookmarks Section */
-        .bookmarks-section {
-            margin-bottom: 2rem;
-            display: none;
-        }
-
-        .bookmarks-section.has-bookmarks {
-            display: block;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .section-title i {
-            color: var(--accent-orange);
-        }
-
-        /* Content Cards */
-        .content-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            height: 100%;
-            position: relative;
-        }
-
-        .content-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .card-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-lecture {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--accent-blue);
-        }
-
-        .badge-quiz {
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--accent-purple);
-        }
-
-        .badge-resource {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-        }
-
-        .badge-video {
-            background: rgba(236, 72, 153, 0.15);
-            color: var(--accent-pink);
-        }
-
-        .bookmark-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 0.25rem;
-        }
-
-        .bookmark-btn:hover {
-            color: var(--accent-orange);
-            transform: scale(1.1);
-        }
-
-        .bookmark-btn.active {
-            color: var(--accent-orange);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-
-        .card-topics {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 1.25rem 0;
-        }
-
-        .card-topics li {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            padding: 0.35rem 0;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .card-topics li i {
-            color: var(--accent-cyan);
-            font-size: 0.7rem;
-            margin-top: 0.35rem;
-        }
-
-        .card-materials {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: auto;
-        }
-
-        .material-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.875rem;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .material-btn:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-        }
-
-        .material-btn i {
-            font-size: 0.9rem;
-        }
-
-        /* Week Sections */
-        .week-section {
-            margin-bottom: 3rem;
-        }
-
-        .week-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .week-number {
-            background: var(--gradient-primary);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .week-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        /* Video Section */
-        .video-section {
-            margin-bottom: 3rem;
-        }
-
-        .video-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .video-tab {
-            padding: 0.75rem 1.25rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .video-tab:hover {
-            background: var(--bg-card-hover);
-            color: var(--text-primary);
-        }
-
-        .video-tab.active {
-            background: var(--gradient-primary);
-            color: white;
-            border-color: transparent;
-        }
-
-        .video-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-        }
-
-        .video-wrapper video,
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            color: var(--text-muted);
-        }
-
-        .video-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--accent-cyan);
-        }
-
-        .video-info {
-            padding: 1.25rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .video-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .video-meta {
-            display: flex;
-            gap: 1.5rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .video-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Quiz Section */
-        .quiz-card {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-
-        .quiz-card:hover {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
-        }
-
-        .quiz-info {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .quiz-stat {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .quiz-stat i {
-            color: var(--accent-purple);
-        }
-
-        .quiz-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--gradient-purple);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .quiz-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
-            color: white;
-        }
-
-        /* Assessment Section */
-        .assessment-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .assessment-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .assessment-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .assessment-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .assessment-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .assessment-weight {
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .assessment-progress {
-            height: 8px;
-            background: var(--bg-primary);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .assessment-progress-bar {
-            height: 100%;
-            background: var(--gradient-primary);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .assessment-details {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .assessment-details strong {
-            color: var(--text-primary);
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .footer-brand img {
-            height: 40px;
-        }
-
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--accent-cyan);
-        }
-
-        /* Mobile Toggle */
-        .mobile-toggle {
-            display: none;
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 56px;
-            height: 56px;
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 1001;
-            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .overlay.active {
-                display: block;
-            }
-
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.25rem;
-            }
-
-            .hero-stats {
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .page-content {
-                padding: 1rem;
-            }
-
-            .hero-section {
-                padding: 1.5rem;
-            }
-
-            .hero-title {
-                font-size: 1.75rem;
-            }
-
-            .hero-stats {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .top-bar {
-                padding: 1rem;
-            }
-
-            .search-container {
-                max-width: 100%;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-in {
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        /* Highlight for search */
-        .highlight {
-            background: rgba(6, 182, 212, 0.3);
-            padding: 0 2px;
-            border-radius: 2px;
-        }
-    
-        /* Digital Forensics additions */
-        .badge-lab {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(34, 197, 94, 0.35);
-        }
-
-        .video-placeholder {
-            height: 100%;
-            min-height: 320px;
-            border-radius: 16px;
-            border: 1px dashed rgba(148, 163, 184, 0.45);
-            background: rgba(15, 23, 42, 0.35);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            text-align: center;
-        }
-        .video-placeholder .vp-icon {
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
-            color: var(--accent-cyan);
-        }
-        .video-placeholder .vp-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 0.35rem;
-        }
-        .video-placeholder .vp-sub {
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            max-width: 44ch;
-        }
-        .video-placeholder .vp-path code {
-            background: rgba(255, 255, 255, 0.06);
-            padding: 0.35rem 0.5rem;
-            border-radius: 10px;
-        }
-
-
-
-/* Top bar banner background (local asset) */
-.top-bar{
-    background: transparent !important;
-    overflow: visible;
-isolation: isolate;
-}
-.top-bar::before,
-.top-bar::after{
-    display:none !important;
-}
-/* ============================================
-   FLOATING MUSIC PLAYER
-   ============================================ */
-@keyframes waveformBounce {
-    0%   { height: 30%; }
-    100% { height: 100%; }
+% =============================================================
+%  LECTURE 7 — LIVE FORENSICS  (Exam-Ready Notes)
+%  F20FO / F21FO — Digital Forensics  2025-26
+% =============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- REQUIRED PACKAGES ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{float}
+
+% ---------- COLOUR DEFINITIONS ----------
+\definecolor{examblue}{HTML}{1A5276}
+\definecolor{defgreen}{HTML}{1E8449}
+\definecolor{warnred}{HTML}{C0392B}
+\definecolor{tipyellow}{HTML}{F39C12}
+\definecolor{lightgray}{HTML}{F2F3F4}
+\definecolor{cmdgray}{HTML}{2C3E50}
+\definecolor{lightblue}{HTML}{D6EAF8}
+\definecolor{lightgreen}{HTML}{D5F5E3}
+\definecolor{lightyellow}{HTML}{FEF9E7}
+\definecolor{lightred}{HTML}{FDEDEC}
+
+% ---------- TCOLORBOX STYLES ----------
+\tcbuselibrary{skins, breakable}
+
+\newtcolorbox{definitionbox}[1][]{
+  colback=lightgreen, colframe=defgreen,
+  fonttitle=\bfseries, title={#1},
+  breakable, sharp corners, boxrule=1pt
 }
 
-.music-fab {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 6rem;
-    z-index: 1050;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, #0e7490, #06b6d4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 0 10px rgba(6,182,212,0.3);
+\newtcolorbox{examtip}[1][]{
+  colback=lightyellow, colframe=tipyellow,
+  fonttitle=\bfseries, title={\textcolor{tipyellow}{$\bigstar$ Exam Tip:} #1},
+  breakable, sharp corners, boxrule=1pt
 }
 
-.music-fab:hover { transform: scale(1.1); }
-.music-fab.playing {
-    box-shadow: 0 0 20px rgba(6,182,212,0.6), 0 0 40px rgba(6,182,212,0.3);
+\newtcolorbox{warningbox}[1][]{
+  colback=lightred, colframe=warnred,
+  fonttitle=\bfseries, title={\textcolor{warnred}{$\triangle$ Warning:} #1},
+  breakable, sharp corners, boxrule=1pt
 }
 
-.music-fab .waveform-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 24px;
+\newtcolorbox{examplebox}[1][]{
+  colback=lightblue, colframe=examblue,
+  fonttitle=\bfseries, title={Example: #1},
+  breakable, sharp corners, boxrule=1pt
 }
 
-.music-fab .waveform-bars .bar {
-    width: 3px;
-    border-radius: 2px;
-    background: #fff;
-    transition: height 0.3s ease;
+\newtcolorbox{commandbox}[1][]{
+  colback=lightgray, colframe=cmdgray,
+  fonttitle=\bfseries\ttfamily, title={#1},
+  breakable, sharp corners, boxrule=1pt
 }
 
-.music-fab.playing .bar { animation: waveformBounce 0.6s ease-in-out infinite alternate; }
-.music-fab .bar:nth-child(1) { height: 60%; animation-delay: 0s; }
-.music-fab .bar:nth-child(2) { height: 80%; animation-delay: 0.15s; }
-.music-fab .bar:nth-child(3) { height: 100%; animation-delay: 0.3s; }
-.music-fab .bar:nth-child(4) { height: 70%; animation-delay: 0.1s; }
-.music-fab .bar:nth-child(5) { height: 90%; animation-delay: 0.25s; }
-
-.music-player-panel {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 1049;
-    width: 340px;
-    max-height: 540px;
-    background: linear-gradient(180deg, #1e293b, #0f172a);
-    border: 1px solid rgba(6,182,212,0.3);
-    border-radius: 20px;
-    box-shadow: 0 0 30px rgba(6,182,212,0.15), 0 20px 60px rgba(0,0,0,0.5);
-    overflow: hidden;
-    transform: translateY(20px);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    display: flex;
-    flex-direction: column;
+% ---------- LISTINGS STYLE ----------
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{lightgray},
+  frame=single,
+  rulecolor=\color{cmdgray},
+  breaklines=true,
+  showstringspaces=false,
+  keywordstyle=\color{examblue}\bfseries,
+  commentstyle=\color{defgreen},
+  stringstyle=\color{warnred}
 }
 
-.music-player-panel.open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
+% ---------- HEADER / FOOTER ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{Lecture 7: Live Forensics}}
+\fancyhead[R]{F20FO/F21FO -- Digital Forensics}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- HYPERREF ----------
+\hypersetup{
+  colorlinks=true, linkcolor=examblue,
+  urlcolor=examblue, citecolor=examblue
 }
 
-.mp-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.85rem 1.15rem;
-    border-bottom: 1px solid rgba(6,182,212,0.15);
-}
-
-.mp-header .mp-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #e2e8f0;
-}
-
-.mp-header .mp-title i { color: var(--accent-cyan); }
-
-.mp-header .mp-close {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background 0.2s;
-}
-
-.mp-header .mp-close:hover { background: rgba(255,255,255,0.1); }
-
-.mp-now-playing { padding: 0.85rem 1.15rem 0; }
-.mp-now-playing .mp-track-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.mp-now-playing .mp-track-artist {
-    font-size: 0.8rem;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.mp-visualizer {
-    padding: 0.5rem 1.15rem;
-}
-
-.mp-visualizer canvas {
-    width: 100%;
-    height: 60px;
-    border-radius: 8px;
-}
-
-.mp-controls { padding: 0 1.15rem 0.5rem; }
-
-/* Progress bar */
-.mp-progress { margin-bottom: 0.5rem; }
-
-.mp-progress input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: #334155;
-    outline: none;
-    cursor: pointer;
-}
-
-.mp-progress input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #06b6d4;
-    border: 2px solid #0e7490;
-    cursor: pointer;
-}
-
-.mp-progress input[type=range]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #06b6d4;
-    border: 2px solid #0e7490;
-    cursor: pointer;
-}
-
-.mp-time {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    color: #64748b;
-    margin-top: 2px;
-}
-
-/* Buttons row */
-.mp-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.mp-btn {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
-    transition: color 0.2s, transform 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mp-btn:hover { color: #e2e8f0; transform: scale(1.1); }
-.mp-btn.active { color: #06b6d4; }
-
-.mp-btn-play {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #0e7490, #06b6d4);
-    border: none;
-    border-radius: 50%;
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 15px rgba(6,182,212,0.4);
-    transition: transform 0.2s;
-}
-
-.mp-btn-play:hover { transform: scale(1.1); }
-
-/* Volume */
-.mp-volume {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.25rem;
-}
-
-.mp-volume input[type=range] {
-    -webkit-appearance: none;
-    flex: 1;
-    height: 4px;
-    border-radius: 2px;
-    background: #334155;
-    outline: none;
-    cursor: pointer;
-}
-
-.mp-volume input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #06b6d4;
-    border: 2px solid #0e7490;
-}
-
-.mp-volume input[type=range]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #06b6d4;
-    border: 2px solid #0e7490;
-}
-
-/* Playlist */
-.mp-playlist {
-    border-top: 1px solid rgba(6,182,212,0.1);
-    padding: 0.5rem 0.75rem 0.75rem;
-    max-height: 180px;
-    overflow-y: auto;
-}
-
-.mp-playlist-title {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #475569;
-    padding: 0.25rem 0.4rem 0.5rem;
-}
-
-.mp-playlist-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0.6rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-    border-left: 3px solid transparent;
-}
-
-.mp-playlist-item:hover { background: rgba(255,255,255,0.05); }
-.mp-playlist-item.active {
-    background: rgba(6,182,212,0.12);
-    border-left-color: #06b6d4;
-}
-
-.mp-playlist-item .mp-pl-name {
-    font-size: 0.85rem;
-    color: #cbd5e1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.mp-playlist-item.active .mp-pl-name { color: #e2e8f0; }
-
-.mp-playlist-item .mp-pl-artist {
-    font-size: 0.7rem;
-    color: #64748b;
-}
-
-.mp-playlist-item .mp-pl-dur {
-    font-size: 0.7rem;
-    color: #475569;
-    flex-shrink: 0;
-    margin-left: 0.5rem;
-}
-
-/* Responsive: move FAB when sidebar is hidden */
-@media (max-width: 1024px) {
-    .music-fab { right: 1.5rem; bottom: 5.5rem; }
-    .music-player-panel { right: 1rem; bottom: 5.5rem; width: 310px; }
-}
-
-@media (max-width: 480px) {
-    .music-player-panel { width: calc(100vw - 2rem); right: 1rem; left: 1rem; }
-}
-</style>
-</head>
-<body>
-<!-- Overlay for mobile -->
-<div class="overlay" id="overlay"></div>
-<!-- Mobile Toggle Button -->
-<button class="mobile-toggle" id="mobileToggle">
-<i class="bi bi-list"></i>
-</button>
-<div class="main-wrapper">
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-<div class="sidebar-header">
-<a class="sidebar-brand" href="#">
-<div class="logo-icon">
-<i class="bi bi-database"></i>
-</div>
-<span>Digital Forensics</span>
-</a>
-</div>
-<nav class="sidebar-nav">
-<div class="nav-section-title">Quick Access</div>
-<a class="nav-link" href="#bookmarks" id="bookmarksNavLink" style="display: none;">
-<i class="bi bi-bookmark-star-fill"></i>
-                    Bookmarks
-                    <span class="badge bg-warning text-dark ms-auto" id="bookmarkCount">0</span>
-</a>
-<a class="nav-link active" href="#hero">
-<i class="bi bi-house"></i>
-                    Overview
-                </a>
-<a class="nav-link" href="#videos">
-<i class="bi bi-play-circle"></i>
-                    Video Lectures
-                </a>
-<div class="nav-section-title">Course Content</div>
-<a class="nav-link" href="#orientation">
-<i class="bi bi-info-circle"></i>
-                    Orientation
-                </a>
-<a class="nav-link" href="#week1">
-<i class="bi bi-1-circle"></i>
-                    Week 1 — Intro to DF
-                </a>
-<a class="nav-link" href="#week2">
-<i class="bi bi-2-circle"></i>
-                    Week 2 — Digital Evidence
-                </a>
-<a class="nav-link" href="#week3">
-<i class="bi bi-3-circle"></i>
-                    Week 3 — Linux Artefacts
-                </a>
-<a class="nav-link" href="#week4">
-<i class="bi bi-4-circle"></i>
-                    Week 4 — Technical Concepts
-                </a>
-<a class="nav-link" href="#week5">
-<i class="bi bi-5-circle"></i>
-                    Week 5 — Anti-Forensics &amp; Recovery
-                </a><a class="nav-link" href="#week6">
-<i class="bi bi-6-circle"></i>
-                    Week 6 — Imaging &amp; Analysis
-                </a>
-<div class="nav-section-title">Practice</div>
-<a class="nav-link" href="#quizzes">
-<i class="bi bi-patch-question"></i>
-                    Quizzes
-                </a>
-<div class="nav-section-title">Resources</div>
-<a class="nav-link" href="#notes">
-<i class="bi bi-file-earmark-text"></i>
-                    Weekly Notes
-                </a>
-<a class="nav-link" href="#resources">
-<i class="bi bi-folder2-open"></i>
-                    Tools &amp; Files
-                </a>
-</nav>
-</aside>
-<!-- Main Content -->
-<main class="main-content">
-<!-- Top Bar with Search -->
-<div class="top-bar">
-<div class="d-flex align-items-center justify-content-between">
-<div class="search-container flex-grow-1">
-<i class="bi bi-search search-icon"></i>
-<input class="search-input" id="searchInput" placeholder="Search lectures, labs, notes, quizzes..." type="text"/>
-<div class="search-results" id="searchResults"></div>
-</div>
-<div class="d-flex align-items-center gap-3 ms-3">
-<span class="text-muted d-none d-md-block">MSc Cyber Security</span>
-</div>
-</div>
-</div>
-<!-- Page Content -->
-<div class="page-content">
-<!-- Hero Section -->
-<section class="hero-section animate-in" id="hero">
-<div class="hero-badge">
-<i class="bi bi-mortarboard"></i>
-                        Heriot-Watt University Dubai
-                    </div>
-<h1 class="hero-title">Digital Forensics</h1>
-<p class="hero-subtitle">2025–26 Course Hub</p>
-<div class="instructor-info">
-<div class="instructor-avatar">DF</div>
-<div class="instructor-details">
-<h4>Materials organised by week</h4>
-<p>Lectures • Labs • Notes • Quizzes • Tools</p>
-</div>
-</div>
-<div class="hero-stats">
-<div class="stat-item">
-<div class="stat-icon">
-<i class="bi bi-calendar-week"></i>
-</div>
-<div>
-<div class="stat-value">5</div>
-<div class="stat-label">Weeks</div>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon">
-<i class="bi bi-easel2"></i>
-</div>
-<div>
-<div class="stat-value">5</div>
-<div class="stat-label">Lectures</div>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon">
-<i class="bi bi-terminal"></i>
-</div>
-<div>
-<div class="stat-value">5</div>
-<div class="stat-label">Labs</div>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon">
-<i class="bi bi-patch-question"></i>
-</div>
-<div>
-<div class="stat-value">2</div>
-<div class="stat-label">Quizzes</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Bookmarks Section -->
-<section class="bookmarks-section" id="bookmarks">
-<div class="section-header">
-<h2 class="section-title">
-<i class="bi bi-bookmark-star-fill"></i>
-                            Your Bookmarks
-                        </h2>
-</div>
-<div class="row g-4" id="bookmarksContainer"></div>
-</section>
-<!-- Video Section -->
-<section class="video-section" id="videos">
-<div class="section-header">
-<h2 class="section-title">
-<i class="bi bi-play-circle" style="color: var(--accent-pink);"></i>
-                            Video Lectures
-                        </h2>
-</div>
-<div class="video-tabs">
-<button class="video-tab active" data-week="0">Intro</button>
-<button class="video-tab" data-week="1">Week 1</button>
-<button class="video-tab" data-week="2">Week 2</button>
-<button class="video-tab" data-week="3">Week 3–4</button>
-<button class="video-tab" data-week="5">Week 5</button>
-<button class="video-tab" data-week="6">Week 6</button></div>
-<div class="video-container">
-<div class="video-wrapper" id="videoWrapper">
-<div class="video-content" data-week="0"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week0-orientation.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="1" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week1-Intro%20to%20DF.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="2" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week2-digital-evidence.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="3" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week3-4-linux-artefacts.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="5" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week5-anti-forensics-cryptography.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div>
-<div class="video-content" data-week="6" style="display: none;"><video controls="True" preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;"><source src="videos/week6-forensic-imaging-analysis.mp4" type="video/mp4"/>Your browser does not support the video tag.</video></div></div>
-<div class="video-info">
-<h3 class="video-title" id="videoTitle">Intro — Orientation</h3>
-<div class="video-meta">
-<span id="videoMetaDuration"><i class="bi bi-clock"></i> TBD</span>
-<span id="videoMetaTopic"><i class="bi bi-eye"></i> Dubai introduction + course setup</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Orientation -->
-<section class="week-section" id="orientation">
-<div class="week-header">
-<span class="week-number" style="background: var(--gradient-purple);">Intro</span>
-<h2 class="week-title">Orientation &amp; Setup</h2>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="dubai introduction lecture digital forensics course orientation pdf">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-orientation-dubai-intro" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Dubai Introduction lecture</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Course expectations &amp; workflow</li>
-<li><i class="bi bi-chevron-right"></i> Tools you’ll use (Linux, VirtualBox, imaging)</li>
-<li><i class="bi bi-chevron-right"></i> Lab submission habits</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 1 -- Intro to DF_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> PDF
-                                    </a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Video placeholder
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="folder structure lectures labs notes quizzes resources digital forensics hub">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-folder2-open"></i> Quick Setup</span>
-<button class="bookmark-btn" data-id="df-quick-setup" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Recommended folder structure</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> <code>/lectures</code> — lecture PDFs</li>
-<li><i class="bi bi-chevron-right"></i> <code>/labs</code> — lab PDFs</li>
-<li><i class="bi bi-chevron-right"></i> <code>/notes</code> — weekly notes</li>
-<li><i class="bi bi-chevron-right"></i> <code>/quizzes</code> — quiz pages/files</li>
-<li><i class="bi bi-chevron-right"></i> <code>/resources</code> — tools &amp; extra files</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="#resources"><i class="bi bi-arrow-right"></i> Jump to Tools &amp; Files</a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Week 1 -->
-<section class="week-section" id="week1">
-<div class="week-header">
-<span class="week-number">Week 1</span>
-<h2 class="week-title">Intro to Digital Forensics</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/week-1-notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 1 Notes (PDF)
-                        </a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 1 Video 
-                        </a>
-<a class="material-btn" href="videos/week1-Intro%20to%20DF.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Video 2 (MP4)
-                        </a>
-<a class="material-btn" href="quizzes/Quiz-topic1-lab1.html" rel="noopener" target="_blank">
-<i class="bi bi-lightning"></i> Quiz (Topic 1 / Lab 1)
-</a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 1 intro to digital forensics 2025 26 pdf">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w1-lecture-topic1" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 1 — Intro to DF</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> What digital forensics is (and isn’t)</li>
-<li><i class="bi bi-chevron-right"></i> Investigation workflow &amp; evidence handling</li>
-<li><i class="bi bi-chevron-right"></i> Common artefacts &amp; case basics</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 1 -- Intro to DF_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 01 introduction to linux and virtualbox 2025 26 pdf">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w1-lab01" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 01 — Linux &amp; VirtualBox</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> VM setup &amp; basic Linux navigation</li>
-<li><i class="bi bi-chevron-right"></i> Filesystems, permissions, and safe workflow</li>
-<li><i class="bi bi-chevron-right"></i> Getting ready for imaging/analysis labs</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2001%20Introduction%20to%20Linux%20and%20VirtualBox_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-<a class="material-btn" href="#resources">
-<i class="bi bi-file-earmark-zip"></i> Tools (see Resources)
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Week 2 -->
-<section class="week-section" id="week2">
-<div class="week-header">
-<span class="week-number">Week 2</span>
-<h2 class="week-title">DF &amp; Digital Evidence</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/week-2-notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 2 Notes (PDF)
-                        </a><a class="material-btn" href="notes/Lab02_Master_Study_Notes.pdf" rel="noopener" target="_blank"><i class="bi bi-journal-text"></i> Lab 02 Master Notes (PDF)</a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 2 Video 
-                        </a>
-<a class="material-btn" href="videos/week2-digital-evidence.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Video (MP4)
-</a>
-<a class="material-btn" href="quizzes/Quiz-topic2-lab2.html" rel="noopener" target="_blank">
-<i class="bi bi-lightning"></i> Quiz (Topic 2 / Lab 2)
-</a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 2 df and digital evidence 2025 26 pdf chain of custody">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w2-lecture-topic2" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 2 — DF &amp; Digital Evidence</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Evidence types &amp; integrity</li>
-<li><i class="bi bi-chevron-right"></i> Chain of custody &amp; documentation</li>
-<li><i class="bi bi-chevron-right"></i> Acquisition vs analysis (don’t mix them)</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 2 -- DF &amp; Digital Evidence_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 02 digital forensic foundations 2025 26 pdf acquisition hashing">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w2-lab02" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 02 — Digital Forensic Foundations</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Basic acquisition workflow</li>
-<li><i class="bi bi-chevron-right"></i> Hashing and verification</li>
-<li><i class="bi bi-chevron-right"></i> Evidence handling habits</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2002%20Digital%20Forensic%20Foundations_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Week 3 -->
-<section class="week-section" id="week3">
-<div class="week-header">
-<span class="week-number">Week 3</span>
-<h2 class="week-title">Linux Commands &amp; Artefacts</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/week-3-4-notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 3–4 Notes (Combined PDF)
-                        </a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 3 Video 
-                        </a>
-<a class="material-btn" href="videos/week3-4-linux-artefacts.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Week 3–4 Video (MP4)
-</a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 3 technical concepts 2025 26 pdf">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w3-lecture-topic3" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 3 — Technical Concepts (Weeks 3–4)</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Technical foundations used in Weeks 3–4</li>
-<li><i class="bi bi-chevron-right"></i> Concepts that show up in labs &amp; quizzes</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 3 -- Technical Concepts_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-<a class="material-btn" href="#quizzes">
-<i class="bi bi-patch-question"></i> Topic 3 quiz
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 03 linux commands and artefacts 2025 26 pdf">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w3-lab03" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 03 — Linux Commands &amp; Artefacts</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Command-line evidence gathering</li>
-<li><i class="bi bi-chevron-right"></i> Logs, timestamps, and artefact hunting</li>
-<li><i class="bi bi-chevron-right"></i> Repeatable notes for reports</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2003%20Linux%20Commands%20and%20Artefacts_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-<a class="material-btn" href="#quizzes">
-<i class="bi bi-patch-question"></i> Lab quiz
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="linux quick reference commands cheat sheet">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-file-earmark"></i> Resource</span>
-<button class="bookmark-btn" data-id="df-linux-quickref" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">linux-quickref.pdf</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Fast command reminders</li>
-<li><i class="bi bi-chevron-right"></i> Useful during Labs 01–03</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="resources/linux-quickref.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Open PDF
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Week 4 -->
-<section class="week-section" id="week4">
-<div class="week-header">
-<span class="week-number">Week 4</span>
-<h2 class="week-title">Technical Concepts + Data Hiding &amp; Recovery</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/week-3-4-notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 3–4 Notes (Combined PDF)
-                        </a><a class="material-btn" href="notes/Lab04_Master_Study_Notes.pdf" rel="noopener" target="_blank"><i class="bi bi-journal-text"></i> Lab 04 Master Notes (PDF)</a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 4 Video 
-                        </a>
-<a class="material-btn" href="videos/week3-4-linux-artefacts.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Week 3–4 Video (MP4)
-</a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 3 technical concepts 2025 26 pdf">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w4-lecture-topic3" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 3 — Technical Concepts</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Core technical foundations for DF work</li>
-<li><i class="bi bi-chevron-right"></i> Concepts that show up in labs &amp; quizzes</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 3 -- Technical Concepts_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-<a class="material-btn" href="#quizzes">
-<i class="bi bi-patch-question"></i> Topic 3 quiz
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 04 data hiding and recovery 2025 26 pdf steganography recovery">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w4-lab04" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 04 — Data Hiding &amp; Recovery</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Hiding techniques &amp; recovery methods</li>
-<li><i class="bi bi-chevron-right"></i> Practical artefacts &amp; reporting</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2004%20Data%20Hiding%20and%20Recovery_2025-26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-<a class="material-btn" href="resources/lab04-resources-link.html" rel="noopener" target="_blank">
-<i class="bi bi-link-45deg"></i> Lab04 resources link
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Week 5 -->
-<section class="week-section" id="week5">
-<div class="week-header">
-<span class="week-number">Week 5</span>
-<h2 class="week-title">Anti-Forensics, Cryptography &amp; Data Recovery</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/df_topic5.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 5 Notes (PDF)
-                        </a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 5 Video
-                        </a>
-<a class="material-btn" href="lectures/Lecture Topic 5 -- Anti-Forensics &amp; Cryptography_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-easel2"></i> Topic 5 Material
-                        </a>
-<a class="material-btn" href="labs/Lab%2005%20File%20Structure%20%26%20Data%20Recovery_2025_26%20(2).pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab 05 Sheet
-                        </a>
-<a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/files/4760280?module_item_id=2379896" rel="noopener" target="_blank">
-<i class="bi bi-link-45deg"></i> Lab 5 Resources
-                        </a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 5 anti forensics cryptography week 5 digital forensics steganography cryptography implications for digital forensics">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w5-lecture-topic5" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 5 — Anti-Forensics &amp; Cryptography</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Incidental vs intentional anti-forensics</li>
-<li><i class="bi bi-chevron-right"></i> Steganography, cryptography, and DF implications</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 5 -- Anti-Forensics &amp; Cryptography_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-<a class="material-btn" href="notes/df_topic5.pdf" rel="noopener" target="_blank">
-<i class="bi bi-journal-text"></i> Week 5 Notes
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 05 file structure data recovery week 5 digital forensics number systems file signatures file carving png jpeg exif frhed scalpel">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w5-lab05" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 05 — File Structure &amp; Data Recovery</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Number systems, file signatures, headers, and footers</li>
-<li><i class="bi bi-chevron-right"></i> File carving, EXIF checks, and recovery workflow</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2005%20File%20Structure%20%26%20Data%20Recovery_2025_26%20(2).pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-<a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/files/4760280?module_item_id=2379896" rel="noopener" target="_blank">
-<i class="bi bi-link-45deg"></i> Lab 5 Resources
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Weekly Notes -->
-
-<!-- Week 6 -->
-<section class="week-section" id="week6">
-<div class="week-header">
-<span class="week-number">Week 6</span>
-<h2 class="week-title">Forensic Imaging, Incident Response &amp; Data Analysis</h2>
-</div>
-<div class="card-materials mb-4">
-<a class="material-btn" href="notes/Lab06_Anti_Forensics_Cryptography_Notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-text"></i> Week 6 Notes (PDF)
-                        </a>
-<a class="material-btn" href="#videos">
-<i class="bi bi-play-btn"></i> Week 6 Video
-                        </a>
-<a class="material-btn" href="videos/week6-forensic-imaging-analysis.mp4" rel="noopener" target="_blank">
-<i class="bi bi-file-play"></i> Week 6 Video (MP4)
-                        </a>
-<a class="material-btn" href="lectures/Lecture Topic 6 -- Forensic Imaging &amp; Analysis_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-easel2"></i> Topic 6 Material
-                        </a>
-<a class="material-btn" href="labs/Lab%2006%20Anti-forensics%20and%20Cryptography_2025-26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab 06 Sheet
-                        </a>
-<a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/modules/items/2382829" rel="noopener" target="_blank">
-<i class="bi bi-link-45deg"></i> Lab 6 Resources
-                        </a>
-</div>
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="lecture topic 6 forensic imaging analysis incident response evidence collection write blocking week 6 digital forensics">
-<div class="card-header">
-<span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
-<button class="bookmark-btn" data-id="df-w6-lecture-topic6" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lecture Topic 6 — Forensic Imaging &amp; Analysis</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Incident response management and IR lifecycle</li>
-<li><i class="bi bi-chevron-right"></i> Forensic imaging, evidence processing, and write blocking</li>
-<li><i class="bi bi-chevron-right"></i> Evidence collection principles and forensic data analysis</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="lectures/Lecture Topic 6 -- Forensic Imaging &amp; Analysis_2025_26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lecture PDF
-                                    </a>
-<a class="material-btn" href="notes/Lab06_Anti_Forensics_Cryptography_Notes.pdf" rel="noopener" target="_blank">
-<i class="bi bi-journal-text"></i> Week 6 Notes
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 06 anti forensics cryptography symmetric key encryption asymmetric key encryption password cracking python caesar frequency analysis vigenere week 6 digital forensics">
-<div class="card-header">
-<span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
-<button class="bookmark-btn" data-id="df-w6-lab06" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab 06 — Anti-Forensics &amp; Cryptography</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Symmetric and asymmetric encryption fundamentals</li>
-<li><i class="bi bi-chevron-right"></i> Password cracking and basic cryptanalysis tasks</li>
-<li><i class="bi bi-chevron-right"></i> Python exercises with ciphers, frequency analysis, and Vigenère</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="labs/Lab%2006%20Anti-forensics%20and%20Cryptography_2025-26.pdf" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Lab PDF
-                                    </a>
-<a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/modules/items/2382829" rel="noopener" target="_blank">
-<i class="bi bi-link-45deg"></i> Lab 6 Resources
-                                    </a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section class="week-section" id="notes">
-<div class="week-header">
-<span class="week-number" style="background: var(--gradient-purple);">Notes</span>
-<h2 class="week-title">Weekly Notes</h2>
-</div><div class="alert" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; margin-bottom: 1.5rem;"><i class="bi bi-info-circle me-2" style="color: var(--accent-cyan);"></i><span style="color: var(--text-secondary);">Lab 01 notes are included in the Week 1 Notes PDF. Lab 03 notes are included in the combined Week 3–4 Notes PDF.</span></div>
-<div class="row g-4">
-<div class="col-lg-4">
-<div class="content-card" data-search="week 1 notes digital forensics">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
-<button class="bookmark-btn" data-id="df-notes-w1" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Week 1 Notes</h3>
-<div class="card-materials">
-<a class="material-btn" href="notes/week-1-notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
-</div>
-</div>
-</div>
-<div class="col-lg-4">
-<div class="content-card" data-search="week 2 notes digital forensics">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
-<button class="bookmark-btn" data-id="df-notes-w2" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Week 2 Notes</h3>
-<div class="card-materials">
-<a class="material-btn" href="notes/week-2-notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
-</div>
-</div>
-</div>
-<div class="col-lg-4">
-<div class="content-card" data-search="week 3 week 4 notes combined digital forensics">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
-<button class="bookmark-btn" data-id="df-notes-w3w4" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Week 3–4 Notes (Combined)</h3>
-<div class="card-materials">
-<a class="material-btn" href="notes/week-3-4-notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
-</div>
-</div>
-</div>
-<div class="col-lg-4"><div class="content-card" data-search="lab02 master study notes digital forensics"><div class="card-header"><span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span><button class="bookmark-btn" data-id="df-notes-lab02" title="Bookmark this"><i class="bi bi-bookmark"></i></button></div><h3 class="card-title">Lab 02 — Master Study Notes</h3><div class="card-materials"><a class="material-btn" href="notes/Lab02_Master_Study_Notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a></div></div></div><div class="col-lg-4"><div class="content-card" data-search="lab04 master study notes data hiding recovery digital forensics"><div class="card-header"><span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span><button class="bookmark-btn" data-id="df-notes-lab04" title="Bookmark this"><i class="bi bi-bookmark"></i></button></div><h3 class="card-title">Lab 04 — Master Study Notes</h3><div class="card-materials"><a class="material-btn" href="notes/Lab04_Master_Study_Notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a></div></div></div><div class="col-lg-4"><div class="content-card" data-search="week 5 notes anti forensics cryptography data recovery digital forensics"><div class="card-header"><span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span><button class="bookmark-btn" data-id="df-notes-w5" title="Bookmark this"><i class="bi bi-bookmark"></i></button></div><h3 class="card-title">Week 5 Notes</h3><div class="card-materials"><a class="material-btn" href="notes/df_topic5.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a></div></div></div><div class="col-lg-4"><div class="content-card" data-search="week 6 notes forensic imaging analysis anti forensics cryptography digital forensics"><div class="card-header"><span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span><button class="bookmark-btn" data-id="df-notes-w6" title="Bookmark this"><i class="bi bi-bookmark"></i></button></div><h3 class="card-title">Week 6 Notes</h3><div class="card-materials"><a class="material-btn" href="notes/Lab06_Anti_Forensics_Cryptography_Notes.pdf" rel="noopener" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a></div></div></div></div>
-</section>
-<!-- Quizzes -->
-<section class="week-section" id="quizzes">
-<div class="week-header">
-<span class="week-number" style="background: var(--gradient-purple);">Practice</span>
-<h2 class="week-title">Quizzes</h2>
-</div>
-<!-- <div class="alert" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-<i class="bi bi-info-circle me-2" style="color: var(--accent-cyan);"></i>
-<span style="color: var(--text-secondary);">You said you have (1) a lab-material quiz and (2) a Topic 3 quiz that belongs to Week 4. These are placeholders—swap links to your actual quiz files/pages.</span>
-</div> -->
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz lab materials week 1 week 2 week 3 week 4 digital forensics practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-labs" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab Materials Quiz</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Questions covering Labs 01–04</li>
-<li><i class="bi bi-chevron-right"></i> Good for revision before practicals</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Labs_01-04_Ultimate_Quiz.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz topic 3 technical concepts week 4 digital forensics practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-topic3" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Topic 3 Quiz (Week 4)</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Technical concepts focus</li>
-<li><i class="bi bi-chevron-right"></i> Matches Lecture Topic 3</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Topic3_Lab03_Ultimate_Quiz.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz topic 1 lab 1 intro to digital forensics week 1 practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-topic1-lab1" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Quiz — Topic 1 / Lab 1</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Week 1 fundamentals + Lab 01 basics</li>
-<li><i class="bi bi-chevron-right"></i> Good warm-up before Labs and exams</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Quiz-topic1-lab1.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card quiz-card" data-search="quiz topic 2 lab 2 digital evidence week 2 practice">
-<div class="card-header">
-<span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-<button class="bookmark-btn" data-id="df-quiz-topic2-lab2" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Quiz — Topic 2 / Lab 2</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Evidence integrity, chain of custody, hashing</li>
-<li><i class="bi bi-chevron-right"></i> Matches Week 2 lecture + Lab 02 workflow</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="quizzes/Quiz-topic2-lab2.html" rel="noopener" target="_blank"><i class="bi bi-lightning"></i> Open quiz</a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Tools & Files -->
-<section class="week-section" id="resources">
-<div class="section-header">
-<h2 class="section-title">
-<i class="bi bi-folder2-open" style="color: var(--accent-green);"></i>
-                            Tools &amp; Files
-                        </h2>
-</div>
-<!-- <div class="alert" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-<i class="bi bi-exclamation-triangle me-2" style="color: var(--accent-orange);"></i>
-<span style="color: var(--text-secondary);">If you host this on GitHub Pages, big binaries (like <code>.exe</code> or <code>.E01</code>) may be painful. Keep them in OneDrive/Drive and link out, or use Git LFS.</span>
-</div> -->
-<div class="row g-4">
-<div class="col-lg-6">
-<div class="content-card" data-search="creating a video using ms teams resource">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-camera-reels"></i> Guide</span>
-<button class="bookmark-btn" data-id="df-resource-teams-video" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Creating a Video using MS Teams</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> How to record/submission-friendly videos</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="resources/Creating%20a%20Video%20using%20MS%20Teams.png" rel="noopener" target="_blank">
-<i class="bi bi-file-earmark-pdf"></i> Open
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="ftk imager accessdata tool download exe">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-tools"></i> Tool</span>
-<button class="bookmark-btn" data-id="df-tool-ftk-imager" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">AccessData_FTK_Imager_4.5.0_(x64).exe</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Imaging / acquisition tool</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="https://drive.google.com/file/d/1GyGOLoCTQbZm6hgk2vWIlxFbvYfBZ5ex/view?usp=drive_link" rel="noopener" target="_blank">
-<i class="bi bi-download"></i> Download
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="usb a e01 evidence image lab">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-hdd"></i> Evidence File</span>
-<button class="bookmark-btn" data-id="df-evidence-usb-e01" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">usb_a.E01</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Sample evidence image for labs</li>
-<li><i class="bi bi-chevron-right"></i> Keep original read-only</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="resources/usb_a.E01">
-<i class="bi bi-download"></i> Download / Link
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 04 resources link">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-link-45deg"></i> Link</span>
-<button class="bookmark-btn" data-id="df-lab04-link" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab04 Resources link</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Add the Canvas/Drive link here later</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="https://heriotwatt-my.sharepoint.com/personal/as518_hw_ac_uk/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fas518%5Fhw%5Fac%5Fuk%2FDocuments%2FTeaching%2Fprevious%20yrs%2F24%2D25%2Fsem2%2FF2xFO%2Flabs%2Flabs%5Fresources%2Flab04%5Fresources%2Ezip&amp;parent=%2Fpersonal%2Fas518%5Fhw%5Fac%5Fuk%2FDocuments%2FTeaching%2Fprevious%20yrs%2F24%2D25%2Fsem2%2FF2xFO%2Flabs%2Flabs%5Fresources&amp;ga=1" rel="noopener" target="_blank">
-<i class="bi bi-box-arrow-up-right"></i> Open
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="content-card" data-search="lab 05 resources link week 5 canvas file structure data recovery">
-<div class="card-header">
-<span class="card-badge badge-resource"><i class="bi bi-link-45deg"></i> Link</span>
-<button class="bookmark-btn" data-id="df-lab05-link" title="Bookmark this">
-<i class="bi bi-bookmark"></i>
-</button>
-</div>
-<h3 class="card-title">Lab05 Resources link</h3>
-<ul class="card-topics">
-<li><i class="bi bi-chevron-right"></i> Canvas resources for File Structure &amp; Data Recovery</li>
-</ul>
-<div class="card-materials">
-<a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/files/4760280?module_item_id=2379896" rel="noopener" target="_blank">
-<i class="bi bi-box-arrow-up-right"></i> Open
-                                    </a>
-</div>
-</div>
-</div>
-<div class="col-lg-6"><div class="content-card" data-search="lab 06 resources link week 6 anti forensics cryptography canvas"><div class="card-header"><span class="card-badge badge-resource"><i class="bi bi-link-45deg"></i> Link</span><button class="bookmark-btn" data-id="df-lab06-link" title="Bookmark this"><i class="bi bi-bookmark"></i></button></div><h3 class="card-title">Lab06 Resources link</h3><ul class="card-topics"><li><i class="bi bi-chevron-right"></i> Canvas resources for Anti-Forensics &amp; Cryptography</li></ul><div class="card-materials"><a class="material-btn" href="https://canvas.hw.ac.uk/courses/31836/modules/items/2382829" rel="noopener" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Open</a></div></div></div></div>
-</section>
-</div>
-<!-- Footer -->
-<footer class="footer">
-<div class="footer-brand">
-<i class="bi bi-mortarboard" style="font-size: 1.5rem; color: var(--accent-cyan);"></i>
-<span style="font-weight: 600;">Heriot-Watt University</span>
-</div>
-<p class="footer-text">Digital Forensics • 2025–26</p>
-<div class="footer-links">
-<a href="#">University Portal</a>
-<a href="#">Canvas</a>
-<a href="#">Library</a>
-<a href="#">Contact</a>
-</div>
-</footer>
-</main>
-<!-- ============================================ -->
-<!-- FLOATING MUSIC PLAYER                        -->
-<!-- ============================================ -->
-<button class="music-fab" id="musicFab" title="Music Player">
-<div class="waveform-bars">
-<div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-</div>
-</button>
-<div class="music-player-panel" id="musicPanel">
-<div class="mp-header">
-<div class="mp-title"><i class="bi bi-music-note-beamed"></i> Music Player</div>
-<button class="mp-close" id="mpClose"><i class="bi bi-chevron-down"></i></button>
-</div>
-<div class="mp-now-playing">
-<div class="mp-track-title" id="mpTrackTitle">No track selected</div>
-<div class="mp-track-artist" id="mpTrackArtist">—</div>
-</div>
-<div class="mp-visualizer">
-<canvas height="60" id="mpCanvas" width="300"></canvas>
-</div>
-<div class="mp-controls">
-<div class="mp-progress">
-<input id="mpSeek" max="100" min="0" step="0.1" type="range" value="0"/>
-<div class="mp-time">
-<span id="mpTimeCurrent">0:00</span>
-<span id="mpTimeTotal">0:00</span>
-</div>
-</div>
-<div class="mp-buttons">
-<button class="mp-btn" id="mpShuffle" title="Shuffle"><i class="bi bi-shuffle"></i></button>
-<button class="mp-btn" id="mpPrev" title="Previous"><i class="bi bi-skip-start-fill"></i></button>
-<button class="mp-btn-play" id="mpPlayPause" title="Play"><i class="bi bi-play-fill" id="mpPlayIcon"></i></button>
-<button class="mp-btn" id="mpNext" title="Next"><i class="bi bi-skip-end-fill"></i></button>
-<button class="mp-btn" id="mpRepeat" title="Repeat"><i class="bi bi-arrow-repeat" id="mpRepeatIcon"></i></button>
-</div>
-<div class="mp-volume">
-<button class="mp-btn" id="mpMute" title="Mute"><i class="bi bi-volume-up" id="mpVolIcon"></i></button>
-<input id="mpVolume" max="1" min="0" step="0.01" type="range" value="0.7"/>
-</div>
-</div>
-<div class="mp-playlist" id="mpPlaylist">
-<div class="mp-playlist-title">Playlist</div>
-</div>
-</div>
-<audio id="mpAudio" preload="metadata"></audio>
-</div>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-        // ============================================
-        // MOBILE SIDEBAR TOGGLE
-        // ============================================
-        const sidebar = document.getElementById('sidebar');
-        const mobileToggle = document.getElementById('mobileToggle');
-        const overlay = document.getElementById('overlay');
-
-        mobileToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            mobileToggle.querySelector('i').classList.toggle('bi-list');
-            mobileToggle.querySelector('i').classList.toggle('bi-x');
-        });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            mobileToggle.querySelector('i').classList.add('bi-list');
-            mobileToggle.querySelector('i').classList.remove('bi-x');
-        });
-
-        // ============================================
-        // SMOOTH SCROLL & ACTIVE NAV HIGHLIGHTING
-        // ============================================
-        document.querySelectorAll('.nav-link[href^="#"]:not([href="#"])').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href');
-                const target = document.querySelector(targetId);
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-
-                // Close mobile sidebar
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                const icon = mobileToggle.querySelector('i');
-                icon.classList.add('bi-list');
-                icon.classList.remove('bi-x');
-
-                // Update active nav state
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-            });
-        });
-
-        // ============================================
-        // SEARCH FUNCTIONALITY
-        // ============================================
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-
-        // Search data from all content
-        const searchableItems = [];
-        document.querySelectorAll('.content-card').forEach((card, index) => {
-            const title = card.querySelector('.card-title')?.textContent || '';
-            const searchData = card.getAttribute('data-search') || '';
-            const topics = Array.from(card.querySelectorAll('.card-topics li')).map(li => li.textContent).join(' ');
-            const badge = card.querySelector('.card-badge')?.textContent || '';
-            
-            searchableItems.push({
-                id: index,
-                title: title,
-                keywords: `${title} ${searchData} ${topics}`.toLowerCase(),
-                type: badge.includes('Quiz') ? 'quiz' : badge.includes('Lecture') ? 'lecture' : 'resource',
-                element: card
-            });
-        });
-
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            
-            if (query.length < 2) {
-                searchResults.classList.remove('active');
-                return;
-            }
-
-            const matches = searchableItems.filter(item => item.keywords.includes(query));
-            
-            if (matches.length > 0) {
-                searchResults.innerHTML = matches.map(item => `
-                    <div class="search-result-item" data-id="${item.id}">
-                        <span class="badge ${item.type === 'quiz' ? 'bg-purple' : item.type === 'lecture' ? 'bg-primary' : 'bg-success'}" 
-                              style="background: ${item.type === 'quiz' ? 'var(--accent-purple)' : item.type === 'lecture' ? 'var(--accent-blue)' : 'var(--accent-green)'} !important;">
-                            ${item.type}
-                        </span>
-                        <span>${item.title}</span>
-                    </div>
-                `).join('');
-                searchResults.classList.add('active');
-            } else {
-                searchResults.innerHTML = '<div class="search-result-item"><span class="text-muted">No results found</span></div>';
-                searchResults.classList.add('active');
-            }
-        });
-
-        // Click on search result
-        searchResults.addEventListener('click', (e) => {
-            const item = e.target.closest('.search-result-item');
-            if (item && item.dataset.id !== undefined) {
-                const match = searchableItems[parseInt(item.dataset.id)];
-                if (match && match.element) {
-                    match.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    match.element.style.boxShadow = '0 0 0 3px var(--accent-cyan)';
-                    setTimeout(() => {
-                        match.element.style.boxShadow = '';
-                    }, 2000);
-                }
-                searchResults.classList.remove('active');
-                searchInput.value = '';
-            }
-        });
-
-        // Close search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container')) {
-                searchResults.classList.remove('active');
-            }
-        });
-
-        // ============================================
-        // BOOKMARKS FUNCTIONALITY
-        // ============================================
-        const BOOKMARKS_KEY = 'semantic-web-bookmarks';
-
-        function getBookmarks() {
-            try {
-                return JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
-            } catch {
-                return [];
-            }
-        }
-
-        function saveBookmarks(bookmarks) {
-            localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
-        }
-
-        function updateBookmarkUI() {
-            const bookmarks = getBookmarks();
-            const bookmarksSection = document.getElementById('bookmarks');
-            const bookmarksContainer = document.getElementById('bookmarksContainer');
-            const bookmarksNavLink = document.getElementById('bookmarksNavLink');
-            const bookmarkCount = document.getElementById('bookmarkCount');
-
-            // Update bookmark buttons
-            document.querySelectorAll('.bookmark-btn').forEach(btn => {
-                const id = btn.dataset.id;
-                const icon = btn.querySelector('i');
-                if (bookmarks.includes(id)) {
-                    btn.classList.add('active');
-                    icon.classList.remove('bi-bookmark');
-                    icon.classList.add('bi-bookmark-fill');
-                } else {
-                    btn.classList.remove('active');
-                    icon.classList.add('bi-bookmark');
-                    icon.classList.remove('bi-bookmark-fill');
-                }
-            });
-
-            // Update bookmarks section visibility
-            if (bookmarks.length > 0) {
-                bookmarksSection.classList.add('has-bookmarks');
-                bookmarksNavLink.style.display = 'flex';
-                bookmarkCount.textContent = bookmarks.length;
-
-                // Populate bookmarks
-                bookmarksContainer.innerHTML = '';
-                bookmarks.forEach(id => {
-                    const originalBtn = document.querySelector(`.bookmark-btn[data-id="${id}"]`);
-                    if (originalBtn) {
-                        const originalCard = originalBtn.closest('.content-card');
-                        if (originalCard) {
-                            const clone = originalCard.cloneNode(true);
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'col-lg-6';
-                            wrapper.appendChild(clone);
-                            bookmarksContainer.appendChild(wrapper);
-                            
-                            // Re-attach event listener to cloned bookmark button
-                            const clonedBtn = clone.querySelector('.bookmark-btn');
-                            clonedBtn.addEventListener('click', () => toggleBookmark(id));
-                        }
-                    }
-                });
-            } else {
-                bookmarksSection.classList.remove('has-bookmarks');
-                bookmarksNavLink.style.display = 'none';
-            }
-        }
-
-        function toggleBookmark(id) {
-            const bookmarks = getBookmarks();
-            const index = bookmarks.indexOf(id);
-            
-            if (index > -1) {
-                bookmarks.splice(index, 1);
-            } else {
-                bookmarks.push(id);
-            }
-            
-            saveBookmarks(bookmarks);
-            updateBookmarkUI();
-        }
-
-        // Attach event listeners to bookmark buttons
-        document.querySelectorAll('.bookmark-btn').forEach(btn => {
-            btn.addEventListener('click', () => toggleBookmark(btn.dataset.id));
-        });
-
-        // Initialize bookmarks on page load
-        updateBookmarkUI();
-
-        // ============================================
-        // VIDEO TABS
-        // ============================================
-        const videoTabs = document.querySelectorAll('.video-tab');
-        const videoContents = document.querySelectorAll('.video-content');
-        const videoTitle = document.getElementById('videoTitle');
-        const videoMetaDuration = document.getElementById('videoMetaDuration');
-        const videoMetaTopic = document.getElementById('videoMetaTopic');
-
-        const videoDetails = {
-            '0': { title: 'Intro — Orientation', duration: 'TBD', topic: 'Dubai introduction + course setup' },
-            '1': { title: 'Week 1 — Intro to DF', duration: 'TBD', topic: 'Fundamentals + workflow overview' },
-            '2': { title: 'Week 2 — Digital Evidence', duration: 'TBD', topic: 'Evidence, integrity, handling, acquisition vs analysis' },
-            '3': { title: 'Week 3–4 — Linux Artefacts', duration: 'TBD', topic: 'Linux artefacts + Topic 3 technical concepts walkthrough' },
-            '5': { title: 'Week 5 — Anti-Forensics & Cryptography', duration: 'TBD', topic: 'Anti-forensics, steganography, cryptography, and data recovery' },
-            '6': { title: 'Week 6 — Forensic Imaging & Analysis', duration: 'TBD', topic: 'Incident response, imaging, write blocking, and forensic data analysis' }
-        };
-
-        const setActiveVideoWeek = (week) => {
-            // Update active tab
-            videoTabs.forEach(t => t.classList.remove('active'));
-            const activeTab = Array.from(videoTabs).find(t => t.dataset.week === week);
-            if (activeTab) activeTab.classList.add('active');
-
-            // Show corresponding video / placeholder; pause any hidden videos
-            videoContents.forEach(content => {
-                const isActive = content.dataset.week === week;
-                content.style.display = isActive ? 'block' : 'none';
-
-                if (!isActive) {
-                    content.querySelectorAll('video').forEach(v => {
-                        try { v.pause(); } catch (_) {}
-                        try { v.currentTime = 0; } catch (_) {}
-                    });
-                }
-            });
-
-            // Update title + meta
-            const d = videoDetails[week] || { title: 'Video', duration: 'TBD', topic: '' };
-            videoTitle.textContent = d.title;
-            if (videoMetaDuration) videoMetaDuration.innerHTML = '<i class="bi bi-clock"></i> ' + d.duration;
-            if (videoMetaTopic) videoMetaTopic.innerHTML = '<i class="bi bi-eye"></i> ' + d.topic;
-        };
-
-        videoTabs.forEach(tab => {
-            tab.addEventListener('click', () => setActiveVideoWeek(tab.dataset.week));
-        });
-
-        // Ensure initial state is correct
-        setActiveVideoWeek('0');
-
-        // ============================================
-        // ANIMATE ON SCROLL
-        // ============================================
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.content-card, .assessment-card').forEach(card => {
-            observer.observe(card);
-        });
-    // ============================================
-    // FLOATING MUSIC PLAYER ENGINE
-    // ============================================
-    (function() {
-            const playlist = [
-  { title: 'Derezzed',                         artist: 'Daft Punk',                  src: 'audio/track1.mp3',  duration: 0 },
-  { title: 'The Son of Flynn',                 artist: 'Daft Punk',                  src: 'audio/track2.mp3',  duration: 0 },
-  { title: 'Nightcall',                        artist: 'Kavinsky',                   src: 'audio/track3.mp3',  duration: 0 },
-  { title: 'Genesis',                          artist: 'Justice',                    src: 'audio/track4.mp3',  duration: 0 },
-  { title: 'Turbo Killer',                     artist: 'Carpenter Brut',             src: 'audio/track5.mp3',  duration: 0 },
-  { title: 'Future Club',                      artist: 'Perturbator',                src: 'audio/track6.mp3',  duration: 0 },
-  { title: 'Venger',                           artist: 'Perturbator',                src: 'audio/track7.mp3',  duration: 0 },
-  { title: 'Anvil',                            artist: 'Lorn',                       src: 'audio/track8.mp3',  duration: 0 },
-  { title: 'Acid Rain',                        artist: 'Lorn',                       src: 'audio/track9.mp3',  duration: 0 },
-  { title: 'Resonance',                        artist: 'HOME',                       src: 'audio/track10.mp3', duration: 0 },
-  { title: 'Brokendate',                       artist: 'Com Truise',                  src: 'audio/track11.mp3', duration: 0 },
-  { title: 'Strobe',                           artist: 'deadmau5',                   src: 'audio/track12.mp3', duration: 0 },
-  { title: 'We Can Make the World Stop',       artist: 'The Glitch Mob',             src: 'audio/track13.mp3', duration: 0 },
-  { title: 'Loud Pipes',                       artist: 'Ratatat',                    src: 'audio/track14.mp3', duration: 0 },
-  { title: 'Hand Covers Bruise',               artist: 'Trent Reznor & Atticus Ross', src: 'audio/track15.mp3', duration: 0 },
-  { title: 'Angel',                            artist: 'Massive Attack',             src: 'audio/track16.mp3', duration: 0 },
-  { title: 'Purple Noise',                     artist: 'Boris Brejcha',              src: 'audio/track17.mp3', duration: 0 },
-  { title: 'Xtal',                             artist: 'Aphex Twin',                 src: 'audio/track18.mp3', duration: 0 },
-  { title: 'Oblivion (feat. Susanne Sundfør)', artist: 'M83',                        src: 'audio/track19.mp3', duration: 0 },
-];
-
-
-        const audio     = document.getElementById('mpAudio');
-        const fab       = document.getElementById('musicFab');
-        const panel     = document.getElementById('musicPanel');
-        const closeBtn  = document.getElementById('mpClose');
-        const playBtn   = document.getElementById('mpPlayPause');
-        const playIcon  = document.getElementById('mpPlayIcon');
-        const prevBtn   = document.getElementById('mpPrev');
-        const nextBtn   = document.getElementById('mpNext');
-        const seekBar   = document.getElementById('mpSeek');
-        const timeCur   = document.getElementById('mpTimeCurrent');
-        const timeTotal = document.getElementById('mpTimeTotal');
-        const volSlider = document.getElementById('mpVolume');
-        const muteBtn   = document.getElementById('mpMute');
-        const volIcon   = document.getElementById('mpVolIcon');
-        const shuffBtn  = document.getElementById('mpShuffle');
-        const repBtn    = document.getElementById('mpRepeat');
-        const repIcon   = document.getElementById('mpRepeatIcon');
-        const titleEl   = document.getElementById('mpTrackTitle');
-        const artistEl  = document.getElementById('mpTrackArtist');
-        const plContainer = document.getElementById('mpPlaylist');
-        const canvas    = document.getElementById('mpCanvas');
-        const canvasCtx = canvas.getContext('2d');
-
-        let currentIndex = 0;
-        let isPlaying    = false;
-        let shuffleOn    = false;
-        let repeatMode   = 'off'; // off, all, one
-        let shuffleOrder = [];
-        let audioCtx, analyser, source, animFrame;
-
-        // Format seconds → m:ss
-        function fmt(s) {
-            if (!s || isNaN(s)) return '0:00';
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return m + ':' + String(sec).padStart(2, '0');
-        }
-
-        // Build playlist DOM
-        function renderPlaylist() {
-            const titleDiv = plContainer.querySelector('.mp-playlist-title');
-            plContainer.innerHTML = '';
-            plContainer.appendChild(titleDiv);
-
-            playlist.forEach((t, i) => {
-                const div = document.createElement('div');
-                div.className = 'mp-playlist-item' + (i === currentIndex ? ' active' : '');
-                div.innerHTML = `
-                    <div style="overflow:hidden">
-                        <div class="mp-pl-name">${t.title}</div>
-                        <div class="mp-pl-artist">${t.artist}</div>
-                    </div>
-                    <span class="mp-pl-dur">${fmt(t.duration)}</span>
-                `;
-                div.addEventListener('click', () => playTrack(i));
-                plContainer.appendChild(div);
-            });
-        }
-
-        // Load & play a specific track
-        function playTrack(index) {
-            currentIndex = index;
-            const track = playlist[currentIndex];
-            audio.src = track.src;
-            audio.load();
-            titleEl.textContent = track.title;
-            artistEl.textContent = track.artist;
-            audio.play().then(() => {
-                isPlaying = true;
-                updatePlayState();
-            }).catch(() => {});
-            renderPlaylist();
-        }
-
-        // Update play/pause visual state
-        function updatePlayState() {
-            if (isPlaying) {
-                playIcon.classList.remove('bi-play-fill');
-                playIcon.classList.add('bi-pause-fill');
-                fab.classList.add('playing');
-            } else {
-                playIcon.classList.remove('bi-pause-fill');
-                playIcon.classList.add('bi-play-fill');
-                fab.classList.remove('playing');
-            }
-        }
-
-        // Shuffle order generation
-        function generateShuffleOrder() {
-            shuffleOrder = playlist.map((_, i) => i);
-            for (let i = shuffleOrder.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
-            }
-        }
-
-        function getNextIndex() {
-            if (shuffleOn) {
-                const pos = shuffleOrder.indexOf(currentIndex);
-                return shuffleOrder[(pos + 1) % shuffleOrder.length];
-            }
-            return (currentIndex + 1) % playlist.length;
-        }
-
-        function getPrevIndex() {
-            if (shuffleOn) {
-                const pos = shuffleOrder.indexOf(currentIndex);
-                return shuffleOrder[(pos - 1 + shuffleOrder.length) % shuffleOrder.length];
-            }
-            return (currentIndex - 1 + playlist.length) % playlist.length;
-        }
-
-        // Setup Web Audio API visualizer
-        function initVisualizer() {
-            if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
-            source = audioCtx.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-        }
-
-        function drawVisualizer() {
-            animFrame = requestAnimationFrame(drawVisualizer);
-            if (!analyser) return;
-
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
-
-            const w = canvas.width;
-            const h = canvas.height;
-            canvasCtx.clearRect(0, 0, w, h);
-
-            const barCount = 32;
-            const barWidth = w / barCount - 2;
-            const step = Math.floor(bufferLength / barCount);
-
-            for (let i = 0; i < barCount; i++) {
-                const value = dataArray[i * step];
-                const barHeight = (value / 255) * h * 0.85;
-                const x = i * (barWidth + 2);
-                const y = h - barHeight;
-
-                const gradient = canvasCtx.createLinearGradient(x, y, x, h);
-                gradient.addColorStop(0, '#06b6d4');
-                gradient.addColorStop(1, '#0e7490');
-                canvasCtx.fillStyle = gradient;
-                canvasCtx.fillRect(x, y, barWidth, barHeight);
-            }
-        }
-
-        function stopVisualizer() {
-            cancelAnimationFrame(animFrame);
-            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // --- EVENT LISTENERS ---
-
-        // Toggle panel
-        fab.addEventListener('click', () => {
-            panel.classList.toggle('open');
-            if (panel.classList.contains('open')) fab.style.display = 'none';
-        });
-
-        closeBtn.addEventListener('click', () => {
-            panel.classList.remove('open');
-            fab.style.display = 'flex';
-        });
-
-        // Play / Pause
-        playBtn.addEventListener('click', () => {
-            if (!audio.src || audio.src === window.location.href) {
-                playTrack(0);
-                return;
-            }
-            if (isPlaying) {
-                audio.pause();
-                isPlaying = false;
-                stopVisualizer();
-            } else {
-                initVisualizer();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                audio.play().catch(() => {});
-                isPlaying = true;
-                drawVisualizer();
-            }
-            updatePlayState();
-        });
-
-        // Skip
-        nextBtn.addEventListener('click', () => playTrack(getNextIndex()));
-        prevBtn.addEventListener('click', () => {
-            if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-            playTrack(getPrevIndex());
-        });
-
-        // Seek
-        seekBar.addEventListener('input', () => {
-            audio.currentTime = parseFloat(seekBar.value);
-        });
-
-        audio.addEventListener('timeupdate', () => {
-            if (!seekBar.matches(':active')) {
-                seekBar.value = audio.currentTime;
-            }
-            timeCur.textContent = fmt(audio.currentTime);
-        });
-
-        audio.addEventListener('loadedmetadata', () => {
-            seekBar.max = audio.duration;
-            timeTotal.textContent = fmt(audio.duration);
-        });
-
-        audio.addEventListener('durationchange', () => {
-            seekBar.max = audio.duration;
-            timeTotal.textContent = fmt(audio.duration);
-        });
-
-        // Track ended
-        audio.addEventListener('ended', () => {
-            if (repeatMode === 'one') {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-            } else {
-                const next = getNextIndex();
-                if (repeatMode === 'off' && next === 0 && !shuffleOn) {
-                    isPlaying = false;
-                    updatePlayState();
-                    stopVisualizer();
-                } else {
-                    playTrack(next);
-                }
-            }
-        });
-
-        // Audio play/pause events for visualizer sync
-        audio.addEventListener('play', () => {
-            initVisualizer();
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            isPlaying = true;
-            updatePlayState();
-            drawVisualizer();
-        });
-
-        audio.addEventListener('pause', () => {
-            isPlaying = false;
-            updatePlayState();
-            stopVisualizer();
-        });
-
-        // Volume
-        volSlider.addEventListener('input', () => {
-            audio.volume = parseFloat(volSlider.value);
-            audio.muted = false;
-            updateVolIcon();
-        });
-
-        muteBtn.addEventListener('click', () => {
-            audio.muted = !audio.muted;
-            updateVolIcon();
-        });
-
-        function updateVolIcon() {
-            if (audio.muted || audio.volume === 0) {
-                volIcon.className = 'bi bi-volume-mute';
-            } else if (audio.volume < 0.5) {
-                volIcon.className = 'bi bi-volume-down';
-            } else {
-                volIcon.className = 'bi bi-volume-up';
-            }
-        }
-
-        // Shuffle
-        shuffBtn.addEventListener('click', () => {
-            shuffleOn = !shuffleOn;
-            shuffBtn.classList.toggle('active', shuffleOn);
-            if (shuffleOn) generateShuffleOrder();
-        });
-
-        // Repeat
-        repBtn.addEventListener('click', () => {
-            if (repeatMode === 'off') {
-                repeatMode = 'all';
-                repBtn.classList.add('active');
-                repIcon.className = 'bi bi-arrow-repeat';
-            } else if (repeatMode === 'all') {
-                repeatMode = 'one';
-                repIcon.className = 'bi bi-repeat-1';
-            } else {
-                repeatMode = 'off';
-                repBtn.classList.remove('active');
-                repIcon.className = 'bi bi-arrow-repeat';
-            }
-        });
-
-        // Init
-        audio.volume = 0.7;
-        titleEl.textContent = playlist[0].title;
-        artistEl.textContent = playlist[0].artist;
-        renderPlaylist();
-    })();
-    </script>
-</body>
-</html>
+% =============================================================
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{examblue} Lecture 7 --- Live Forensics}\\[6pt]
+  {\large F20FO / F21FO --- Digital Forensics \quad 2025--26}\\[4pt]
+  {\normalsize Final Exam--Ready Notes}\\[10pt]
+  \rule{0.8\textwidth}{0.4pt}
+\end{center}
+
+\tableofcontents
+\newpage
+
+% =============================================================
+\section{What Is Live Forensics? (The Big Picture)}
+% =============================================================
+
+\begin{definitionbox}[Definition --- Live Forensics]
+  \textbf{Live forensics} is the process of collecting digital evidence from a computer (or other device) \emph{while it is still turned on and running}.
+
+  \medskip
+  \textbf{Think of it like this:} Imagine police arrive at a crime scene and the suspect's laptop is open on the desk, programs running, websites visible. Live forensics means carefully gathering information from that running laptop \emph{before} you power it off.
+\end{definitionbox}
+
+\subsection{Live vs.\ Dead/Static Forensics}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries}p{4cm} p{5.5cm} p{5.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Feature} & \textbf{Live Forensics} & \textbf{Dead / Static Forensics} \\
+  \midrule
+  System state & Computer is \textcolor{defgreen}{\textbf{ON}} and running & Computer is \textcolor{warnred}{\textbf{OFF}}; work from a disk image \\
+  Data type & \textbf{Volatile} data (RAM, running programs, open network connections) & \textbf{Non-volatile} data (files saved on the hard drive) \\
+  Risk & You might accidentally \emph{change} something on the running system & Evidence is ``frozen'' --- less risk of change \\
+  Unique advantage & Can capture passwords, encryption keys, chat sessions, live network traffic & Can search entire disk without time pressure \\
+  Real-world analogy & Photographing a whiteboard before someone erases it & Reading a printed letter after the meeting is over \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examtip}
+  The exam loves asking you to \emph{compare} live and dead forensics. Memorise the table above --- especially the ``volatile vs.\ non-volatile'' distinction.
+\end{examtip}
+
+% =============================================================
+\section{Why Do We Need Live Forensics?}
+% =============================================================
+
+There are two sides: \textbf{Need} (we have no choice) and \textbf{Opportunity} (it gives us extra evidence).
+
+\subsection{The Need}
+
+\begin{enumerate}[label=\arabic*., leftmargin=*]
+  \item \textbf{Huge storage disks.}
+    Modern servers have terabytes of data. Copying (``mirroring'') an entire 4\,TB disk takes many hours. You may not have that time.
+
+  \item \textbf{Mission-critical systems.}
+    Suppose the suspect's computer is a hospital server running life-support monitoring. You cannot just pull the plug --- people could die. You \emph{must} collect evidence while it runs.
+
+  \item \textbf{Court orders are limited.}
+    A warrant might only let you look at \emph{one} specific server out of 30. You need a quick, live check to justify a broader warrant.
+\end{enumerate}
+
+\subsection{The Opportunity}
+
+\begin{enumerate}[label=\arabic*., leftmargin=*]
+  \item \textbf{Speed.} A quick live scan can be done in minutes --- no need to haul away hardware.
+  \item \textbf{Exclusive data.} Some evidence \emph{only} exists in RAM (temporary memory). Once you power off, it is \textbf{gone forever}. Examples:
+    \begin{itemize}
+      \item Passwords typed into a web browser
+      \item Encryption keys protecting a locked hard drive
+      \item Chat messages that were never saved to disk
+    \end{itemize}
+  \item \textbf{Context.} Seeing what is running \emph{right now} helps you decide which parts of the hard drive to focus on later during static analysis.
+\end{enumerate}
+
+\begin{examplebox}{Why RAM matters}
+  Imagine a suspect is logged into their online banking with a password manager. The password exists in the computer's RAM right now. If you turn the computer off first, the password disappears from RAM and you must crack the encrypted password file instead --- which could take weeks or be impossible.
+\end{examplebox}
+
+% =============================================================
+\section{Live Forensics Goals}
+% =============================================================
+
+When you perform live forensics, you are trying to answer these questions:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}l p{10cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Goal} & \textbf{Plain-English Explanation} \\
+  \midrule
+  What is happening now? & Which programs are running? What websites are open? \\
+  Who is doing what? & Which user account is active? Are there remote connections? \\
+  Get another puzzle piece & Combine live data with hard-drive data to build the full picture \\
+  Focus static analysis & Narrow down which folders or files to examine later \\
+  Passwords \& keys & Grab passwords, decryption keys, unencrypted documents from RAM \\
+  Reconstruct sessions & Rebuild web browsing sessions, FTP file transfers, chat conversations \\
+  Find files & Spot downloaded files or files accessed from network drives \\
+  Identify remote machines & See which other computers the suspect was connected to \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================
+\section{Data Lifetime \& Volatile Data}
+% =============================================================
+
+\begin{definitionbox}[Definition --- Volatile Data]
+  \textbf{Volatile data} = information stored in RAM (temporary memory) that \textbf{disappears when power is removed}.
+
+  \medskip
+  \textbf{Non-volatile data} = information stored on disk (hard drive, SSD, USB) that \textbf{survives a power-off}.
+\end{definitionbox}
+
+\subsection{Why Volatile Data Matters}
+
+\begin{itemize}[leftmargin=*]
+  \item Most applications are \emph{not} designed to erase sensitive data from RAM. A password you type may get \textbf{duplicated dozens of times} across different memory buffers.
+  \item Even though data is often encrypted \emph{on disk}, it is usually \textbf{not encrypted in RAM} (otherwise the CPU could not process it).
+  \item Places a password might sit in RAM:
+    \begin{itemize}
+      \item Kernel buffers (the operating system's internal storage)
+      \item Window manager memory (the part that draws your screen)
+      \item Application buffers (the browser's own storage)
+      \item Dynamic memory allocator (general-purpose memory pool)
+    \end{itemize}
+\end{itemize}
+
+\begin{examplebox}{The Password Duplication Problem}
+  You type your email password into Firefox. Here is what happens in RAM:
+  \begin{enumerate}
+    \item The keyboard driver stores each keystroke $\rightarrow$ \textbf{copy 1}
+    \item The window manager passes it to Firefox $\rightarrow$ \textbf{copy 2}
+    \item Firefox stores it in a text field buffer $\rightarrow$ \textbf{copy 3}
+    \item Firefox sends it to the network module $\rightarrow$ \textbf{copy 4}
+    \item The OS kernel buffers the network packet $\rightarrow$ \textbf{copy 5}
+  \end{enumerate}
+  That is at least 5 copies of your password floating around in RAM, even though you only typed it once.
+\end{examplebox}
+
+\subsection{Persistence of Memory (Post-Reboot)}
+
+\begin{itemize}
+  \item Some systems \emph{retain} data in RAM even after a reboot (warm reboot or even sometimes a cold reboot).
+  \item This depends on the hardware model and BIOS settings.
+  \item This can be used as a ``last resort'' to recover live data if the computer was recently switched off.
+  \item This is an active research area in \textbf{memory forensics}.
+\end{itemize}
+
+\begin{examtip}
+  Be ready to explain that RAM data can sometimes survive a reboot, making memory forensics possible even after shutdown.
+\end{examtip}
+
+% =============================================================
+\section{Constraints \& Rules of Live Forensics}
+% =============================================================
+
+\subsection{Key Constraints}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{warnred}}c p{11cm}}
+  \toprule
+  \rowcolor{lightred}
+  \textbf{\#} & \textbf{Constraint} \\
+  \midrule
+  1 & \textbf{You need physical or remote access} to the running system (even if only for a short time). \\
+  2 & \textbf{Minimise changes.} Everything you do on the system (inserting a USB, running a tool) \emph{changes} something. You must keep changes as small as possible. \textbf{Remember ACPO Principle 1:} no action should change data which may be relied upon in court. \\
+  3 & \textbf{Minimise impact} on the system, especially if it is mission-critical (e.g.\ a hospital server). \\
+  4 & \textbf{Record every step.} Write down every command you run and every USB you plug in. If you leave ``fingerprints,'' you must be able to explain them in court. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examplebox}{The Detective's Fingerprints}
+  Think of a real crime scene.  A detective picks up a ransom note with bare hands and leaves fingerprints on it.  Now the defence lawyer asks: ``How do we know those aren't the criminal's fingerprints?''
+
+  The same thing happens in digital forensics.  If you run a program on the suspect's computer, you leave traces (file dates change, memory shifts).  You \emph{must} document exactly what you did so no one can argue you planted evidence.
+\end{examplebox}
+
+\subsection{Minimising Your Footprint}
+
+\begin{itemize}[leftmargin=*]
+  \item Use \textbf{trusted, pre-compiled tools} --- ideally carry them on a read-only USB so you do not install anything on the suspect's machine.
+  \item Keep a \textbf{low profile} --- especially if the suspect might be monitoring the system (you do not want to tip them off).
+  \item Any artifacts (changes) you create \textbf{can be explained in court} if properly documented.
+\end{itemize}
+
+% =============================================================
+\section{Dangers of Live Forensics --- Rootkits}
+% =============================================================
+
+\begin{definitionbox}[Definition --- Rootkit]
+  A \textbf{rootkit} is a type of malware that hides itself (and other malware) from the operating system and from forensic tools. It is like an invisible burglar who also makes the security cameras show a fake ``all clear'' feed.
+\end{definitionbox}
+
+\subsection{Two Types of Rootkits}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries}p{3.5cm} p{5.5cm} p{5.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  & \textbf{User-Mode Rootkit} & \textbf{Kernel-Mode Rootkit} \\
+  \midrule
+  Difficulty & Shallow trickery (easier to make) & Deep trickery (very advanced) \\
+  How it works & Replaces normal commands like \texttt{ls} (list files), \texttt{ps} (list processes), \texttt{du}/\texttt{df} (disk usage) with fake versions that hide the malware & Modifies the \textbf{OS kernel itself} (the core brain of the operating system) to produce fake results \\
+  What it hides & Changes disk space statistics, hides processes from the process list & Can hide files, blocks of memory, entire programs --- even if you bring your own trusted tools \\
+  Defence & Bring your own trusted copies of \texttt{ls}, \texttt{ps}, etc.\ on a USB & Very hard to detect; even trusted tools can be fooled because the OS kernel is compromised \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{How Kernel-Mode Rootkits Fool Everything}
+
+\begin{itemize}
+  \item \textbf{Disk drivers:} The rootkit intercepts all disk reads, so it can hide files at the hardware level.
+  \item \textbf{Virtual memory system:} It hacks the memory management, hiding malicious processes.
+  \item \textbf{Shared libraries (DLLs):} It replaces shared code libraries. Even your ``trusted'' executable uses DLLs from the OS --- if those are replaced, your trusted tool is compromised.
+  \item The \emph{only} true defence is to use \textbf{statically linked executables} (programs that contain all their code inside themselves and do not rely on the OS for shared libraries).
+\end{itemize}
+
+\begin{warningbox}{Exam Favourite}
+  The exam may ask: ``Why might your trusted forensic tools still give wrong results on a live system?'' Answer: \textbf{Kernel-mode rootkits} modify the OS itself. Even a clean copy of \texttt{ls} or \texttt{ps} relies on the OS kernel to read files and processes. If the kernel is compromised, it feeds lies to every tool. The only protection is statically linked binaries.
+\end{warningbox}
+
+% =============================================================
+\section{Approach to Live Forensics}
+% =============================================================
+
+\subsection{Evidence Acquisition Scenarios}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{3.5cm} p{11cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Scenario} & \textbf{What You Do} \\
+  \midrule
+  Triage & You have \emph{limited time}. Quickly answer: Is there a problem? Which machines are affected? What disks need imaging? Focus on where the problem is worst and evidence is most abundant. \\
+  \midrule
+  Illegal Server & Compare what services are running on the machine vs.\ what a network scan (e.g.\ \texttt{nmap}) sees from outside. Are there hidden services? Some techniques are subtle --- for example \textbf{port knocking} (a hidden sequence of connection attempts that ``unlocks'' a secret port), but most are obvious. Check network traces to see who is talking to the computer. \textbf{Be careful of legal issues} when examining network traces --- you may need separate authorisation to intercept or monitor network traffic. \\
+  \midrule
+  Trojan Defence & Suspect claims: ``It wasn't me, a Trojan/hacker controlled my computer!'' You must support or refute this by checking:
+  \begin{itemize}[nosep]
+    \item Are there traces of known Trojans?
+    \item Are there unusual network connections?
+    \item What is running on the machine?
+    \item Is anything hidden?
+    \item Is there enough other evidence to corroborate?
+  \end{itemize}
+  First used in UK court in 2003. Still tricky because \textbf{malware is often present on a system but may not actually be relevant to the case} --- just because a Trojan exists does not automatically mean it caused the crime. You must determine whether the specific malware found could have produced the observed behaviour. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Accessing the System}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries}p{4cm} p{10.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{When} & \textbf{How} \\
+  \midrule
+  Before investigation & Use \textbf{pre-installed agents} (monitoring software set up in advance). The agents must not have been compromised. \\
+  During investigation & Need \textbf{login credentials}. Must use \textbf{known-good binaries} (trusted tools). All artifacts (changes you make) must be \textbf{accounted for}. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================
+\section{Live Forensics Information Sources}
+% =============================================================
+
+\subsection{What You Can Collect}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{4cm} p{10.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Source} & \textbf{What It Contains} \\
+  \midrule
+  Entire disk image & A full copy of the hard drive taken while the system is running (``live disk imaging''). Problem: files are constantly changing, so the image is a moving target. \\
+  \midrule
+  Deleted files & Recovered via ``live file carving'' --- scanning the raw disk for fragments of deleted files using tools like Scalpel or Foremost. \\
+  \midrule
+  Unencrypted fragments & Pieces of documents that are temporarily stored in plain text in RAM. \\
+  \midrule
+  Encryption keys & Keys used for full-disk encryption (e.g.\ BitLocker) may be sitting in RAM. Capture them and you can later decrypt the entire drive. \\
+  \midrule
+  Volatile malware & Some malware \emph{only} lives in RAM and never writes to disk. If you power off, the malware is gone and you have no evidence. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Running Processes --- What You Can Learn}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries}p{4cm} p{5cm} p{5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Information} & \textbf{Windows} & \textbf{Linux / Unix} \\
+  \midrule
+  Open files & \checkmark & \checkmark \\
+  Open network connections & \checkmark & \checkmark \\
+  Registry activity & \checkmark & --- (Linux has no registry) \\
+  Open DLLs / shared libs & \checkmark (DLLs) & \checkmark (shared libraries) \\
+  Access to deleted EXE & --- & \checkmark (can still access the executable even if the file was deleted from disk) \\
+  Command line used & --- & \checkmark \\
+  Environment variables & --- & \checkmark \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Memory Sources}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{3.5cm} p{11cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Memory Type} & \textbf{Details} \\
+  \midrule
+  Process memory & \textbf{Most useful.} Each program has its own virtual memory space. Easier to search than dumping all of RAM because the data is organised. Can yield passwords, document fragments, decryption keys. \\
+  Kernel memory & Used to search for ``hidden'' processes (ones a rootkit might be hiding). Also helps evaluate the health of the kernel (is it compromised?). \\
+  String searches & The ``brute force'' approach: search the whole of RAM for text strings like ``password'', credit card numbers, email addresses, etc. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================
+\section{Live Forensics Analysis}
+% =============================================================
+
+Once you have collected live data, you need to \textbf{analyse} it. The lecture identifies several specific analysis questions:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{4cm} p{10.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Analysis Question} & \textbf{What You Are Looking For} \\
+  \midrule
+  Are things ``not right''? & Are processes or files \textbf{hidden}? A rootkit may be concealing malware from the process list or hiding files from directory listings. Compare outputs from multiple tools. \\
+  \midrule
+  Is disk encryption in use? & If full-disk encryption (e.g.\ BitLocker, LUKS) is active, the decryption key is in RAM \emph{right now}. You must capture it before power-off or you may never access the disk contents. \\
+  \midrule
+  What is staying in memory? & A \textbf{lot} of data persists in RAM longer than expected. Dumping process memory can reveal passwords, documents, chat logs, and session tokens that were never deliberately saved to disk. \\
+  \midrule
+  Process memory dumps & For each suspicious process, dump its entire memory space and analyse it offline for strings, structures, keys, etc. \\
+  \midrule
+  Dumping OS structures & The operating system maintains internal data structures that track processes and memory. By dumping these, you can determine \textbf{which areas of swap space correspond to a particular process} --- meaning you can link specific chunks of virtual memory on disk back to the application that owned them. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examtip}
+  The lecture treats ``Analysis'' as a \emph{separate step} from ``Information Sources.'' The key distinction is: information sources tell you \emph{where} to look; analysis tells you \emph{what questions to ask} once you are looking. Remember the swap-space mapping point --- it is a specific detail the exam may test.
+\end{examtip}
+
+% =============================================================
+\section{Live Forensics Tools \& Commands}
+% =============================================================
+
+\subsection{Windows --- Sysinternals Suite}
+
+Sysinternals is a collection of free tools by Microsoft for examining Windows systems:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\ttfamily\bfseries}l p{9.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Tool} & \textbf{What It Does (Plain English)} \\
+  \midrule
+  FileMon & Shows file system activity in real time (which files are being read/written right now) \\
+  PSMon & Watches processes and threads being created in real time \\
+  PsFile & Shows files that are being opened by remote users (someone accessing files over the network) \\
+  PsKill & Kill (stop) a process by name or process ID \\
+  PsInfo & Lists general system information \\
+  PsList & Lists detailed information about all running processes \\
+  PsLoggedOn & Shows who is currently logged in (both locally and over the network) \\
+  PsLogList & Dumps event log records (system logs showing what happened) \\
+  PsPasswd & Changes account passwords (useful for gaining access during investigation) \\
+  PsService & View and control Windows services \\
+  PsSuspend & Pause (suspend) a running process without killing it \\
+  Handle & Shows which files are opened by which processes \\
+  RegMon & Shows registry activity in real time \\
+  ListDLLs & Shows which DLLs (shared code libraries) are loaded by each process \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Additional Windows Tools (vidstromlabs)}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\ttfamily\bfseries}l p{9.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Tool} & \textbf{What It Does} \\
+  \midrule
+  Pmdump & Dumps a specific process's memory (given its PID) \\
+  ListDrivers & Lists all loaded kernel drivers \\
+  ListModules & Lists EXEs and DLLs associated with a process \\
+  PromiscDetect & Detects if a network adaptor is in \textbf{promiscuous mode} (meaning it is capturing \emph{all} network traffic, not just its own --- a sign someone might be sniffing the network) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Windows Network Tool --- Netstat}
+
+\begin{commandbox}{netstat --- View Network Connections}
+\begin{lstlisting}
+netstat -a          Shows ALL active network connections
+netstat -a -b       Same, but also shows which EXE owns each connection
+\end{lstlisting}
+\end{commandbox}
+
+\begin{examplebox}{Using netstat}
+  You run \texttt{netstat -a -b} on the suspect's Windows machine and see:
+  \begin{lstlisting}
+  TCP  192.168.1.5:443   suspicious-server.ru:8080   ESTABLISHED   [malware.exe]
+  \end{lstlisting}
+  This tells you:
+  \begin{itemize}[nosep]
+    \item A program called \texttt{malware.exe} is running
+    \item It has an active connection to a server in Russia on port 8080
+    \item This is strong evidence of compromise
+  \end{itemize}
+\end{examplebox}
+
+\subsection{Linux --- Process Commands}
+
+\begin{commandbox}{ps --- List Running Processes}
+\begin{lstlisting}
+ps aux | less
+\end{lstlisting}
+\textbf{Breaking it down:}
+\begin{itemize}[nosep]
+  \item \texttt{a} = show processes for \textbf{all users} (not just yours)
+  \item \texttt{u} = show the \textbf{user/owner} of each process
+  \item \texttt{x} = also show processes \textbf{not attached to a terminal} (background services)
+  \item \texttt{| less} = pipe the output through a pager so you can scroll through it
+\end{itemize}
+\end{commandbox}
+
+The output looks like this:
+\begin{lstlisting}
+USER   PID  %CPU %MEM   VSZ   RSS  TTY  STAT START TIME COMMAND
+mj    2963   0.0  0.0  4688  1284 pts/0  T   11:21 0:00 python3
+mj    3107   0.0  0.0  9152  2392 pts/1  S+  11:28 0:00 grep python3
+\end{lstlisting}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\ttfamily\bfseries}l p{10cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Column} & \textbf{Meaning} \\
+  \midrule
+  USER & Who owns the process \\
+  PID & Process ID --- a unique number identifying this process \\
+  \%CPU & How much CPU time the process is using \\
+  \%MEM & How much RAM the process is using \\
+  VSZ & Virtual memory size (total memory the process \emph{can} use) \\
+  RSS & Resident Set Size (how much RAM it is \emph{actually} using right now) \\
+  TTY & Which terminal the process is running on (e.g.\ pts/0) \\
+  STAT & Process state (T = stopped, S = sleeping, R = running) \\
+  START & When the process started \\
+  TIME & Total CPU time consumed \\
+  COMMAND & The command that launched this process \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================
+\section{Software-Based Memory Acquisition}
+% =============================================================
+
+\subsection{Using the \texttt{dd} Command}
+
+\begin{definitionbox}[Definition --- \texttt{dd}]
+  \texttt{dd} is a Unix/Linux command-line tool that copies raw data block by block. Think of it as a ``photocopy machine for data'' --- it can copy files, disks, or even sections of RAM bit-for-bit.
+\end{definitionbox}
+
+\subsubsection{Linux Physical Memory Sources}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\ttfamily}l p{9cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Path} & \textbf{What It Is} \\
+  \midrule
+  /dev/mem & Direct access to physical RAM (problematic on modern systems --- restricted for security) \\
+  /proc/kcore & Kernel virtual memory --- a view of what the kernel sees in RAM \\
+  /proc/[PID]/mem & Memory for a specific process (replace \texttt{[PID]} with the process number) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{warningbox}{Key Problem}
+  \texttt{dd} relies on the operating system to read memory. If the OS is compromised (e.g.\ by a rootkit), it might give you \emph{fake} data!
+\end{warningbox}
+
+\subsection{Other Software-Based Methods}
+
+\begin{itemize}
+  \item \textbf{Virtual machines (VMware, VirtualBox):} You can \emph{freeze} a VM, take a snapshot of its entire disk and memory, and then resume it. You can also dump memory over the local network connection between host and VM.
+  \item \textbf{Hibernation files:} When a computer hibernates, it writes a snapshot of physical memory to disk. This file can be analysed later like a memory dump.
+\end{itemize}
+
+\subsection{Problems with Memory Acquisition}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{warnred}}p{3cm} p{11.5cm}}
+  \toprule
+  \rowcolor{lightred}
+  \textbf{Problem} & \textbf{Explanation} \\
+  \midrule
+  Software tools overwrite evidence & Loading any tool into memory \emph{erases} some existing data in RAM. You cannot avoid this entirely. \\
+  Trust issue & Software tools must ask the OS for memory access. If the OS is compromised, it can lie. \\
+  Hardware solutions & Hardware memory capture cards exist but must be \textbf{pre-installed} before the investigation. \\
+  Hardware poisoning & Sophisticated attackers can trick hardware-based capture too. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================
+\section{Step-by-Step Walkthrough: Reading Process Memory}
+% =============================================================
+
+\subsection{Background: Process Memory Segments}
+
+Before diving into the walkthrough, you need to understand how a running program's memory is organised. The lecture (and Lecture Topic 3) explains that each \textbf{process} (running application) gets its own block of memory, divided into \textbf{segments}:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries\color{examblue}}p{2.5cm} p{6cm} p{5.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Segment} & \textbf{What It Stores} & \textbf{Real-World Analogy} \\
+  \midrule
+  Text & The \textbf{machine code} of the compiled program --- the actual CPU instructions. This segment is usually \emph{read-only}. & The printed recipe in a cookbook --- you read it but don't write on it. \\
+  \midrule
+  Stack & Manages the \textbf{function/method call structure} during execution. Every time a function is called, a new ``frame'' is pushed onto the stack; when it returns, the frame is popped off. Local variables live here. & A stack of sticky notes --- you add one on top each time you start a sub-task, and remove it when you finish. \\
+  \midrule
+  Heap & Contains \textbf{dynamically allocated memory} --- memory that the program explicitly requests at runtime (e.g.\ when you create a new object or variable). This is where data like our \texttt{"Hello World!"} string ends up. & A whiteboard where you write things as needed --- you decide at runtime what goes there. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examtip}
+  The lecture specifically introduces text, stack, and heap \emph{before} the Python walkthrough. If the exam asks ``What are the memory segments of a process?'' you must name all three and explain each.
+\end{examtip}
+
+\subsection{The Walkthrough}
+
+This is a \textbf{key scenario from the lecture}. Follow each step carefully.
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Scenario: Finding ``Hello World!'' in a Running Python Program's Memory}}, breakable]
+
+\textbf{Goal:} A Python program has a variable \texttt{hello = "Hello World!"}. We want to \emph{prove} this string exists in the program's memory by reading raw RAM.
+
+\bigskip
+\textbf{Step 1: Start Python and create the variable}
+
+Open a terminal and start Python:
+\begin{lstlisting}
+$ python3
+>>> hello = "Hello World!"
+\end{lstlisting}
+
+\textbf{Step 2: Find the memory address of the variable}
+
+Python can tell us where in memory this variable lives:
+\begin{lstlisting}
+>>> id(hello)
+129592570691632
+\end{lstlisting}
+This number (129592570691632) is the \textbf{memory address} --- like a street address for where \texttt{"Hello World!"} is stored in RAM.
+
+\bigskip
+\textbf{Step 3: Find the Process ID (PID)}
+
+Each running program has a unique PID. Since Python is running in our current terminal, we need to open a \emph{second} terminal and search for it:
+\begin{lstlisting}
+$ ps aux | grep python3
+USER   PID  %CPU %MEM   VSZ   RSS  TTY  STAT START TIME COMMAND
+mj    2963   0.0  0.0  4688  1284 pts/0  T   11:21 0:00 python3
+\end{lstlisting}
+Our Python process has PID = \textbf{2963}.
+
+\bigskip
+\textbf{Step 4: Read the memory using \texttt{dd}}
+\begin{lstlisting}
+$ sudo dd bs=1 skip="129592570691632" count=1024 \
+    if="/proc/2963/mem" status=none | hexdump -C
+\end{lstlisting}
+
+\textbf{Breaking down this command:}
+\begin{itemize}[nosep]
+  \item \texttt{sudo} --- run as administrator (needed to read another process's memory)
+  \item \texttt{dd} --- the data copying tool
+  \item \texttt{bs=1} --- read \textbf{1 byte at a time} (block size = 1)
+  \item \texttt{skip="129592570691632"} --- \textbf{jump to this memory address} (skip this many bytes from the start)
+  \item \texttt{count=1024} --- read \textbf{1024 bytes} starting from that address
+  \item \texttt{if="/proc/2963/mem"} --- input file is the memory of process 2963
+  \item \texttt{status=none} --- suppress progress output
+  \item \texttt{| hexdump -C} --- display the raw bytes in hexadecimal + ASCII
+\end{itemize}
+
+\bigskip
+\textbf{Step 5: Read the output}
+\begin{lstlisting}
+00000000  01 00 00 00 00 00 00 00  c0 62 a4 00 00 00 00 00  |.........b......|
+00000010  0c 00 00 00 00 00 00 00  af 43 bb da 85 84 d6 24  |.........C.....$|
+00000020  64 00 00 00 00 00 00 00  48 65 6c 6c 6f 20 57 6f  |d.......Hello Wo|
+00000030  72 6c 64 21 00 00 00 00  00 00 00 00 00 00 00 00  |rld!............|
+\end{lstlisting}
+
+\textbf{Reading the hex dump:}
+\begin{itemize}[nosep]
+  \item Left column: memory offset (position in the dump)
+  \item Middle: raw hex bytes
+  \item Right column (in \texttt{|...|}) : ASCII interpretation
+  \item \texttt{48 65 6c 6c 6f 20 57 6f} = ``Hello Wo'' (each pair of hex digits = one character)
+  \item \texttt{72 6c 64 21} = ``rld!''
+\end{itemize}
+
+\textbf{We successfully found \texttt{"Hello World!"} sitting in the running program's memory!}
+\end{tcolorbox}
+
+\begin{examtip}
+  This scenario is extremely exam-relevant. Make sure you understand:
+  \begin{enumerate}[nosep]
+    \item \texttt{id()} gives memory address
+    \item \texttt{ps aux | grep} finds the PID
+    \item \texttt{dd} with \texttt{/proc/[PID]/mem} reads process memory
+    \item \texttt{hexdump -C} displays both hex and ASCII
+  \end{enumerate}
+\end{examtip}
+
+% =============================================================
+\section{Live Disk Imaging \& File Carving}
+% =============================================================
+
+\subsection{Live Disk Imaging}
+
+\begin{definitionbox}[Definition --- Live Disk Imaging]
+  Taking a complete bit-for-bit copy of a hard drive \emph{while the system is still running}. Same tools as static/dead imaging, but the target is a moving target because files are constantly changing.
+\end{definitionbox}
+
+\begin{commandbox}{Live Disk Imaging Commands}
+\begin{lstlisting}
+# Windows:
+dd if=\\.\PhysicalDrive0 of=e:\pd0.dd
+
+# Linux:
+dd if=/dev/hdc of=/mnt/images/hdc.dd
+\end{lstlisting}
+\textbf{Explanation:}
+\begin{itemize}[nosep]
+  \item \texttt{if=} is the \textbf{input file} (the source disk)
+  \item \texttt{of=} is the \textbf{output file} (where the image is saved)
+  \item On Windows, \texttt{\textbackslash\textbackslash.\textbackslash PhysicalDrive0} refers to the first physical hard drive
+  \item On Linux, \texttt{/dev/hdc} is a disk device
+\end{itemize}
+\end{commandbox}
+
+\begin{warningbox}{Key Problem}
+  The system is \textbf{live and active}. Files change while you are copying. On a quiet system, the image is a ``reasonable'' representation, but it is \emph{not} a perfect snapshot like a dead image.
+\end{warningbox}
+
+\subsection{Live File Carving}
+
+\begin{definitionbox}[Definition --- File Carving]
+  File carving is the technique of recovering files from raw data (e.g.\ an unallocated area of a disk) by looking for file signatures (headers and footers) rather than relying on the file system's directory structure.
+\end{definitionbox}
+
+\begin{itemize}
+  \item You can carve against \textbf{live block devices} (running disks) using tools like \textbf{Scalpel} and \textbf{Foremost}.
+  \item Challenges:
+    \begin{itemize}
+      \item \textbf{Consistency problem:} files are changing as you scan.
+      \item \textbf{Storage:} you need enough spare storage attached to save recovered files.
+    \end{itemize}
+\end{itemize}
+
+% =============================================================
+\section{Virtual Machine Forensics}
+% =============================================================
+
+VMs make live forensics easier because you can:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Freeze} the VM --- pause it in its current state.
+  \item \textbf{Copy/snapshot} the disks, memory, and even the screen.
+  \item \textbf{Resume} execution as if nothing happened.
+\end{enumerate}
+
+\begin{commandbox}{Dumping VM Memory Over a Network}
+\begin{lstlisting}
+# On the HOST machine (receives the dump):
+nc -l -p 7000 -w 1 > dump.dd
+
+# Inside the VM (sends the data):
+dd if=/dev/sda bs=512 | nc 192.168.1.50 7000
+\end{lstlisting}
+\textbf{How it works:}
+\begin{itemize}[nosep]
+  \item \texttt{nc} (netcat) is a simple tool for sending data over the network
+  \item The host machine listens on port 7000, ready to receive
+  \item Inside the VM, \texttt{dd} reads the disk (\texttt{/dev/sda}) and pipes it to \texttt{nc}, which sends it to the host at IP \texttt{192.168.1.50}
+  \item The host saves the incoming data as \texttt{dump.dd}
+\end{itemize}
+\end{commandbox}
+
+% ==========================================================% =============================================================
+\section{Lab 7: Hashing, Forensic Imaging \& Data Analysis}
+% =============================================================
+
+\begin{warningbox}{Lab Practical Notes}
+  \begin{itemize}[nosep]
+    \item There is \textbf{no submission} for this lab --- but you \emph{should} log all results in a personal document (e.g.\ \texttt{lab07\_logbook}).
+    \item Questions highlighted in blue on the lab sheet are the ones you should record answers for.
+    \item Lab instructions are \textbf{intentionally open-ended} --- you will need to figure some steps out yourself.
+    \item You will need to \textbf{install software} and \textbf{download additional resources} from the Lab07 resources module on Canvas.
+    \item It is \textbf{recommended to use a VM} (virtual machine) so that software installs do not affect your main system.
+    \item Start downloading resource files while reading the lab sheet --- some downloads are large.
+  \end{itemize}
+\end{warningbox}
+
+% -------------------------------------------------------
+\subsection{Lab 7.1: Hashing}
+% -------------------------------------------------------
+
+\subsubsection{Why Hashing Matters for Forensics}
+
+\begin{definitionbox}[Definition --- Hash Function]
+  A \textbf{hash function} is a mathematical algorithm that takes \emph{any} input (a file, a password, a disk image) and produces a \textbf{fixed-length string} (the ``hash'' or ``digest''). Even a \textbf{tiny change} in the input produces a \textbf{completely different} hash.
+
+  \medskip
+  \textbf{Three key properties:}
+  \begin{enumerate}[nosep]
+    \item \textbf{Deterministic:} Same input $\rightarrow$ same hash, every time.
+    \item \textbf{One-way:} You cannot reverse the hash to get the original data.
+    \item \textbf{Avalanche effect:} A single-bit change in the input produces a completely different hash output.
+  \end{enumerate}
+
+  \medskip
+  Think of a hash as a \textbf{unique digital fingerprint} for a file. If even a single bit is modified, the fingerprint will be completely different.
+\end{definitionbox}
+
+\begin{examplebox}{Same File = Same Hash; Changed File = Different Hash}
+  \textbf{File 1:} ``Fundamentals of Digital Forensics AED 10.00'' \\
+  MD5 hash = \texttt{bb070ae1452f56921e2571ff1212b314}
+
+  \bigskip
+  \textbf{File 2:} ``Fundamentals of Digital Forensics AED 10.00\textbf{,}'' (just added a comma!) \\
+  MD5 hash = \texttt{5c6222bf2be2b1fc3fb0f6c45ee2b1f0}
+
+  \bigskip
+  \textbf{Result:} The hashes are \emph{completely different} even though only a single comma was added. This is how we detect tampering.
+\end{examplebox}
+
+\subsubsection{How to Create Hashes}
+
+\begin{commandbox}{Creating Hashes}
+\begin{lstlisting}
+# Linux:
+md5sum filename
+
+# Windows:
+# Use a third-party tool like HashCalc (no built-in md5sum)
+# HashCalc is available from the lab07 resources folder
+\end{lstlisting}
+\end{commandbox}
+
+\subsubsection{Lab 7.1.1 --- Hashing Exercise: Identifying Identical Files}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Comparing File Hashes}}, breakable]
+
+\textbf{Goal:} Use hashing to determine which files are identical among a set of similar-looking files.
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Download} the files from the ``Hash Values'' folder in the Lab07 resources on Canvas. These include \texttt{.doc} files and \texttt{.jpg} files. Some look similar but have slight, hard-to-notice changes.
+  \item \textbf{Hash each file} using HashCalc (Windows) or \texttt{md5sum} (Linux).
+  \item \textbf{Record} each filename alongside its MD5 hash in your logbook.
+  \item \textbf{Compare the hashes:}
+    \begin{itemize}[nosep]
+      \item Files with \textbf{identical hashes} $=$ the files are \emph{exactly the same} (bit-for-bit), even if they have different names.
+      \item Files with \textbf{different hashes} $=$ the files differ, even if the difference is invisible to the naked eye.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Key question:} Based on the computed hashes, which of the files are exactly the same?
+\end{tcolorbox}
+
+\subsubsection{Lab 7.1.2 --- Hashing Exercise: Seeing the Changes}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: The price.txt Experiment}}, breakable]
+
+\textbf{Goal:} Prove that even small content changes produce completely different hashes, while exact copies produce the same hash.
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Create} a new text document.
+  \item \textbf{Type} exactly: \texttt{Fundamentals of Digital Forensics AED 10.00}
+  \item \textbf{Save} the file on your Desktop as \texttt{price.txt} and \textbf{close} it.
+  \item \textbf{Hash} \texttt{price.txt} using MD5. \textbf{Record this hash.}
+  \item \textbf{Make a copy} of \texttt{price.txt} and call it \texttt{copy of price.txt}. \textbf{Do NOT open or modify} this copy.
+  \item \textbf{Hash} \texttt{copy of price.txt}. \textbf{Record this hash.}
+  \item \textbf{Compare} the two hashes.
+\end{enumerate}
+
+\textbf{Expected result:} Both hashes are \textbf{identical} --- because copying a file creates an exact duplicate. Same content $=$ same hash.
+
+\bigskip
+\textbf{Now continue:}
+\begin{enumerate}[label=\textbf{Step \arabic*:}, resume]
+  \item \textbf{Open} the original \texttt{price.txt}.
+  \item \textbf{Change} the text to: \texttt{Fundamentals of Information Security AED 1000}
+  \item \textbf{Save} the file (overwrite the original).
+  \item \textbf{Hash} the edited \texttt{price.txt}. \textbf{Record this hash.}
+  \item \textbf{Compare} all three hashes.
+\end{enumerate}
+
+\textbf{Expected result:} The edited file's hash is \textbf{completely different} from the original and the copy. The copy's hash still matches the original (because the copy was never modified). This proves hashing detects content changes.
+\end{tcolorbox}
+
+\subsection{Forensic Use of Hashing}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{3.5cm} p{11cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Use Case} & \textbf{Explanation} \\
+  \midrule
+  Evidence integrity & Hash the evidence when you first collect it. Hash it again in court. If both hashes match, the evidence has not been tampered with. \\
+  \midrule
+  File identification & Compare file hashes to a database of known bad files (e.g.\ child abuse images) to quickly flag matches. \\
+  \midrule
+  Duplicate detection & Two files with the same hash are identical, even if they have different names. \\
+  \midrule
+  Known good filtering & Hash all standard Windows system files. If a file on the suspect's machine has a hash that matches a known-good list, you can skip it and focus on unknown files. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% -------------------------------------------------------
+\subsection{Lab 7.2: Digital Forensic Imaging and Analysis}
+% -------------------------------------------------------
+
+\begin{definitionbox}[Definition --- Digital Forensic Imaging]
+  The goal of digital forensics is to perform crime investigations by using evidence from digital data to find who was responsible for a particular crime, when, and where. Many toolkits have been developed over past decades, and police departments select tools based on budget, available expertise, and the type of cases they handle.
+\end{definitionbox}
+
+\subsubsection{Lab 7.2.1 --- Autopsy: Setup and Case Creation}
+
+\begin{definitionbox}[Definition --- Autopsy]
+  \textbf{Autopsy} is a free, open-source digital forensics platform (graphical interface to the Sleuth Kit). It is used by law enforcement, military, and corporate examiners to investigate what happened on a computer.
+\end{definitionbox}
+
+\textbf{Key Autopsy Features:}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}p{3.5cm} p{11cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Feature} & \textbf{What It Does (Simple)} \\
+  \midrule
+  Timeline Analysis & Shows events in time order --- when files were created, modified, accessed \\
+  Hash Filtering & Flags known bad files (matching a bad hash list) and ignores known good files \\
+  Keyword Search & Search through all files for specific words or phrases \\
+  Web Artifacts & Extracts browser history, bookmarks, cookies from Firefox, Chrome, IE \\
+  Data Carving & Recovers deleted files from unallocated space using PhotoRec \\
+  Multimedia & Extracts EXIF data from photos (camera model, GPS coordinates, date taken) and plays videos \\
+  STIX / IOC & Scans for Indicators of Compromise using STIX format \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{The Murder Case Scenario}
+
+\begin{tcolorbox}[colback=lightred, colframe=warnred, title={\textbf{CASE REFERENCE: CSL/0294/10 --- Murder}}, breakable]
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}p{3.5cm} p{10.5cm}}
+  Case Reference & CSL/0294/10 \\
+  Type & Murder \\
+  OIC & DC R Smyth \\
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{Summary:}\\
+Steven Turner was arrested on \textbf{29th October 2010} under suspicion of rape and murder of \textbf{Jane Simmons}, a prostitute well known to the Police around London Rd of Leicester.
+
+The body was found on the \textbf{26th of October} in a hotel room with shotgun wounds by the cleaner at around 10AM. The time of death is believed to have been between \textbf{10:30pm on Sunday 24th} and \textbf{1am on Monday 25th October 2010}.
+
+At the time of Turner's arrest, he was found to be carrying a \textbf{USB device} and a \textbf{mobile phone}. The USB stick was imaged by a colleague and the image is called \textbf{``Murder.E01''}.
+
+\bigskip
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}p{3.5cm} p{4.5cm} p{4.5cm}}
+  \toprule
+  \rowcolor{lightred}
+  & \textbf{Suspect} & \textbf{Victim} \\
+  \midrule
+  Name & Steven Turner & Jane Simmons \\
+  D.O.B & 27/4/75 & 6/8/81 \\
+  Occupation & Unemployed labourer & Sex worker \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{YOUR TASK:} Analyse the image using Autopsy and identify any information related to the Murder of Jane Simmons.
+\end{tcolorbox}
+
+\subsubsection{Autopsy Case Creation --- Step-by-Step Procedure}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Setting Up Autopsy for the Murder Case}}, breakable]
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Download and install Autopsy} from \texttt{https://www.autopsy.com/download/} (if not already installed).
+  \item \textbf{Create a folder} in your working directory called \texttt{Murdercase}.
+  \item \textbf{Save} the \texttt{Murder.E01} image file (from Lab07 resources on Canvas) into the \texttt{Murdercase} folder.
+  \item \textbf{Open Autopsy.} Click \textbf{``Create New Case''}.
+  \item In \textbf{Case Name}: enter \texttt{MurderCase}.
+  \item \textbf{Browse} to the \texttt{Murdercase} folder as the case directory.
+  \item Click \textbf{``Next''}, enter:
+    \begin{itemize}[nosep]
+      \item Case Number: \texttt{1}
+      \item Examiner: \texttt{Your Name}
+    \end{itemize}
+  \item Click \textbf{``Finish''}.
+  \item On the next screen, choose \textbf{``Disk Image or VM File''} as the data source type.
+  \item \textbf{Browse} to the \texttt{Murdercase} folder and select \textbf{Murder.E01}.
+  \item Click \textbf{``Next''} to reach the \textbf{Configure Module} window.
+  \item \textbf{Untick} the following ingest modules:
+    \begin{itemize}[nosep]
+      \item Keyword Search
+      \item Virtual Machine Extractor
+      \item iOS Analyzer (if present)
+      \item Android Analyzer
+    \end{itemize}
+  \item Click \textbf{``Next''} and \textbf{``Finish''}.
+  \item \textbf{Wait} for the analysing status bar (bottom right corner) to complete.
+\end{enumerate}
+\end{tcolorbox}
+
+\subsubsection{Autopsy Investigation Questions}
+
+Once processing is complete, you must answer these questions:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries\color{examblue}}c p{12cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{\#} & \textbf{Question} \\
+  \midrule
+  Q1 & What is the \textbf{MD5 hash} for the ``Murder.E01'' image? \\
+  Q2 & Identify the \textbf{Device ID} and the \textbf{TimeZone}. \\
+  Q3 & Click on Murder.E01 to expand it. What does the \textbf{red X} beside the Documents folder mean? \\
+  & \emph{Answer:} The red X indicates \textbf{deleted files} --- files that were removed from the file system but still recoverable from unallocated space. \\
+  Q4 & What sort of evidence can you identify for Murder.E01 by using Autopsy? Report your findings. \\
+  & \emph{Hints:} Click on Murder.E01 and look inside Documents, related images, and visited sites. Record metadata details (including MD5 hash) for each piece of evidence you find. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examtip}
+  The red X in Autopsy is a common exam/lab question. It means the file or folder has been \textbf{deleted} by the user but Autopsy was able to recover it. This is exactly why forensic tools are so powerful --- ``deleting'' a file does not actually erase the data from disk.
+\end{examtip}
+
+% -------------------------------------------------------
+\subsubsection{Lab 7.2.2 --- FTK (Forensic Toolkit)}
+% -------------------------------------------------------
+
+\begin{definitionbox}[Definition --- FTK]
+  \textbf{FTK (Forensic Toolkit)} is another popular forensic investigation tool. FTK Imager is the free version. It can process the same E01 disk images as Autopsy and provides different viewing perspectives for evidence analysis.
+\end{definitionbox}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Analysing Murder.E01 in FTK}}, breakable]
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item Create a new folder called \texttt{FTK lab07 test}.
+  \item Use the FTK Imager version from Lab 02 on Canvas (refer to Lab 02 sheet for installation instructions if needed).
+  \item Open the same \texttt{Murder.E01} image in FTK. (If using FTK Imager, you cannot create a new case --- skip case creation.)
+  \item Explore the different \textbf{overview views} FTK provides for viewing files.
+\end{enumerate}
+\end{tcolorbox}
+
+\subsubsection{FTK Investigation Questions}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries\color{examblue}}c p{12cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{\#} & \textbf{Question} \\
+  \midrule
+  Q1 & Do the different overview views in FTK help with analysis? \textbf{Why is this useful?} \\
+  & \emph{Answer:} Yes. Multiple views (file list, hex view, text view, filtered views) let you examine evidence from different angles. Filtered views can quickly isolate graphics, documents, or deleted files, making analysis faster and more thorough. \\
+  Q2 & What is the \textbf{total number of files} processed in the Murder.E01 evidence file? \\
+  Q3 & How many \textbf{deleted files} were found? \\
+  Q4 & How many \textbf{graphics files} were found? \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% -------------------------------------------------------
+\subsection{MAC Times}
+% -------------------------------------------------------
+
+\begin{definitionbox}[Definition --- MAC Times]
+  \textbf{MAC times} are file system metadata timestamps:
+  \begin{itemize}[nosep]
+    \item \textbf{M}odified --- When the file's \emph{content} was last changed
+    \item \textbf{A}ccessed --- When the file was last opened/read
+    \item \textbf{C}reation --- When the file was first created on this system
+  \end{itemize}
+\end{definitionbox}
+
+\begin{examplebox}{Why Modified Date Can Be Before Creation Date}
+  A file is created on Computer A on 1st January (Modified = 1 Jan). On 1st March, someone copies it to Computer B. The \textbf{Creation date} on Computer B is 1 March, but the \textbf{Modified date} is still 1 January (carried over from Computer A).
+
+  \medskip
+  \textbf{Result:} Modified date (1 Jan) is \emph{before} Creation date (1 Mar). This is \textbf{not} an error --- it tells you the file was copied from elsewhere.
+\end{examplebox}
+
+\subsubsection{MAC Times Lab Question}
+
+\begin{tcolorbox}[colback=lightyellow, colframe=tipyellow, title={\textbf{Lab Task: Examining MAC Times in the Graphics Folder}}, breakable]
+
+In the Murder.E01 image file (using FTK), look at the \textbf{MAC Times} for files in the Graphics folder.
+
+\textbf{Question:} Do some of the graphics files have their \textbf{Modified date before their Creation and Accessed dates}? If yes, why do you think that happened?
+
+\bigskip
+\textbf{Expected answer:} If the Modified date is before the Creation date, the files were likely \textbf{copied or moved from another device/location}. The original Modified timestamp was preserved from the source, but the Creation timestamp reflects when the file was placed on the USB stick. This is forensically significant because it tells you the files \emph{originated elsewhere} and were transferred to this device.
+
+If all dates correspond normally (Creation $\leq$ Modified $\leq$ Accessed), then the files were created directly on this device and you can note that as your answer.
+\end{tcolorbox}
+
+\begin{examtip}
+  If the exam asks ``Why might a file's modified date be before its creation date?'' the answer is: the file was \textbf{copied from another system}. The original modified date was preserved but the creation date reflects when it was placed on the new system.
+\end{examtip}
+
+% =============================================================
+\section{Lab 8: Live Forensics and Incident Response}
+% =============================================================
+
+\begin{warningbox}{Lab Practical Notes}
+  \begin{itemize}[nosep]
+    \item There is \textbf{no submission} for this lab --- log results in a personal document (e.g.\ \texttt{lab08\_logbook}).
+    \item Questions in blue on the lab sheet should be recorded in your logbook.
+    \item You will need to \textbf{install software} and \textbf{download resources} from the Lab08 resources folder on Canvas.
+    \item \textbf{Recommended:} Use a VM so software installs do not affect your main system.
+    \item This lab covers three sections: \textbf{VM + Autopsy}, \textbf{Procmon}, and \textbf{Live Forensics}.
+  \end{itemize}
+\end{warningbox}
+
+% -------------------------------------------------------
+\subsection{Lab 8.1: VM and Autopsy}
+% -------------------------------------------------------
+
+\subsubsection{Why VMs Matter for Forensics}
+
+\begin{definitionbox}[Definition --- VMs as Forensic Evidence]
+  Virtual Machines (VMs) can be treated as digital evidence just like physical disks. Most forensic tools (including Autopsy) can \textbf{read VM disk files} (VMDK, VDI) as if they were forensic images. The VM must be \textbf{powered off} first. VMs are portable, can be copied, and can be \textbf{snapshotted} at any point in time.
+\end{definitionbox}
+
+\subsubsection{Lab 8.1 Procedure: Setting Up a VM for Forensic Analysis}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Creating and Analysing a VM with Autopsy}}, breakable]
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Download Lubuntu ISO} from \texttt{https://lubuntu.me/downloads/} (select 24.04.3 LTS, Desktop 64-bit).
+  \item \textbf{Create a VM} in VirtualBox or VMWare using the Lubuntu ISO.
+  \item \textbf{Install Lubuntu} inside the VM, creating a user account (remember your username and password).
+  \item \textbf{Create a test file} on the VM's desktop (any content --- you will search for it later).
+  \item \textbf{Shut down the VM.}
+  \item \textbf{Open Autopsy.} Create a new case.
+  \item Select \textbf{``Disk Image or VM File''} as the data source type.
+  \item \textbf{Browse to your VM's disk file:}
+    \begin{itemize}[nosep]
+      \item VMWare: select the \texttt{.vmdk} file from the VM folder.
+      \item VirtualBox: you must first \textbf{convert} the \texttt{.vdi} to raw format using \texttt{vboxmanage}:
+    \end{itemize}
+\end{enumerate}
+
+\begin{lstlisting}
+vboxmanage clonehd "path/to/disk.vdi" "path/to/output.img" --format raw
+\end{lstlisting}
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}, resume]
+  \item Click Next through the ingest module options (leave defaults) and let Autopsy process the image.
+  \item \textbf{Browse the Data Sources tree} to find the file you created on the VM desktop.
+\end{enumerate}
+
+\textbf{Key question:} Can you find the file you created on the desktop? This demonstrates that Autopsy treats a VM disk file exactly like a forensic image.
+\end{tcolorbox}
+
+\begin{examtip}
+  The key exam point is: \textbf{VM disk files (VMDK, VDI) can be opened in forensic tools just like disk images.} The VM must be shut down first. For VirtualBox, you need to convert \texttt{.vdi} to raw format using \texttt{vboxmanage clonehd}.
+\end{examtip}
+
+% -------------------------------------------------------
+\subsection{Lab 8.2: Procmon (Process Monitor)}
+% -------------------------------------------------------
+
+\begin{definitionbox}[Definition --- Procmon]
+  \textbf{Procmon} (Process Monitor) is a Sysinternals tool that monitors system activity in real time. It can track:
+  \begin{itemize}[nosep]
+    \item \textbf{Registry changes} (settings being read/written)
+    \item \textbf{File system changes} (files being created, modified, deleted)
+    \item \textbf{Network activity}
+    \item \textbf{Process and thread activity}
+  \end{itemize}
+  It is essential for forensics and \textbf{malware analysis}: by monitoring what a suspicious program does, you can understand its behaviour without needing its source code.
+\end{definitionbox}
+
+\subsubsection{Key Procmon Controls}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{3.5cm} p{11cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Shortcut / Action} & \textbf{What It Does} \\
+  \midrule
+  Ctrl + E & \textbf{Start / Stop} event capture (toggle) \\
+  Ctrl + X & \textbf{Clear} all captured events from the display \\
+  Ctrl + L & Open the \textbf{Filter} menu \\
+  Toolbar icons & Enable/disable monitoring of Registry, File System, Network, or Processes \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Lab 8.2.1 --- Procmon Exercise: Tracing a Registry Change}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Finding Where Internet Options Stores Proxy Settings}}, breakable]
+
+\textbf{Goal:} Use Procmon's filters to pinpoint exactly where Windows writes a proxy setting to the registry.
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Download and extract} Procmon from \texttt{https://docs.microsoft.com/en-us/sysinternals/downloads/procmon}.
+  \item \textbf{Run Process Monitor.} It begins capturing events immediately.
+  \item \textbf{Set up a filter} (Ctrl + L):
+    \begin{itemize}[nosep]
+      \item First dropdown: \texttt{Detail}
+      \item Second dropdown: \texttt{contains}
+      \item Text field: \texttt{3129}
+      \item Third dropdown: \texttt{Include}
+      \item Click \textbf{Add}, then \textbf{OK}
+    \end{itemize}
+  \item \textbf{Disable all toolbar icons except Registry} (so you only see registry operations).
+  \item \textbf{Start capture} (Ctrl + E).
+  \item \textbf{Open Windows Control Panel} (Win+R $\rightarrow$ type ``Control Panel'').
+  \item Navigate to \textbf{Internet Options} $\rightarrow$ change the proxy port to \texttt{3129} and set IP to \texttt{170.0.0.1}. Click OK.
+  \item \textbf{Stop capture} (Ctrl + E).
+  \item \textbf{Examine the Procmon output:} expand the Path and Detail columns to see exactly \emph{where} in the registry the proxy setting was written and \emph{what value} was stored.
+  \item \textbf{Remove the proxy setting} (otherwise you lose internet access!).
+\end{enumerate}
+
+\textbf{Key insight:} Procmon found the registry key where Windows stores proxy settings. The same technique works for \emph{any} system change --- install a program, run malware, change settings --- and Procmon shows you exactly what happened.
+\end{tcolorbox}
+
+\begin{examtip}
+  Procmon is invaluable for \textbf{malware analysis}: run the suspicious program while Procmon is capturing, and you can see every file it creates, every registry key it modifies, and every network connection it makes. This was covered in the lecture under Sysinternals tools.
+\end{examtip}
+
+% -------------------------------------------------------
+\subsection{Lab 8.3: Live Forensics}
+% -------------------------------------------------------
+
+\begin{definitionbox}[Definition --- Live Forensics Scenario]
+  You have reason to believe a server has been \textbf{compromised}. Before powering it down for offline analysis, you must collect \textbf{volatile evidence} from the live system. The lab walks through the standard steps used on a real compromised running system, following the \textbf{order of volatility}:
+  \begin{enumerate}[nosep]
+    \item Most volatile first: contents of RAM, running processes
+    \item Less volatile next: data stored on disk (offline analysis)
+  \end{enumerate}
+\end{definitionbox}
+
+\subsubsection{Static vs.\ Dynamic Linking --- Why It Matters}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{3.5cm} p{5cm} p{5.5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  & \textbf{Dynamically Linked} & \textbf{Statically Linked} \\
+  \midrule
+  What it means & Program loads shared libraries (\texttt{.so} on Linux, \texttt{.dll} on Windows) at runtime & Program contains \textbf{all} library code built into the executable itself \\
+  \midrule
+  Risk in forensics & Shared libraries may have been \textbf{tampered with} by an attacker; running the program also \textbf{updates access times} on those library files & Much safer because the program does not depend on any files on the compromised system \\
+  \midrule
+  Check with & \texttt{ldd /bin/ls} $\rightarrow$ lists external libraries & \texttt{ldd static/ls} $\rightarrow$ ``not a dynamic executable'' \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examtip}
+  If the exam asks ``Why should forensic investigators use statically linked binaries?'' the answer is: \textbf{dynamically linked programs rely on shared libraries that may have been tampered with by an attacker.} Statically compiled programs carry all their code internally, so they cannot be fooled by modified libraries. However, even static binaries cannot protect against a \textbf{compromised kernel} (kernel-mode rootkit).
+\end{examtip}
+
+\subsubsection{Lab 8.3.1 --- Setting Up the FIRE Disk}
+
+\begin{definitionbox}[Definition --- F.I.R.E.]
+  \textbf{F.I.R.E.} (Forensic and Incident Response Environment) is a free bootable CD/ISO containing forensic tools and \textbf{statically compiled} Linux utilities. It serves as a trusted tool source during live investigations.
+\end{definitionbox}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Setting Up FIRE in the VM}}, breakable]
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Download F.I.R.E.} ISO from the link provided on Canvas.
+  \item In VMWare: \textbf{Edit Virtual Machine Settings} $\rightarrow$ CD/DVD $\rightarrow$ Use ISO Image File $\rightarrow$ select the FIRE ISO $\rightarrow$ enable ``Connect at power on''.
+  \item \textbf{Boot the Lubuntu VM.}
+  \item \textbf{Find the CD mount point} (open File Manager, look for the SATA CDRW Drive entry, note the mount path).
+  \item \textbf{Set up a shortcut} for static binaries:
+\end{enumerate}
+
+\begin{lstlisting}
+export static="[MOUNT POINT]/statbins/linux2.2_x86/"
+# Now run: $static/ls    (uses the safe, static version)
+\end{lstlisting}
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}, resume]
+  \item \textbf{Verify static linking:}
+\end{enumerate}
+
+\begin{lstlisting}
+ldd /bin/ls              # Shows many external .so libraries
+ldd $static/ls           # Shows "not a dynamic executable"
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Lab 8.3.2 --- Collecting Live State Manually}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Capturing Volatile Evidence from a Live System}}, breakable]
+
+\textbf{Goal:} Systematically capture volatile data from the running system onto external storage (USB drive).
+
+\textbf{Setup:} Create a case directory on your USB drive and begin logging:
+\begin{lstlisting}
+mkdir /USBMOUNT/Case001
+mkdir /USBMOUNT/Case001/Evidence
+script -f /USBMOUNT/Case001/invst.log
+\end{lstlisting}
+
+\textbf{The \texttt{script} command} records everything you type and see in the terminal to a log file --- essential for maintaining a complete record of your investigation.
+
+\bigskip
+\textbf{Commands to collect evidence} (run each one):
+
+\begin{lstlisting}
+# 1. Process list (compare with /proc later)
+ps aux > /USBMOUNT/Case001/Evidence/ps_out
+
+# 2. Process list from /proc (kernel-provided, harder to fake)
+$static/ls /proc > /USBMOUNT/Case001/Evidence/proc_ls_static
+
+# 3. Deleted files still executing (from The Sleuth Kit)
+sudo $static/ils -o /dev/sda1 > /USBMOUNT/Case001/Evidence/deleted_out
+
+# 4. Files currently open by programs
+sudo $static/lsof > /USBMOUNT/Case001/Evidence/lsof_out
+
+# 5. Network connections
+sudo $static/netstat -a > /USBMOUNT/Case001/Evidence/netstat_out
+
+# 6. Network resources accessed by programs
+sudo $static/lsof -P -i -n > /USBMOUNT/Case001/Evidence/lsof_net_out
+
+# 7. Routing table
+sudo $static/route > /USBMOUNT/Case001/Evidence/route_out
+
+# 8. ARP cache (who has the system been talking to?)
+sudo $static/arp -a > /USBMOUNT/Case001/Evidence/arp_out
+
+# 9. Kernel modules loaded
+sudo $static/cat /proc/modules > /USBMOUNT/Case001/Evidence/lsmod_out
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Key Analysis: Comparing Process Lists}
+
+\begin{examplebox}{Detecting Hidden Processes}
+  Compare the PIDs in \texttt{ps\_out} (from the system's \texttt{ps} command) with the directories in \texttt{proc\_ls\_static} (from the FIRE disk's static \texttt{ls /proc}).
+
+  \begin{itemize}[nosep]
+    \item If a process appears in \texttt{/proc} but \textbf{NOT} in \texttt{ps} output $\rightarrow$ the system's \texttt{ps} command is \textbf{hiding} that process $\rightarrow$ strong evidence of a \textbf{rootkit}.
+    \item If both lists match $\rightarrow$ no hidden processes detected (but kernel-level rootkits can still fool both).
+  \end{itemize}
+\end{examplebox}
+
+\subsubsection{Creating Memory Images}
+
+\begin{commandbox}{Dumping Kernel Memory (RAM Snapshot)}
+\begin{lstlisting}
+# Dump entire kernel memory (ELF-format core dump)
+sudo $static/dd if=/proc/kcore conv=noerror,sync \
+  > /USBMOUNT/Case001/Evidence/kcore
+\end{lstlisting}
+\end{commandbox}
+
+This saves a complete snapshot of what is in RAM. You can later search through it (using tools like \textbf{BinText}) to find strings, commands, passwords, and other data that was in memory at the time.
+
+\subsubsection{Lab 8.3.3 --- Automated IR Scripts}
+
+\begin{definitionbox}[Definition --- IR Scripts]
+  Manually collecting all volatile data is time-consuming. \textbf{Incident response scripts} (like \texttt{linux-ir.sh} on the FIRE disk) automate the process by running a series of data-collection commands automatically.
+\end{definitionbox}
+
+\begin{commandbox}{Running the IR Script}
+\begin{lstlisting}
+# View the script first to understand what it does
+less $static/linux-ir.sh
+
+# Run the script and save all output
+$static/linux-ir.sh > /USBMOUNT/Case001/Evidence/ir_out
+
+# Examine the output
+less /USBMOUNT/Case001/Evidence/ir_out
+\end{lstlisting}
+\end{commandbox}
+
+\subsubsection{Lab 8.3.4 --- Checking for Rootkits with chkrootkit}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Running chkrootkit}}, breakable]
+
+\textbf{chkrootkit} is a Bash script that tests for the presence of various known rootkits by looking for inconsistencies in system data and known malicious files.
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Set PATH} to use static binaries so chkrootkit calls trusted programs:
+\end{enumerate}
+
+\begin{lstlisting}
+export PATH=$static:$PATH
+which ls     # Should now show the FIRE disk path
+\end{lstlisting}
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}, resume]
+  \item \textbf{Run chkrootkit:}
+\end{enumerate}
+
+\begin{lstlisting}
+./chkrootkit-linux/chkrootkit \
+  > /USBMOUNT/Case001/Evidence/chkrootkit_out
+\end{lstlisting}
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}, resume]
+  \item \textbf{Examine the output:}
+\end{enumerate}
+
+\begin{lstlisting}
+less /USBMOUNT/Case001/Evidence/chkrootkit_out
+\end{lstlisting}
+
+Look for files or directories reported as \textbf{``INFECTED''} or suspicious.
+\end{tcolorbox}
+
+\subsubsection{Lab 8.3.5 --- Offline Analysis of RAM Dump}
+
+\begin{tcolorbox}[colback=lightblue, colframe=examblue, title={\textbf{Procedure: Searching Through the kcore Dump}}, breakable]
+
+After shutting down the compromised system, you can search through the saved kernel memory dump for evidence:
+
+\begin{enumerate}[label=\textbf{Step \arabic*:}]
+  \item \textbf{Open BinText} (from the Lab08 resources folder).
+  \item \textbf{Load the kcore file} you saved earlier.
+  \item \textbf{Search} for evidence of commands that were run, passwords, file contents, and any suspicious strings.
+\end{enumerate}
+
+\textbf{Key insight:} Even though the system is now powered off, the RAM dump preserves everything that was in memory --- including typed commands, decrypted data, and session information.
+\end{tcolorbox}
+
+\subsubsection{Lab 8.3.6 --- Windows Incident Response}
+
+The same principles from Linux live forensics apply to Windows:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries\color{examblue}}p{4cm} p{5cm} p{5cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Task} & \textbf{Linux} & \textbf{Windows} \\
+  \midrule
+  RAM dump & \texttt{dd if=/proc/kcore} & Tools like Helix, DumpIt, or FTK Imager \\
+  Process list & \texttt{ps aux} & Sysinternals \texttt{PsList} or Task Manager \\
+  Network connections & \texttt{netstat -a} & \texttt{netstat -an} or Sysinternals \texttt{TCPView} \\
+  Open files & \texttt{lsof} & Sysinternals \texttt{Handle} \\
+  Rootkit detection & \texttt{chkrootkit} & Sysinternals \texttt{RootkitRevealer} \\
+  Trusted binaries & FIRE/Helix static bins & Run tools from USB (trusted source) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Shutdown Considerations}
+
+\begin{warningbox}{Force Power-Off vs.\ Normal Shutdown}
+  After collecting live evidence, you may want to \textbf{force power off} (``pull the plug'') rather than performing a normal shutdown. Why?
+  \begin{itemize}[nosep]
+    \item A normal shutdown (\texttt{halt}/\texttt{shutdown}) runs scripts that may \textbf{destroy evidence} --- malware often includes cleanup routines that trigger on shutdown.
+    \item The \texttt{sync} command flushes file system buffers to disk before power-off:
+  \end{itemize}
+  \texttt{sync; sync} (run twice for safety, then force power off)
+\end{warningbox}
+
+\begin{examtip}
+  If the exam asks ``Why might an investigator force a power-off instead of a normal shutdown?'' the answer is: a normal shutdown runs scripts that may \textbf{delete evidence or trigger malware cleanup routines}. Force power-off preserves the disk in its current state. Always run \texttt{sync} first to flush pending writes.
+\end{examtip}
+
+% =============================================================
+\section{Complete Process Summary Flowchart}
+
+% =============================================================
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.2cm,
+  box/.style={rectangle, draw=examblue, fill=lightblue, text width=10cm, 
+              minimum height=1cm, align=center, font=\small},
+  arrow/.style={->, thick, examblue}
+]
+  \node[box] (step1) {\textbf{Step 1:} Arrive at scene --- computer is ON};
+  \node[box, below of=step1] (step2) {\textbf{Step 2:} Document everything (photograph screen, note programs running)};
+  \node[box, below of=step2] (step3) {\textbf{Step 3:} Collect volatile data FIRST (RAM dump, network connections, running processes)};
+  \node[box, below of=step3] (step4) {\textbf{Step 4:} Check for encryption --- capture keys from RAM before shutdown};
+  \node[box, below of=step4] (step5) {\textbf{Step 5:} Live disk imaging (if time/storage permits)};
+  \node[box, below of=step5] (step6) {\textbf{Step 6:} Live file carving for deleted evidence};
+  \node[box, below of=step6] (step7) {\textbf{Step 7:} Power off and perform static/dead forensics on the disk image};
+
+  \draw[arrow] (step1) -- (step2);
+  \draw[arrow] (step2) -- (step3);
+  \draw[arrow] (step3) -- (step4);
+  \draw[arrow] (step4) -- (step5);
+  \draw[arrow] (step5) -- (step6);
+  \draw[arrow] (step6) -- (step7);
+\end{tikzpicture}
+\end{center}
+
+% =============================================================
+\section{Quick-Reference Exam Cheat Sheet}
+% =============================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\bfseries\color{examblue}}p{4.5cm} p{10cm}}
+  \toprule
+  \rowcolor{lightblue}
+  \textbf{Exam Question} & \textbf{Key Points to Include} \\
+  \midrule
+  What is live forensics? & Collecting digital evidence from a \emph{running} computer; captures volatile data (RAM); differs from dead forensics which works on disk images \\
+  \midrule
+  Why is live forensics needed? & (1) Huge disks take too long to image, (2) mission-critical systems can't be shut down, (3) volatile data (passwords, encryption keys) is lost on power-off \\
+  \midrule
+  What are the constraints? & Must have access; minimise changes; minimise system impact; record all steps (ACPO Principle 1) \\
+  \midrule
+  What are rootkits? & Malware that hides itself from the OS; user-mode (replaces commands) vs.\ kernel-mode (modifies OS core); kernel-mode can fool even trusted tools; defence = statically linked binaries \\
+  \midrule
+  What are the 3 memory segments? & \textbf{Text} (machine code, read-only), \textbf{Stack} (function call management, local variables), \textbf{Heap} (dynamically allocated memory at runtime) \\
+  \midrule
+  How do you read process memory? & Use \texttt{id()} in Python to get address $\rightarrow$ \texttt{ps aux | grep} to find PID $\rightarrow$ \texttt{dd} with \texttt{/proc/PID/mem} to read memory $\rightarrow$ \texttt{hexdump -C} to view \\
+  \midrule
+  What is a hash function? & One-way mathematical function; fixed-length output; any change to input = completely different hash; used for evidence integrity \\
+  \midrule
+  What are MAC times? & Modified, Accessed, Creation timestamps; modified before creation = file was copied from another system \\
+  \midrule
+  What does a red X in Autopsy mean? & The file/folder has been \textbf{deleted} but was recovered by Autopsy from unallocated space \\
+  \midrule
+  Live disk imaging commands & Windows: \texttt{dd if=\textbackslash\textbackslash.\textbackslash PhysicalDrive0 of=e:\textbackslash pd0.dd} \newline Linux: \texttt{dd if=/dev/hdc of=/mnt/images/hdc.dd} \\
+  \midrule
+  What is port knocking? & A hidden sequence of connection attempts that ``unlocks'' a secret port on a server; a subtle way to hide an illegal service \\
+  \midrule
+  Analysis slide --- key points & Check for hidden processes/files; check for disk encryption; dump process memory; map swap-space to specific processes; determine OS kernel health \\
+  \midrule
+  VM forensics advantage & Can freeze VM, snapshot disk + memory + screen, resume; can dump over network with \texttt{dd} + \texttt{nc}; VM disk files (VMDK, VDI) open in Autopsy like images \\
+  \midrule
+  What is Procmon? & Sysinternals tool monitoring registry, file system, network, and process changes in real time; essential for malware analysis; use Ctrl+L to set filters \\
+  \midrule
+  Static vs dynamic binaries & Dynamic programs load shared \texttt{.so}/\texttt{.dll} files (could be tampered); static programs contain all code internally (safer for forensics); check with \texttt{ldd} \\
+  \midrule
+  Why force power-off? & Normal shutdown runs scripts that may delete evidence or trigger malware cleanup; run \texttt{sync; sync} first to flush pending writes, then pull the plug \\
+  \midrule
+  How to detect rootkits? & Compare \texttt{ps aux} output with \texttt{ls /proc} from static binaries; mismatches = hidden processes; also use \texttt{chkrootkit} to scan for known rootkits \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}
+  \rule{0.5\textwidth}{0.4pt}\\[6pt]
+  {\small\itshape End of Lecture 7 Notes --- Live Forensics}
+\end{center}
+
+\end{document}
