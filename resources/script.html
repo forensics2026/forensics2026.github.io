@@ -464,6 +464,69 @@
     margin: 40px 0;
   }
 
+  /* VirtualBox Fix Box */
+  .vbox-fix-box {
+    border: 1px solid rgba(255,107,53,0.35);
+    border-left: 4px solid var(--warn);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .vbox-fix-header {
+    background: rgba(255,107,53,0.1);
+    padding: 10px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--warn);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,107,53,0.2);
+  }
+
+  .vbox-badge {
+    background: var(--warn);
+    color: var(--bg);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+  }
+
+  .vbox-fix-body {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .problem-block, .fix-block, .result-block {
+    background: rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding: 14px 16px;
+  }
+
+  .problem-block { border-left: 3px solid var(--danger); }
+  .fix-block     { border-left: 3px solid var(--accent); }
+  .result-block  { border-left: 3px solid var(--accent2); }
+
+  .label-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+
+  .label-tag.problem { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+  .label-tag.fix     { background: rgba(0,229,160,0.1);  color: var(--accent); border: 1px solid rgba(0,229,160,0.25); }
+  .label-tag.result  { background: rgba(0,128,255,0.1);  color: var(--accent2); border: 1px solid rgba(0,128,255,0.25); }
+
   @keyframes fadeSlideIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
@@ -557,6 +620,47 @@ ls -lh /mnt/hgfs/DF_Shared/</pre>
 sudo mount -t vboxsf DF_Shared /mnt/shared
 <span class="comment"># or it auto-mounts to:</span>
 ls /media/sf_DF_Shared/</pre>
+      </div>
+
+      <!-- VirtualBox Fix -->
+      <div class="vbox-fix-box">
+        <div class="vbox-fix-header">
+          <span class="vbox-badge">FIX</span>
+          <span>Fixing Shared Folder for VirtualBox + Debian</span>
+        </div>
+        <div class="vbox-fix-body">
+          <div class="problem-block">
+            <span class="label-tag problem">THE PROBLEM</span>
+            <p>Running <code>ls /mnt/hgfs/DF_Shared</code> will fail — <code>/mnt/hgfs/</code> is a <strong>VMware-only</strong> path. VirtualBox uses a completely different driver (<code>vboxsf</code> mount type). Your F20FO-Debian VM runs on <strong>VirtualBox</strong>, so Guest Additions must be installed first.</p>
+            <p style="margin-top:6px; font-size:12px; color: var(--text-muted);">Confirmed setup: Windows 11 host, Oracle VirtualBox, Debian 13 VM (2 GB RAM, 25 GB disk). Shared folder <code>C:\DF_Shared</code> configured with Full Access and Auto Mount.</p>
+          </div>
+
+          <div class="fix-block">
+            <span class="label-tag fix">THE FIX — Run inside your Debian VM</span>
+            <pre style="margin-top:10px;"><span class="comment"># 1. Install build tools</span>
+sudo apt-get update
+sudo apt-get install -y build-essential dkms linux-headers-$(uname -r)
+
+<span class="comment"># 2. In VirtualBox menu: Devices → Insert Guest Additions CD image...</span>
+
+<span class="comment"># 3. Mount and run installer</span>
+sudo mkdir -p /mnt/cdrom
+sudo mount /dev/cdrom /mnt/cdrom
+sudo /mnt/cdrom/VBoxLinuxAdditions.run
+
+<span class="comment"># 4. Add your user to the vboxsf group (CRITICAL)</span>
+sudo usermod -aG vboxsf vboxuser
+
+<span class="comment"># 5. Reboot</span>
+sudo reboot</pre>
+          </div>
+
+          <div class="result-block">
+            <span class="label-tag result">AFTER REBOOT</span>
+            <p>Your shared folder will be accessible at:</p>
+            <pre style="margin-top:8px;">ls /media/sf_DF_Shared/</pre>
+          </div>
+        </div>
       </div>
     </div>
   </section>
