@@ -1,3 +1,12 @@
+
+dc3dd if=~/evidence/lubuntu_combined.raw \
+      of=/mnt/shared/lubuntu_forensic.dd \
+      hash=md5 hash=sha256 \
+      log=~/forensic_images/dc3dd_imaging.log
+
+
+
+
 The shared folder is working — all 7 VMDK files are visible at `/mnt/shared/`. You're now on **Step 2** of the guide. Since your mount point is `/mnt/shared/` (not `/media/sf_DF_Shared/`), run these commands in order:
 
 **Step 2 — Combine the split VMDK:**
