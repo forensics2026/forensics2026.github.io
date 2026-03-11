@@ -12,6 +12,8 @@ sha256sum "Lubuntu 64-bit-s004.vmdk" | tee -a ~/evidence/segment_hashes.txt
 sha256sum "Lubuntu 64-bit-s005.vmdk" | tee -a ~/evidence/segment_hashes.txt
 sha256sum "Lubuntu 64-bit-s006.vmdk" | tee -a ~/evidence/segment_hashes.txt
 
+md5sum /mnt/shared/lubuntu_forensic.dd
+sha256sum /mnt/shared/lubuntu_forensic.dd
 
 
 The shared folder is working — all 7 VMDK files are visible at `/mnt/shared/`. You're now on **Step 2** of the guide. Since your mount point is `/mnt/shared/` (not `/media/sf_DF_Shared/`), run these commands in order:
