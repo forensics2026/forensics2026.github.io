@@ -33,6 +33,18 @@ dc3dd if=~/evidence/lubuntu_combined.raw \
       log=~/forensic_images/dc3dd_imaging.log
 ```
 
+# Step 3: Hash the original
+md5sum ~/evidence/lubuntu_combined.raw | tee ~/evidence/original_hashes.txt
+sha256sum ~/evidence/lubuntu_combined.raw | tee -a ~/evidence/original_hashes.txt
+
+# Step 5: Create forensic image with dc3dd
+dc3dd if=~/evidence/lubuntu_combined.raw \
+      of=~/forensic_images/lubuntu_forensic.dd \
+      hash=md5 hash=sha256 \
+      log=~/forensic_images/dc3dd_imaging.log
+
+
+
 **Step 6 — Verify:**
 ```bash
 cat ~/forensic_images/dc3dd_imaging.log
