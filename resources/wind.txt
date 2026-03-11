@@ -15,3 +15,14 @@ sudo reboot
 
 
 ls /media/sf_DF_Shared/
+
+
+# Check if vboxsf module already exists in the kernel
+sudo modprobe vboxsf
+
+
+sudo mkdir -p /mnt/shared
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls /mnt/shared/
+
+apt-cache search virtualbox
