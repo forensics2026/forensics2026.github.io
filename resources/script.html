@@ -1,875 +1,924 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VIDEO DEMO SCRIPT — F20FO CW1</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #ffffff;
-      --fg: #111111;
-      --muted: #666666;
-      --border: #dddddd;
-      --code-bg: #f6f8fa;
-      --blockquote-bg: #f8f8f8;
-      --link: #0969da;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0f14;
-        --fg: #e6edf3;
-        --muted: #9aa4ad;
-        --border: #2b3138;
-        --code-bg: #111821;
-        --blockquote-bg: #0f141b;
-        --link: #2f81f7;
-      }
-    }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      line-height: 1.55;
-    }
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 20px 60px;
-    }
-    a {
-      color: var(--link);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    h1, h2, h3, h4 {
-      line-height: 1.2;
-      margin: 1.0em 0 0.5em;
-    }
-    h1 { font-size: 1.9rem; }
-    h2 { font-size: 1.45rem; }
-    h3 { font-size: 1.2rem; }
-    hr {
-      border: 0;
-      border-top: 1px solid var(--border);
-      margin: 24px 0;
-    }
-    p { margin: 0.6em 0; }
-    ul, ol { margin: 0.6em 0 0.9em 1.2em; }
-    li { margin: 0.25em 0; }
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      overflow: auto;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    code {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.1em 0.35em;
-      font-size: 0.95em;
-    }
-    pre code {
-      background: transparent;
-      border: 0;
-      padding: 0;
-      font-size: 0.95rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0.9em 0 1.2em;
-      font-size: 0.98rem;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      vertical-align: top;
-    }
-    th {
-      background: rgba(127,127,127,0.08);
-      text-align: left;
-    }
-    blockquote {
-      margin: 0.9em 0;
-      padding: 12px 14px;
-      background: var(--blockquote-bg);
-      border-left: 4px solid var(--border);
-      border-radius: 10px;
-    }
-    .meta {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    input[type="checkbox"] {
-      transform: translateY(1px);
-      margin-right: 0.4em;
-    }
-    @media print {
-      :root {
-        color-scheme: light;
-        --bg: #ffffff;
-        --fg: #000000;
-        --muted: #333333;
-        --border: #cfcfcf;
-        --code-bg: #f3f3f3;
-        --blockquote-bg: #f7f7f7;
-        --link: #0000ee;
-      }
-      a { text-decoration: underline; }
-      .container { max-width: none; padding: 12px 14px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dc3dd Forensic Imaging — Full Working Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #30363d;
+    --accent: #00e5a0;
+    --accent2: #0080ff;
+    --warn: #ff6b35;
+    --danger: #ff3b5c;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --code-bg: #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,229,160,0.012) 2px,
+      rgba(0,229,160,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* Header */
+  .page-header {
+    border-left: 4px solid var(--accent);
+    padding-left: 24px;
+    margin-bottom: 48px;
+    animation: fadeSlideIn 0.6s ease both;
+  }
+
+  .page-header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .page-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .page-header h1 span {
+    color: var(--accent);
+  }
+
+  .page-header .subtitle {
+    margin-top: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 4px;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent2);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+    animation: fadeSlideIn 0.6s 0.1s ease both;
+  }
+
+  .toc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+  }
+
+  .toc ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+  }
+
+  .toc li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+
+  .toc li a:hover { color: var(--accent); }
+
+  .toc li::before {
+    content: attr(data-num) '. ';
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* Steps */
+  .step {
+    margin-bottom: 56px;
+    animation: fadeSlideIn 0.5s ease both;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .step-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .step h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .step-content {
+    padding-left: 4px;
+  }
+
+  /* Sub-steps */
+  .substep {
+    margin: 24px 0;
+    padding-left: 16px;
+    border-left: 2px solid var(--border);
+  }
+
+  .substep h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #c9d1d9;
+    position: relative;
+  }
+
+  pre .comment { color: #6a737d; }
+  pre .cmd { color: var(--accent); }
+  pre .path { color: #79c0ff; }
+  pre .flag { color: #ffab70; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead {
+    background: var(--surface2);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    font-size: 13.5px;
+  }
+
+  .callout-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .callout.important {
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.3);
+    border-left: 3px solid var(--warn);
+  }
+
+  .callout.important .callout-icon::before { content: '⚠'; color: var(--warn); }
+  .callout.important strong { color: var(--warn); }
+
+  .callout.caution {
+    background: rgba(255,59,92,0.08);
+    border: 1px solid rgba(255,59,92,0.3);
+    border-left: 3px solid var(--danger);
+  }
+
+  .callout.caution .callout-icon::before { content: '🚨'; }
+  .callout.caution strong { color: var(--danger); }
+
+  .callout.note {
+    background: rgba(0,128,255,0.07);
+    border: 1px solid rgba(0,128,255,0.25);
+    border-left: 3px solid var(--accent2);
+  }
+
+  .callout.note .callout-icon::before { content: 'ℹ'; color: var(--accent2); }
+
+  /* Numbered lists */
+  ol.steps-list {
+    list-style: none;
+    counter-reset: steps;
+    margin: 12px 0;
+  }
+
+  ol.steps-list li {
+    counter-increment: steps;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    align-items: flex-start;
+  }
+
+  ol.steps-list li::before {
+    content: counter(steps);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--accent2);
+    min-width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Comparison section */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  .compare-col {
+    padding: 20px;
+  }
+
+  .compare-col.left {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+
+  .compare-col.right {
+    background: rgba(0,229,160,0.04);
+  }
+
+  .compare-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-col.left h4 { color: var(--text-muted); }
+  .compare-col.right h4 { color: var(--accent); }
+
+  .check-list {
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .check-list li {
+    padding: 4px 0;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .check-list li .icon { flex-shrink: 0; }
+  .check-list .x { color: #ff3b5c; }
+  .check-list .ok { color: var(--accent); }
+
+  /* Quick ref */
+  .quick-ref {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 24px;
+    margin-top: 48px;
+  }
+
+  .quick-ref-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+
+  /* Chain of custody table special styling */
+  .coc-table td:nth-child(4) {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  /* Method label */
+  .method-label {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .method-label.recommended {
+    background: rgba(0,229,160,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(0,229,160,0.3);
+  }
+
+  .method-label.alt {
+    background: rgba(0,128,255,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(0,128,255,0.25);
+  }
+
+  p {
+    margin: 10px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .toc ol { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-col.left { border-right: none; border-bottom: 1px solid var(--border); }
+    .page-header h1 { font-size: 1.6rem; }
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="video-demo-script-f20fo-cw1">VIDEO DEMO SCRIPT — F20FO CW1</h1>
-
-<h1 id="maximum-500-videos-over-5-min-zero-marks">MAXIMUM 5:00 (videos over 5 min = ZERO marks)</h1>
-
-<h1 id="target-430-30-second-safety-buffer">Target: 4:30 (30-second safety buffer)</h1>
-
-<hr />
-
-<h2 id="critical-rules">⚠️ CRITICAL RULES</h2>
-
-<ul>
-<li><strong>NEVER go over 5:00.</strong> Set a timer on your phone. If you hit 4:30, skip to the closing line.</li>
-<li><strong>Do NOT ad-lib.</strong> Read the script. If you mess up a line, just keep going — do NOT restart.</li>
-<li><strong>Record your SCREEN + your VOICE.</strong> Use OBS Studio (free) or Windows Game Bar (Win+G).</li>
-<li><strong>Resolution:</strong> 1920×1080. If your screen is smaller, that's fine.</li>
-<li><strong>Do NOT show your face.</strong> Just screen + voice.</li>
-</ul>
-
-<hr />
-
-<h2 id="pre-recording-setup-do-all-of-this-before-you-hit-record">🔧 PRE-RECORDING SETUP (Do ALL of this BEFORE you hit Record)</h2>
-
-<p>Do these steps the day before or at least 1 hour before recording.<br />
-Check off each one. If any step fails, fix it before proceeding.</p>
-
-<h3 id="a-virtualbox-setup">A. VirtualBox Setup</h3>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Open VirtualBox Manager</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Both VMs visible in sidebar: <strong>Debian 13</strong> and <strong>Windows 10</strong></li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Both VMs are <strong>powered off</strong> (you will start them on camera)</li>
-</ul>
-
-<h3 id="b-debian-vm-get-everything-ready">B. Debian VM — Get Everything Ready</h3>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Start Debian VM, log in</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Open a terminal (right-click desktop → Terminal, or find it in applications)</li>
-</ul>
-
-<p><strong>Install ewf-tools (needed to mount .E01 files):</strong></p>
-
-<pre><code>sudo apt update
-sudo apt install ewf-tools -y
-</code></pre>
-
-<p><strong>Install foremost:</strong></p>
-
-<pre><code>sudo apt install foremost -y
-</code></pre>
-
-<p><strong>Copy usb_a.E01 to the VM</strong> (drag-and-drop, shared folder, or USB):</p>
-
-<ul>
-<li>Put it somewhere simple like: <code>/home/YOUR_USERNAME/evidence/usb_a.E01</code></li>
-<li>If you can't transfer files, download it from Canvas inside the VM's browser</li>
-</ul>
-
-<p><strong>Mount the evidence image (do this NOW, before recording):</strong></p>
-
-<pre><code>sudo mkdir -p /mnt/ewf
-sudo ewfmount /home/YOUR_USERNAME/evidence/usb_a.E01 /mnt/ewf
-</code></pre>
-
-<ul>
-<li>You should now see a file at <code>/mnt/ewf/ewf1</code> — this is the raw disk stream</li>
-<li><strong>Test it:</strong> <code>ls -la /mnt/ewf/</code> — you should see <code>ewf1</code></li>
-</ul>
-
-<p><strong>Create the custom foremost config (for Example 3):</strong></p>
-
-<pre><code>cp /etc/foremost.conf ~/evidence/custom_foremost.conf
-</code></pre>
-
-<p>Now edit it to keep ONLY image types:</p>
-
-<pre><code>nano ~/evidence/custom_foremost.conf
-</code></pre>
-
-<ul>
-<li>Scroll down. You'll see lines for jpg, gif, png, bmp, etc.</li>
-<li><strong>Delete or comment out (put # in front of) EVERY line that is NOT an image type</strong></li>
-<li>Keep these lines uncommented: <code>jpg</code>, <code>gif</code>, <code>png</code>, <code>bmp</code></li>
-<li>Comment out everything else: <code>doc</code>, <code>xls</code>, <code>pdf</code>, <code>zip</code>, <code>avi</code>, <code>mov</code>, <code>exe</code>, <code>htm</code>, etc.</li>
-<li>Save: press <code>Ctrl+X</code>, then <code>Y</code>, then <code>Enter</code></li>
-</ul>
-
-<p><strong>Clean up any old foremost output:</strong></p>
-
-<pre><code>rm -rf ~/evidence/output_default
-rm -rf ~/evidence/output_custom
-</code></pre>
-
-<p><strong>Verify foremost works (quick test run — delete output after):</strong></p>
-
-<pre><code>foremost -V
-</code></pre>
-
-<p>Should print version number. If it says "command not found", go back and install it.</p>
-
-<p><strong>Shut down the Debian VM:</strong></p>
-
-<pre><code>sudo shutdown now
-</code></pre>
-
-<h3 id="c-windows-vm-get-everything-ready">C. Windows VM — Get Everything Ready</h3>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Start Windows 10 VM, log in</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Make sure EvtxECmd is ready:
-<ul>
-<li>Open File Explorer</li>
-<li>Navigate to wherever you put the Zimmerman tools (e.g., <code>C:\Tools\ZimmermanTools\</code>)</li>
-<li>Find <code>EvtxECmd.exe</code> — note the FULL path (e.g., <code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe</code>)</li>
-</ul></li>
-</ul>
-
-<p><strong>Test EvtxECmd works:</strong></p>
-
-<ul>
-<li>Open <strong>Command Prompt</strong> (search "cmd" in Start menu, right-click → Run as Administrator)</li>
-<li>Type:</li>
-</ul>
-
-<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe --help
-</code></pre>
-
-<p>(Use YOUR actual path if different)</p>
-
-<ul>
-<li>Should print help text. If it says "not recognized" or gives a .NET error, fix the path or install .NET 6 Runtime.</li>
-</ul>
-
-<p><strong>Create output folder:</strong></p>
-
-<pre><code>mkdir C:\Evidence\EvtxOutput
-</code></pre>
-
-<p><strong>Copy the event logs to a working folder (so you don't touch originals):</strong></p>
-
-<pre><code>mkdir C:\Evidence\EventLogs
-copy C:\Windows\System32\winevt\Logs\Security.evtx C:\Evidence\EventLogs\
-copy C:\Windows\System32\winevt\Logs\System.evtx C:\Evidence\EventLogs\
-copy C:\Windows\System32\winevt\Logs\Application.evtx C:\Evidence\EventLogs\
-</code></pre>
-
-<p>(You need the admin Command Prompt for this)</p>
-
-<p><strong>Shut down the Windows VM:</strong></p>
-
-<pre><code>shutdown /s /t 0
-</code></pre>
-
-<h3 id="d-screen-recorder-setup">D. Screen Recorder Setup</h3>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Install OBS Studio (https://obsproject.com) OR use Windows Game Bar (Win+G)</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>OBS Settings:</strong>
-<ul>
-<li>Sources → + → Display Capture → select your monitor</li>
-<li>Sources → + → Audio Input Capture → select your microphone</li>
-<li>Output → Recording Path → set to Desktop or a folder you can find</li>
-<li>Output → Recording Format → mp4</li>
-<li>Settings → Video → Output Resolution → 1920×1080 (or your native)</li>
-</ul></li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Test:</strong> Record 10 seconds, play it back. Can you hear your voice? Can you see the screen clearly?</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Phone timer:</strong> Set a countdown timer for 4 minutes 30 seconds. Place phone where you can see it.</li>
-</ul>
-
-<h3 id="e-final-pre-recording-checklist">E. Final Pre-Recording Checklist</h3>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> VirtualBox open, both VMs powered off, visible in sidebar</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> This script open on your phone or a printed copy (NOT on the screen you're recording)</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Glass of water nearby (dry mouth kills audio quality)</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Room is quiet, door closed</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Phone timer ready at 4:30</li>
-</ul>
-
-<hr />
-
-<h2 id="the-script">🎬 THE SCRIPT</h2>
-
-<h3 id="how-to-read-this">How to read this:</h3>
-
-<ul>
-<li><strong>🎤 SAY:</strong> = Read these words out loud (you can paraphrase slightly, but stick close)</li>
-<li><strong>⌨️ TYPE:</strong> = Type this exact command in the terminal</li>
-<li><strong>🖱️ DO:</strong> = Click/move your mouse to do this action</li>
-<li><strong>⏱️ TIME:</strong> = Where you should roughly be in the video</li>
-<li><strong>👀 WAIT:</strong> = Pause and let the output appear on screen before continuing</li>
-</ul>
-
-<hr />
-
-<h3 id="000020-opening-virtualbox-manager">⏱️ 0:00–0:20 — OPENING (VirtualBox Manager)</h3>
-
-<p>You should be looking at VirtualBox Manager with both VMs visible but powered off.</p>
-
-<p><strong>🖱️ DO:</strong> Start your screen recorder. Start your phone timer (4:30).</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"This video demonstrates the virtual digital forensics laboratory built for the F20FO coursework. The lab consists of two virtual machines managed in Oracle VirtualBox: a Debian 13 Linux system and a Windows 10 system, connected via a NAT Network called ForensicsNet."</p>
-</blockquote>
-
-<p><strong>🖱️ DO:</strong> While saying this, slowly move your mouse pointer to hover over the Debian VM name in the sidebar, then hover over the Windows VM name.</p>
-
-<hr />
-
-<h3 id="020050-start-both-vms-show-connectivity">⏱️ 0:20–0:50 — START BOTH VMs + SHOW CONNECTIVITY</h3>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Both virtual machines will now be started to confirm they are operational and can communicate."</p>
-</blockquote>
-
-<p><strong>🖱️ DO:</strong> Double-click the <strong>Debian VM</strong> to start it. While it boots:</p>
-
-<p><strong>🖱️ DO:</strong> Go back to VirtualBox Manager (click the VirtualBox icon in taskbar). Double-click the <strong>Windows VM</strong> to start it.</p>
-
-<p><strong>🖱️ DO:</strong> Switch to the Debian VM window. It should be at the login screen or desktop by now. Log in if needed.</p>
-
-<p><strong>🖱️ DO:</strong> Open a terminal in Debian.</p>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>ping -c 3 10.0.2.15
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let the 3 ping replies appear on screen.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The ping confirms successful communication between the two machines on the ForensicsNet subnet."</p>
-</blockquote>
-
-<blockquote>
-  <p><strong>⚠️ NOTE:</strong> The IP <code>10.0.2.15</code> is the default NAT address. If your Windows VM has a different IP, use that instead. Check it beforehand by running <code>ipconfig</code> in Windows Command Prompt and noting the IPv4 address. Similarly, if the ping doesn't work to the other VM (because NAT Network may not allow VM-to-VM ping by default), you can instead just say: "Both VMs are running and connected to the ForensicsNet NAT Network" and show the network settings in VirtualBox → each VM → Settings → Network → "Attached to: NAT Network". <strong>This is an acceptable alternative.</strong></p>
-</blockquote>
-
-<hr />
-
-<h3 id="050110-show-all-4-tools-installed">⏱️ 0:50–1:10 — SHOW ALL 4 TOOLS INSTALLED</h3>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The lab has four forensic tools installed — two on each virtual machine. On the Debian system: Foremost and dc3dd."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>foremost -V
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Version number appears.</p>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>dc3dd --version
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Version info appears.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Now switching to the Windows VM to confirm EvtxECmd and MFTECmd."</p>
-</blockquote>
-
-<p><strong>🖱️ DO:</strong> Click on the Windows VM window in your taskbar to switch to it.</p>
-
-<p><strong>🖱️ DO:</strong> You should have Command Prompt already open (if not: Start → type "cmd" → Enter).</p>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe --version
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Version prints.</p>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>C:\Tools\ZimmermanTools\MFTECmd\MFTECmd.exe --version
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Version prints.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"All four tools are confirmed installed and operational."</p>
-</blockquote>
-
-<blockquote>
-  <p><strong>⚠️ ADAPT:</strong> Replace <code>C:\Tools\ZimmermanTools\...</code> with YOUR actual paths. If you get a long help output instead of a version, that's fine — it still proves the tool runs.</p>
-</blockquote>
-
-<hr />
-
-<h3 id="110250-foremost-examples-switch-back-to-debian">⏱️ 1:10–2:50 — FOREMOST EXAMPLES (Switch back to Debian)</h3>
-
-<p><strong>🖱️ DO:</strong> Click on the Debian VM window to switch back.</p>
-
-<h4 id="example-1-default-carving">Example 1: Default Carving</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The first tool being demonstrated is Foremost, a file carving utility. The evidence image usb underscore a dot E01, provided as a lab resource, has been mounted using ewfmount. Foremost will now perform a default carve to recover all recognisable file types."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>foremost -t all -o ~/evidence/output_default -i /mnt/ewf/ewf1
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let it run. It should take 5–30 seconds depending on image size. You'll see a progress line and then it returns to the prompt.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Foremost has completed the carve. The output directory contains subdirectories organised by recovered file type."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>ls ~/evidence/output_default/
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> You should see folders like <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>ole</code>, <code>zip</code>, etc., plus <code>audit.txt</code>.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Files have been recovered across multiple types including images, documents, and archives — all extracted without relying on the filesystem metadata. This demonstrates Foremost's filesystem-independent recovery capability."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="example-2-audit-trail">Example 2: Audit Trail</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The second example examines the audit dot txt file generated by Foremost, which serves as a forensic audit trail."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>cat ~/evidence/output_default/audit.txt
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let the full output display. Don't rush — let the viewer see it for 3–4 seconds.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The audit log records the command used, the source image path, the timestamp, and the precise byte offset of each recovered file. This information supports chain-of-custody documentation and provides a reproducible record of the recovery process."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="example-3-targeted-carving">Example 3: Targeted Carving</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The third example uses a custom configuration file to restrict carving to image file types only — JPEG, PNG, GIF, and BMP — reducing irrelevant output."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>foremost -c ~/evidence/custom_foremost.conf -o ~/evidence/output_custom -i /mnt/ewf/ewf1
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let it finish.</p>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>ls ~/evidence/output_custom/
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Should show ONLY image-type folders (jpg, png, gif, bmp) plus audit.txt. Fewer folders than Example 1.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Compared to the default carve, the output now contains only image file directories. This demonstrates how an investigator can scope recovery to case-relevant file types, saving time and reducing analytical noise."</p>
-</blockquote>
-
-<hr />
-
-<h3 id="250415-evtxecmd-examples-switch-to-windows">⏱️ 2:50–4:15 — EVTXECMD EXAMPLES (Switch to Windows)</h3>
-
-<p><strong>🖱️ DO:</strong> Click on the Windows VM window.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The second tool is EvtxECmd, a Windows Event Log parser from Eric Zimmerman's forensic toolkit. It converts binary E-V-T-X event log files into structured CSV format for analysis."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="example-1-security-log">Example 1: Security Log</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The first example parses the Windows Security event log, which records authentication attempts and privilege changes."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Security.evtx --csv C:\Evidence\EvtxOutput --csvf Security_output.csv
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> EvtxECmd will print processing lines showing the number of records parsed. Wait until it says "Completed" or returns to prompt.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The Security log has been parsed. The output CSV contains records of logon events, logoff events, and privilege escalation — information essential for reconstructing user authentication timelines."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="example-2-system-log">Example 2: System Log</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The second example processes the System event log, which records service operations, driver activity, and shutdown events."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\System.evtx --csv C:\Evidence\EvtxOutput --csvf System_output.csv
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let it process and complete.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"System events are critical for establishing when a device was powered on or shut down, and for detecting unexpected system restarts."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="example-3-application-log">Example 3: Application Log</h4>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"The third example processes the Application event log, which captures software installation, crash, and configuration events."</p>
-</blockquote>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>C:\Tools\ZimmermanTools\EvtxECmd\EvtxECmd.exe -f C:\Evidence\EventLogs\Application.evtx --csv C:\Evidence\EvtxOutput --csvf Application_output.csv
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Let it process and complete.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"Application events help an investigator correlate user activity with software behaviour during a period under investigation."</p>
-</blockquote>
-
-<hr />
-
-<h4 id="show-the-csv-output-files">Show the CSV output files</h4>
-
-<p><strong>⌨️ TYPE:</strong></p>
-
-<pre><code>dir C:\Evidence\EvtxOutput
-</code></pre>
-
-<p><strong>👀 WAIT:</strong> Should list three CSV files: <code>Security_output.csv</code>, <code>System_output.csv</code>, <code>Application_output.csv</code>.</p>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"All three event logs have been successfully parsed into structured CSV files, ready for timeline analysis in a spreadsheet or forensic analysis platform."</p>
-</blockquote>
-
-<hr />
-
-<h3 id="415430-closing">⏱️ 4:15–4:30 — CLOSING</h3>
-
-<p><strong>🎤 SAY:</strong></p>
-
-<blockquote>
-  <p>"To summarise: this lab demonstrated Foremost performing filesystem-independent file carving with configurable scope, and EvtxECmd parsing Windows event logs into structured data for forensic timeline analysis. Both tools are open-source, operate on distinct platforms, and address complementary phases of the forensic workflow. Thank you."</p>
-</blockquote>
-
-<p><strong>🖱️ DO:</strong> Stop your screen recorder.</p>
-
-<hr />
-
-<h2 id="post-recording-checklist">📋 POST-RECORDING CHECKLIST</h2>
-
-<ul>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Play back the entire video.</strong> Can you hear your voice clearly throughout?</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Check the duration.</strong> Is it under 5:00? If over, re-record (do NOT try to speed it up — the marker will notice).</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Can you read the terminal text?</strong> If not, zoom in during the next recording or increase terminal font size.</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Upload to OneDrive</strong> (use your Heriot-Watt OneDrive):
-<ul>
-<li>Go to https://onedrive.live.com or your HW OneDrive</li>
-<li>Upload the video file</li>
-<li>Right-click → Share → "People you specify can view"</li>
-<li>Add: <code>r.soobhany@hw.ac.uk</code></li>
-<li>Copy the sharing link</li>
-</ul></li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Test the link:</strong> Open an incognito/private browser window, paste the link, confirm the video plays.</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> <strong>Paste the link</strong> into your LaTeX report (the video link box above the Introduction in <code>main.tex</code>).</li>
-</ul>
-
-<hr />
-
-<h2 id="emergency-fallbacks">🆘 EMERGENCY FALLBACKS</h2>
-
-<h3 id="ewfmount-says-command-not-found">"ewfmount says command not found"</h3>
-
-<pre><code>sudo apt install ewf-tools -y
-</code></pre>
-
-<p>Then try the mount command again.</p>
-
-<h3 id="foremost-says-command-not-found">"foremost says command not found"</h3>
-
-<pre><code>sudo apt install foremost -y
-</code></pre>
-
-<h3 id="the-e01-wont-mount-permission-denied">"The E01 won't mount / Permission denied"</h3>
-
-<p>Make sure you're using <code>sudo</code>:</p>
-
-<pre><code>sudo ewfmount /home/YOUR_USERNAME/evidence/usb_a.E01 /mnt/ewf
-</code></pre>
-
-<h3 id="foremost-says-output-directory-already-exists">"foremost says output directory already exists"</h3>
-
-<p>Delete the old output first:</p>
-
-<pre><code>rm -rf ~/evidence/output_default
-</code></pre>
-
-<p>Then run foremost again.</p>
-
-<h3 id="evtxecmd-gives-a-net-error">"EvtxECmd gives a .NET error"</h3>
-
-<p>Download and install .NET 6 Desktop Runtime from:<br />
-https://dotnet.microsoft.com/en-us/download/dotnet/6.0<br />
-Pick the "x64" Windows installer under ".NET Desktop Runtime". Install, restart Command Prompt, try again.</p>
-
-<h3 id="evtxecmd-says-access-denied-on-the-evtx-file">"EvtxECmd says Access Denied on the .evtx file"</h3>
-
-<p>You need an <strong>Administrator</strong> Command Prompt:</p>
-
-<ul>
-<li>Click Start</li>
-<li>Type <code>cmd</code></li>
-<li>Right-click "Command Prompt"</li>
-<li>Click "Run as administrator"</li>
-<li>Click Yes</li>
-</ul>
-
-<h3 id="my-ping-between-vms-doesnt-work">"My ping between VMs doesn't work"</h3>
-
-<p>That's okay. Skip the ping. Instead:</p>
-
-<ul>
-<li>In VirtualBox, click on each VM → Settings → Network</li>
-<li>Show both are set to "NAT Network" → "ForensicsNet"</li>
-<li>Say: "Both VMs are configured on the ForensicsNet NAT Network as shown in the network settings"</li>
-</ul>
-
-<h3 id="im-running-out-of-time-at-330">"I'm running out of time at 3:30"</h3>
-
-<p>Skip Example 3 for EvtxECmd (Application log). Go straight to:</p>
-
-<ul>
-<li><code>dir C:\Evidence\EvtxOutput</code> (show the files you DO have)</li>
-<li>Jump to the closing script</li>
-</ul>
-
-<h3 id="i-messed-up-a-command-got-an-error">"I messed up a command / got an error"</h3>
-
-<p>Don't panic. Don't restart the recording. Just say:</p>
-
-<blockquote>
-  <p>"Let me correct that."<br />
-  Fix the typo and re-run the command. Markers expect real terminal work — small mistakes actually look more authentic than a perfect run.</p>
-</blockquote>
-
-<hr />
-
-<h2 id="timing-cheat-sheet-stick-to-your-phone-timer">📐 TIMING CHEAT SHEET (Stick to your phone timer)</h2>
-
-<table>
-<thead>
-<tr>
-  <th>Phone Timer Shows</th>
-  <th>You Should Be At</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>4:30 remaining</td>
-  <td>Opening — showing VirtualBox Manager</td>
-</tr>
-<tr>
-  <td>4:10 remaining</td>
-  <td>Starting both VMs</td>
-</tr>
-<tr>
-  <td>3:40 remaining</td>
-  <td>Showing tool versions (foremost, dc3dd, EvtxECmd, MFTECmd)</td>
-</tr>
-<tr>
-  <td>3:20 remaining</td>
-  <td>Foremost Example 1 (default carve)</td>
-</tr>
-<tr>
-  <td>2:40 remaining</td>
-  <td>Foremost Example 2 (audit.txt)</td>
-</tr>
-<tr>
-  <td>2:10 remaining</td>
-  <td>Foremost Example 3 (custom config)</td>
-</tr>
-<tr>
-  <td>1:40 remaining</td>
-  <td>EvtxECmd Example 1 (Security.evtx)</td>
-</tr>
-<tr>
-  <td>1:10 remaining</td>
-  <td>EvtxECmd Example 2 (System.evtx)</td>
-</tr>
-<tr>
-  <td>0:45 remaining</td>
-  <td>EvtxECmd Example 3 (Application.evtx)</td>
-</tr>
-<tr>
-  <td>0:15 remaining</td>
-  <td>Closing statement — MUST start this by now</td>
-</tr>
-<tr>
-  <td>0:00</td>
-  <td>STOP. You should already be done.</td>
-</tr>
-</tbody>
-</table>
-
-<hr />
-
-<h2 id="pronunciation-guide">🗣️ PRONUNCIATION GUIDE</h2>
-
-<table>
-<thead>
-<tr>
-  <th>Term</th>
-  <th>Say It Like</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Foremost</td>
-  <td>"FOUR-most"</td>
-</tr>
-<tr>
-  <td>EvtxECmd</td>
-  <td>"E-V-T-X-E-C-M-D" (spell it out)</td>
-</tr>
-<tr>
-  <td>MFTECmd</td>
-  <td>"M-F-T-E-C-M-D" (spell it out)</td>
-</tr>
-<tr>
-  <td>dc3dd</td>
-  <td>"D-C-three-D-D"</td>
-</tr>
-<tr>
-  <td>ewfmount</td>
-  <td>"E-W-F-mount"</td>
-</tr>
-<tr>
-  <td>.evtx</td>
-  <td>"dot E-V-T-X"</td>
-</tr>
-<tr>
-  <td>.E01</td>
-  <td>"dot E-zero-one"</td>
-</tr>
-<tr>
-  <td>usb_a.E01</td>
-  <td>"U-S-B underscore A dot E-zero-one"</td>
-</tr>
-<tr>
-  <td>CSV</td>
-  <td>"C-S-V"</td>
-</tr>
-<tr>
-  <td>forensic</td>
-  <td>"fuh-REN-sick"</td>
-</tr>
-<tr>
-  <td>JPEG</td>
-  <td>"JAY-peg"</td>
-</tr>
-<tr>
-  <td>authentication</td>
-  <td>"aw-then-tih-KAY-shun"</td>
-</tr>
-</tbody>
-</table>
-
-<hr />
-
-<h2 id="voice-tips">💡 VOICE TIPS</h2>
-
-<ul>
-<li><strong>Speak slowly.</strong> Slower than you think you need to. The marker is reading terminal output while listening to you.</li>
-<li><strong>Pause after each command.</strong> Give 2–3 seconds for output to appear before speaking again.</li>
-<li><strong>Don't whisper.</strong> Project your voice like you're explaining to someone across a table.</li>
-<li><strong>It's okay to sound like you're reading.</strong> You ARE reading. That's fine. Clarity beats performance.</li>
-<li><strong>Don't say "um" or "uh".</strong> If you need to think, just pause silently. Silence is better than filler.</li>
-</ul>
-
-    <div class="meta">Generated from VIDEO_SCRIPT.md on 2026-02-18 08:36 UTC.</div>
-  </div>
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="label">// Forensic Imaging Guide</div>
+    <h1><span>dc3dd</span> Forensic Imaging<br>Full Working Guide</h1>
+    <div class="subtitle">▸ Target: Lubuntu 64-bit split VMDK &nbsp;|&nbsp; 6 segments &nbsp;|&nbsp; ~6.57 GB total</div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-title">// Contents</div>
+    <ol>
+      <li data-num="1"><a href="#step1">Set Up a Shared Folder</a></li>
+      <li data-num="2"><a href="#step2">Combine the Split VMDK</a></li>
+      <li data-num="3"><a href="#step3">Hash the Original Evidence</a></li>
+      <li data-num="4"><a href="#step4">Install dc3dd</a></li>
+      <li data-num="5"><a href="#step5">Create the Forensic Image</a></li>
+      <li data-num="6"><a href="#step6">Verify the Forensic Image</a></li>
+      <li data-num="7"><a href="#step7">Chain of Custody Documentation</a></li>
+    </ol>
+  </nav>
+
+  <!-- Step 1 -->
+  <section class="step" id="step1">
+    <div class="step-header">
+      <span class="step-number">STEP 01</span>
+      <h2>Set Up a Shared Folder (Host ↔ Forensic VM)</h2>
+    </div>
+    <div class="step-content">
+      <p>You need a shared folder so your forensic VM (SIFT, Kali, CSI Linux, etc.) can access the VMDK evidence files sitting on your Windows host.</p>
+
+      <div class="substep">
+        <h3>1.1 — Create the Shared Folder on Windows</h3>
+        <ol class="steps-list">
+          <li>On your Windows Desktop, create a new folder: <code>C:\DF_Shared</code></li>
+          <li><strong>Copy</strong> (do NOT move) the entire <code>Source\images</code> folder contents into it:</li>
+        </ol>
+        <pre>C:\DF_Shared\Lubuntu 64-bit-s001.vmdk
+C:\DF_Shared\Lubuntu 64-bit-s002.vmdk
+C:\DF_Shared\Lubuntu 64-bit-s003.vmdk
+C:\DF_Shared\Lubuntu 64-bit-s004.vmdk
+C:\DF_Shared\Lubuntu 64-bit-s005.vmdk
+C:\DF_Shared\Lubuntu 64-bit-s006.vmdk
+C:\DF_Shared\Lubuntu 64-bit.vmdk          ← descriptor file</pre>
+      </div>
+
+      <div class="substep">
+        <h3>1.2 — Add Shared Folder in VMware</h3>
+        <ol class="steps-list">
+          <li>Open <strong>VMware Workstation/Player</strong> → select your forensic VM (not the evidence VM)</li>
+          <li>Go to <strong>VM → Settings → Options → Shared Folders</strong></li>
+          <li>Set to <strong>Always Enabled</strong></li>
+          <li>Click <strong>Add</strong> → Browse to <code>C:\DF_Shared</code> → Name it <code>DF_Shared</code></li>
+          <li>Check <strong>Enable this share</strong> → Click OK</li>
+        </ol>
+      </div>
+
+      <div class="substep">
+        <h3>1.3 — Access the Shared Folder Inside your Linux Forensic VM</h3>
+        <pre><span class="comment"># VMware mounts shared folders here:</span>
+ls /mnt/hgfs/DF_Shared/
+
+<span class="comment"># If /mnt/hgfs/ is empty, run:</span>
+sudo vmhgfs-fuse .host:/ /mnt/hgfs -o allow_other
+
+<span class="comment"># Verify you can see the files:</span>
+ls -lh /mnt/hgfs/DF_Shared/</pre>
+        <p>You should see all 6 VMDK segments and the descriptor file listed.</p>
+      </div>
+
+      <div class="substep">
+        <h3>1.4 — Alternative: VirtualBox Shared Folder</h3>
+        <pre><span class="comment"># In VirtualBox: Devices → Shared Folders → Add → path to C:\DF_Shared, name: DF_Shared, Auto-mount</span>
+
+<span class="comment"># Inside the Linux VM:</span>
+sudo mount -t vboxsf DF_Shared /mnt/shared
+<span class="comment"># or it auto-mounts to:</span>
+ls /media/sf_DF_Shared/</pre>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 2 -->
+  <section class="step" id="step2">
+    <div class="step-header">
+      <span class="step-number">STEP 02</span>
+      <h2>Combine the Split VMDK into a Single Raw Disk Image</h2>
+    </div>
+    <div class="step-content">
+      <p>Your evidence is a split VMDK (6 segments). You must combine them into <strong>one single raw image</strong> before dc3dd can process it.</p>
+
+      <div class="substep">
+        <h3>Method A — Using <code>qemu-img</code></h3>
+        <span class="method-label recommended">✓ Recommended</span>
+        <pre><span class="comment"># Install qemu-utils if not present</span>
+sudo apt-get install qemu-utils -y
+
+<span class="comment"># Convert the split VMDK to a single RAW image</span>
+<span class="comment"># Point to the DESCRIPTOR file (Lubuntu 64-bit.vmdk), NOT the segments</span>
+qemu-img convert -f vmdk -O raw \
+  "/mnt/hgfs/DF_Shared/Lubuntu 64-bit.vmdk" \
+  /home/$(whoami)/evidence/lubuntu_combined.raw</pre>
+
+        <div class="callout important">
+          <span class="callout-icon"></span>
+          <div><strong>IMPORTANT:</strong> Always point to the <strong>descriptor file</strong> (<code>Lubuntu 64-bit.vmdk</code> — the small 1.1 KB file), NOT the segment files. The descriptor file tells <code>qemu-img</code> how to read all 6 segments in order.</div>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>Method B — Using <code>vmware-vdiskmanager</code></h3>
+        <span class="method-label alt">If Available</span>
+        <pre><span class="comment"># This tool comes with VMware Workstation (not Player)</span>
+vmware-vdiskmanager -r "Lubuntu 64-bit.vmdk" -t 0 lubuntu_combined.vmdk
+
+<span class="comment"># Then convert to raw:</span>
+qemu-img convert -f vmdk -O raw lubuntu_combined.vmdk /home/$(whoami)/evidence/lubuntu_combined.raw</pre>
+      </div>
+
+      <div class="substep">
+        <h3>Create the Output Directory First</h3>
+        <pre>mkdir -p /home/$(whoami)/evidence
+mkdir -p /home/$(whoami)/forensic_images</pre>
+      </div>
+
+      <div class="substep">
+        <h3>Verify the Combined Image</h3>
+        <pre><span class="comment"># Check the file size — should be roughly equal to the total VM disk size</span>
+ls -lh /home/$(whoami)/evidence/lubuntu_combined.raw
+
+<span class="comment"># Check the partition table</span>
+sudo fdisk -l /home/$(whoami)/evidence/lubuntu_combined.raw</pre>
+        <p>Expected output: You should see partition entries (likely a Linux ext4 partition + possibly swap).</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 3 -->
+  <section class="step" id="step3">
+    <div class="step-header">
+      <span class="step-number">STEP 03</span>
+      <h2>Hash the Original Evidence (Pre-Imaging Baseline)</h2>
+    </div>
+    <div class="step-content">
+      <p><strong>Before</strong> you create the forensic image, compute hashes of the original combined raw file. This is your <strong>baseline</strong> for chain of custody.</p>
+
+      <pre><span class="comment"># MD5 hash</span>
+md5sum /home/$(whoami)/evidence/lubuntu_combined.raw | tee /home/$(whoami)/evidence/original_hashes.txt
+
+<span class="comment"># SHA-256 hash (append to the same file)</span>
+sha256sum /home/$(whoami)/evidence/lubuntu_combined.raw | tee -a /home/$(whoami)/evidence/original_hashes.txt
+
+<span class="comment"># View the recorded hashes</span>
+cat /home/$(whoami)/evidence/original_hashes.txt</pre>
+
+      <p><strong>Sample output:</strong></p>
+      <pre>a1b2c3d4e5f6... /home/user/evidence/lubuntu_combined.raw   (MD5)
+f6e5d4c3b2a1... /home/user/evidence/lubuntu_combined.raw   (SHA-256)</pre>
+
+      <div class="callout note">
+        <span class="callout-icon"></span>
+        <div>Record these hashes in your <strong>Chain of Custody</strong> document.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 4 -->
+  <section class="step" id="step4">
+    <div class="step-header">
+      <span class="step-number">STEP 04</span>
+      <h2>Install dc3dd</h2>
+    </div>
+    <div class="step-content">
+      <pre><span class="comment"># On Debian/Ubuntu/Kali/SIFT:</span>
+sudo apt-get update
+sudo apt-get install dc3dd -y
+
+<span class="comment"># Verify installation:</span>
+dc3dd --version</pre>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 5 -->
+  <section class="step" id="step5">
+    <div class="step-header">
+      <span class="step-number">STEP 05</span>
+      <h2>Create the Forensic Image with dc3dd</h2>
+    </div>
+    <div class="step-content">
+      <p>dc3dd is an enhanced version of <code>dd</code> developed by the US Department of Defense Cyber Crime Center (DC3) — it adds built-in hashing, progress display, error logging, and split output capabilities.</p>
+
+      <div class="substep">
+        <h3>5.1 — Basic Forensic Imaging Command</h3>
+        <pre>dc3dd if=/home/$(whoami)/evidence/lubuntu_combined.raw \
+      of=/home/$(whoami)/forensic_images/lubuntu_forensic.dd \
+      hash=md5 \
+      hash=sha256 \
+      log=/home/$(whoami)/forensic_images/dc3dd_imaging.log</pre>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Parameter</th><th>What It Does</th></tr></thead>
+            <tbody>
+              <tr><td>if=</td><td><strong>Input file</strong> — the source evidence (your combined raw image)</td></tr>
+              <tr><td>of=</td><td><strong>Output file</strong> — the forensic image destination</td></tr>
+              <tr><td>hash=md5</td><td>Computes MD5 hash <strong>during</strong> imaging (no separate step needed)</td></tr>
+              <tr><td>hash=sha256</td><td>Computes SHA-256 hash <strong>during</strong> imaging (stackable)</td></tr>
+              <tr><td>log=</td><td>Saves a complete log of the operation (timestamps, hashes, byte counts, errors)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>5.2 — Advanced Command with All Options</h3>
+        <pre>dc3dd if=/home/$(whoami)/evidence/lubuntu_combined.raw \
+      of=/home/$(whoami)/forensic_images/lubuntu_forensic.dd \
+      hash=md5 \
+      hash=sha256 \
+      hlog=/home/$(whoami)/forensic_images/dc3dd_hashes.log \
+      log=/home/$(whoami)/forensic_images/dc3dd_imaging.log \
+      rec=off \
+      ssz=4096</pre>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Extra Parameter</th><th>What It Does</th></tr></thead>
+            <tbody>
+              <tr><td>hlog=</td><td>Saves <strong>only the hash values</strong> to a separate file (cleaner for chain of custody)</td></tr>
+              <tr><td>rec=off</td><td>Disables error recovery (skips bad sectors instead of retrying — faster)</td></tr>
+              <tr><td>ssz=4096</td><td>Sets the <strong>sector size</strong> to 4096 bytes (matches modern disk sector sizes)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>5.3 — Splitting the Output (Optional)</h3>
+        <p>If you need the output split into smaller chunks (e.g., for storage on FAT32 drives):</p>
+        <pre>dc3dd if=/home/$(whoami)/evidence/lubuntu_combined.raw \
+      of=/home/$(whoami)/forensic_images/lubuntu_forensic.dd \
+      ofsz=2G \
+      hash=md5 \
+      hash=sha256 \
+      log=/home/$(whoami)/forensic_images/dc3dd_imaging.log</pre>
+        <p><code>ofsz=2G</code> splits the output into 2 GB chunks (<code>.000</code>, <code>.001</code>, <code>.002</code>, etc.)</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 6 -->
+  <section class="step" id="step6">
+    <div class="step-header">
+      <span class="step-number">STEP 06</span>
+      <h2>Verify the Forensic Image (Post-Imaging)</h2>
+    </div>
+    <div class="step-content">
+      <p>After dc3dd finishes, it prints the input/output hashes. <strong>You must verify they match.</strong></p>
+
+      <div class="substep">
+        <h3>6.1 — Check the dc3dd Log</h3>
+        <pre>cat /home/$(whoami)/forensic_images/dc3dd_imaging.log</pre>
+        <p>Look for lines like:</p>
+        <pre>md5(if):    a1b2c3d4e5f6...
+md5(of):    a1b2c3d4e5f6...    ← MUST match the input hash
+sha256(if): f6e5d4c3b2a1...
+sha256(of): f6e5d4c3b2a1...   ← MUST match the input hash</pre>
+
+        <div class="callout caution">
+          <span class="callout-icon"></span>
+          <div><strong>CAUTION:</strong> If the <code>if</code> and <code>of</code> hashes <strong>do not match</strong>, the image is corrupted. You must re-image.</div>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>6.2 — Independent Hash Verification</h3>
+        <p>Don't just trust dc3dd's own log — verify independently:</p>
+        <pre><span class="comment"># Hash the forensic image independently</span>
+md5sum /home/$(whoami)/forensic_images/lubuntu_forensic.dd
+sha256sum /home/$(whoami)/forensic_images/lubuntu_forensic.dd
+
+<span class="comment"># Compare with the original hashes</span>
+cat /home/$(whoami)/evidence/original_hashes.txt</pre>
+
+        <p>All four should match:</p>
+        <ol class="steps-list">
+          <li>Original evidence hash (Step 3)</li>
+          <li>dc3dd's input hash (from log)</li>
+          <li>dc3dd's output hash (from log)</li>
+          <li>Independent verification hash (Step 6.2)</li>
+        </ol>
+      </div>
+
+      <div class="substep">
+        <h3>6.3 — Hash the Individual VMDK Segments (for completeness)</h3>
+        <pre><span class="comment"># Hash each original segment for the chain of custody</span>
+cd /mnt/hgfs/DF_Shared/
+sha256sum "Lubuntu 64-bit-s001.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s002.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s003.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s004.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s005.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s006.vmdk" | tee -a /home/$(whoami)/evidence/segment_hashes.txt</pre>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 7 -->
+  <section class="step" id="step7">
+    <div class="step-header">
+      <span class="step-number">STEP 07</span>
+      <h2>Document Everything for Chain of Custody</h2>
+    </div>
+    <div class="step-content">
+      <div class="table-wrap">
+        <table class="coc-table">
+          <thead>
+            <tr><th>Date/Time</th><th>Action</th><th>Person</th><th>Hash Verified</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-03-11 16:00</td>
+              <td>Received evidence (6 VMDK segments)</td>
+              <td>Your Name</td>
+              <td>—</td>
+              <td>Evidence ref: F20FO-CW2-2026-001</td>
+            </tr>
+            <tr>
+              <td>2026-03-11 16:15</td>
+              <td>Hashed original VMDK segments</td>
+              <td>Your Name</td>
+              <td>✓ SHA-256</td>
+              <td>See <code>segment_hashes.txt</code></td>
+            </tr>
+            <tr>
+              <td>2026-03-11 16:30</td>
+              <td>Combined VMDK → raw image using qemu-img</td>
+              <td>Your Name</td>
+              <td>✓ MD5 + SHA-256</td>
+              <td>See <code>original_hashes.txt</code></td>
+            </tr>
+            <tr>
+              <td>2026-03-11 17:00</td>
+              <td>Forensic image created using dc3dd</td>
+              <td>Your Name</td>
+              <td>✓ MD5 + SHA-256</td>
+              <td>Input/output hashes match. See <code>dc3dd_imaging.log</code></td>
+            </tr>
+            <tr>
+              <td>2026-03-11 17:30</td>
+              <td>Independent hash verification</td>
+              <td>Your Name</td>
+              <td>✓ MD5 + SHA-256</td>
+              <td>All 4 hash comparisons match</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Quick Reference -->
+  <section class="quick-ref">
+    <div class="quick-ref-title">// Quick Reference — Complete Command Sequence</div>
+    <pre><span class="comment"># 1. Access shared folder</span>
+ls /mnt/hgfs/DF_Shared/
+
+<span class="comment"># 2. Create working directories</span>
+mkdir -p ~/evidence ~/forensic_images
+
+<span class="comment"># 3. Combine split VMDK → single raw image</span>
+qemu-img convert -f vmdk -O raw \
+  "/mnt/hgfs/DF_Shared/Lubuntu 64-bit.vmdk" \
+  ~/evidence/lubuntu_combined.raw
+
+<span class="comment"># 4. Hash the original</span>
+md5sum ~/evidence/lubuntu_combined.raw | tee ~/evidence/original_hashes.txt
+sha256sum ~/evidence/lubuntu_combined.raw | tee -a ~/evidence/original_hashes.txt
+
+<span class="comment"># 5. Create forensic image with dc3dd</span>
+dc3dd if=~/evidence/lubuntu_combined.raw \
+      of=~/forensic_images/lubuntu_forensic.dd \
+      hash=md5 hash=sha256 \
+      log=~/forensic_images/dc3dd_imaging.log
+
+<span class="comment"># 6. Verify</span>
+cat ~/forensic_images/dc3dd_imaging.log
+md5sum ~/forensic_images/lubuntu_forensic.dd
+sha256sum ~/forensic_images/lubuntu_forensic.dd</pre>
+  </section>
+
+  <hr class="divider">
+
+  <!-- dc3dd vs dd comparison -->
+  <section class="step">
+    <div class="step-header">
+      <h2>dc3dd vs dd — Why dc3dd Is Better for Forensics</h2>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-col left">
+        <h4>dd &nbsp;(standard)</h4>
+        <ul class="check-list">
+          <li><span class="icon x">✗</span> No built-in hashing (manual <code>md5sum</code> needed)</li>
+          <li><span class="icon x">✗</span> No progress bar (silent by default)</li>
+          <li><span class="icon x">✗</span> No logging</li>
+          <li><span class="icon x">✗</span> Stops on error</li>
+          <li><span class="icon x">✗</span> No split output</li>
+          <li><span class="icon x">✗</span> Manual verification only</li>
+          <li><span class="icon" style="color:#8b949e">○</span> General purpose</li>
+        </ul>
+      </div>
+      <div class="compare-col right">
+        <h4>dc3dd &nbsp;(forensic)</h4>
+        <ul class="check-list">
+          <li><span class="icon ok">✓</span> On-the-fly MD5 / SHA-256 hashing</li>
+          <li><span class="icon ok">✓</span> Shows progress bar</li>
+          <li><span class="icon ok">✓</span> Full operation log</li>
+          <li><span class="icon ok">✓</span> Configurable error handling (<code>rec=on/off</code>)</li>
+          <li><span class="icon ok">✓</span> Split output (<code>ofsz=</code> parameter)</li>
+          <li><span class="icon ok">✓</span> Automatic input vs output hash comparison</li>
+          <li><span class="icon ok">✓</span> Developed for forensics by US DoD DC3</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
 </body>
 </html>
