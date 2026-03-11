@@ -4,6 +4,13 @@ dc3dd if=~/evidence/lubuntu_combined.raw \
       hash=md5 hash=sha256 \
       log=~/forensic_images/dc3dd_imaging.log
 
+cd /mnt/shared/
+sha256sum "Lubuntu 64-bit-s001.vmdk" | tee ~/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s002.vmdk" | tee -a ~/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s003.vmdk" | tee -a ~/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s004.vmdk" | tee -a ~/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s005.vmdk" | tee -a ~/evidence/segment_hashes.txt
+sha256sum "Lubuntu 64-bit-s006.vmdk" | tee -a ~/evidence/segment_hashes.txt
 
 
 
