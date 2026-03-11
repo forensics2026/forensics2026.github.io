@@ -1,4 +1,50 @@
 
+Run these in your Debian VM:
+
+**1. Copy evidence files to shared folder:**
+```bash
+# Copy hash logs and dc3dd log to shared folder
+cp ~/evidence/original_hashes.txt /mnt/shared/
+cp ~/evidence/segment_hashes.txt /mnt/shared/
+cp ~/forensic_images/dc3dd_imaging.log /mnt/shared/
+```
+
+**2. Verify copies are there:**
+```bash
+ls -lh /mnt/shared/*.txt /mnt/shared/*.log
+```
+
+**3. Delete the 20 GB raw file to free space:**
+```bash
+rm ~/evidence/lubuntu_combined.raw
+```
+
+**4. Check your free space:**
+```bash
+df -h /home
+```
+
+**What's now on your Windows `C:\DF_Shared\`:**
+
+| File | Size | Purpose | Keep? |
+|---|---|---|---|
+| 6 × VMDK segments | ~6.5 GB | Original evidence | ✅ Keep |
+| `Lubuntu 64-bit.vmdk` | 1 KB | VMDK descriptor | ✅ Keep |
+| `lubuntu_forensic.dd` | 20 GB | Forensic image | ✅ Keep (need for analysis) |
+| `original_hashes.txt` | tiny | Hash baseline | ✅ Keep |
+| `segment_hashes.txt` | tiny | VMDK hashes | ✅ Keep |
+| `dc3dd_imaging.log` | tiny | dc3dd proof | ✅ Keep |
+
+> Don't delete the `.dd` forensic image — you'll need it for Autopsy analysis next!
+
+
+
+
+
+
+
+
+
 dc3dd if=~/evidence/lubuntu_combined.raw \
       of=/mnt/shared/lubuntu_forensic.dd \
       hash=md5 hash=sha256 \
