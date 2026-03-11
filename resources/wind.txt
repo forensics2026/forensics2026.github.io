@@ -1,28 +1,41 @@
-# 1. Add 'contrib' to your package sources
-sudo sed -i 's/main$/main contrib/' /etc/apt/sources.list
+The shared folder is working — all 7 VMDK files are visible at `/mnt/shared/`. You're now on **Step 2** of the guide. Since your mount point is `/mnt/shared/` (not `/media/sf_DF_Shared/`), run these commands in order:
 
-# 2. Update package lists
-sudo apt-get update
+**Step 2 — Combine the split VMDK:**
+```bash
+# Create working directories
+mkdir -p ~/evidence ~/forensic_images
 
-# 3. Now install guest additions
-sudo apt-get install -y virtualbox-guest-utils
+# Install qemu-utils
+sudo apt-get install qemu-utils -y
 
-# 4. Add your user to vboxsf group
-sudo usermod -aG vboxsf vboxuser
+# Convert split VMDK → single raw image (point to the descriptor file)
+qemu-img convert -f vmdk -O raw "/mnt/shared/Lubuntu 64-bit.vmdk" ~/evidence/lubuntu_combined.raw
+```
 
-# 5. Reboot
-sudo reboot
+This will take a few minutes (it's combining ~6.5 GB). Once done:
 
+**Step 3 — Hash the original:**
+```bash
+md5sum ~/evidence/lubuntu_combined.raw | tee ~/evidence/original_hashes.txt
+sha256sum ~/evidence/lubuntu_combined.raw | tee -a ~/evidence/original_hashes.txt
+```
 
-ls /media/sf_DF_Shared/
+**Step 4 — Install dc3dd:**
+```bash
+sudo apt-get install dc3dd -y
+```
 
+**Step 5 — Create forensic image:**
+```bash
+dc3dd if=~/evidence/lubuntu_combined.raw \
+      of=~/forensic_images/lubuntu_forensic.dd \
+      hash=md5 hash=sha256 \
+      log=~/forensic_images/dc3dd_imaging.log
+```
 
-# Check if vboxsf module already exists in the kernel
-sudo modprobe vboxsf
+**Step 6 — Verify:**
+```bash
+cat ~/forensic_images/dc3dd_imaging.log
+```
 
-
-sudo mkdir -p /mnt/shared
-sudo mount -t vboxsf DF_Shared /mnt/shared
-ls /mnt/shared/
-
-apt-cache search virtualbox
+Start with the Step 2 commands and share the output once `qemu-img` finishes!
