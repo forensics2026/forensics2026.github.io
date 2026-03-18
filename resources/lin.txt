@@ -1,32 +1,53 @@
-# Autopsy Analysis — Do This → Write This
+# Autopsy 4.x on Debian 13 — Do This → Write This (Revised)
 
-> Left column = what to do in your Debian VM terminal/browser.
-> Right column = what goes into the report for that step.
-> Match Muhammad's 3.1 style: state what was done, state what was found, reference a figure only when showing a screenshot.
+> VM change: bump RAM to **6 GB** in VirtualBox settings (shut down VM first → Settings → System → Base Memory → 6144 MB).
 
 ---
 
-## Setup (Do First, Before Anything)
-
-### In your Debian terminal:
+## Install Autopsy 4 via Snap (Easiest Method)
 
 ```bash
-sudo apt-get update
-sudo apt-get install autopsy sleuthkit -y
-autopsy -V          # confirm version — likely 2.24
-sudo autopsy        # starts the web server
+# 1. Install snap if not already present
+sudo apt update
+sudo apt install snapd -y
+
+# 2. Install Autopsy 4
+sudo snap install autopsy
+
+# 3. Connect required snap interfaces (Autopsy needs disk access)
+snap connections autopsy | sed -nE 's/^[^ ]* *([^ ]*) *- *- *$/\1/p' | xargs -I{} sudo snap connect {}
+
+# 4. Launch (first run use --nosplash to avoid hidden dialog bug)
+autopsy --nosplash
 ```
 
-It prints a URL like `http://localhost:9999/autopsy`. Open Firefox in the VM and go there.
+If snap gives network issues inside the VM, the alternative is manual install from GitHub:
+```bash
+# Download from https://github.com/sleuthkit/autopsy/releases
+# Get the .zip + the matching sleuthkit-java .deb
+# Then run the install_application.sh script
+```
 
-### Create the case:
+But try snap first — it handles all dependencies automatically.
 
-1. New Case → name it `CW2_Investigation`
-2. Add Host → `Lubuntu_Suspect_Machine`
-3. Add Image → path: `/mnt/shared/lubuntu_forensic.dd` → Type: Disk → Import: **Symlink**
-4. Click through to analyse the ext4 partition
+---
 
-**Take a screenshot** of the case setup / host added screen. This is your Figure 9 (or whatever number is next).
+## First Run — Create Case & Add Image
+
+1. Autopsy 4 opens as a full desktop GUI (like on Windows)
+2. **New Case** → Case Name: `CW2_Investigation` → Base Directory: pick anywhere with space (e.g. `/mnt/shared/autopsy_cases/`)
+3. **Add Data Source** → select **Disk Image or VM File** → path: `/mnt/shared/lubuntu_forensic.dd`
+4. **Ingest Modules** — run these (untick the rest to save time on 6 GB RAM):
+   - Recent Activity
+   - File Type Identification (by signature)
+   - Keyword Search
+   - Email Parser
+   - Encryption Detection
+   - Picture Analyzer
+   - Extension Mismatch Detector ← this is the one that catches the JPEG-as-.dll files
+5. Click **Finish** and let it run. On 6 GB RAM with a 20 GB image this could take 20–40 minutes.
+
+**Take a screenshot** of the New Case dialog or the ingest modules running.
 
 ---
 
@@ -34,207 +55,137 @@ It prints a URL like `http://localhost:9999/autopsy`. Open Firefox in the VM and
 
 ---
 
-### 1. File System Browse + Identify Active User
+### 1. File System Browse + Confirm Active User
 
 **DO:**
-- Click **File Analysis** in Autopsy
-- Browse to `/home/` — you'll see the same 6 users Muhammad found
-- Confirm only `f21fo-cw2` has actual content
-- Browse through `f21fo-cw2/Documents/`, `Downloads/`, `Desktop/`, `.ssh/`
+- Left pane → Data Sources → expand the volume → browse `/home/`
+- Confirm 6 users, only `f21fo-cw2` has content
 
-**SCREENSHOT:** Take one of the file browser showing the home directory or the user's folder contents.
-
-**WRITE (for 3.2):**
-> A case was created in Autopsy (version 2.24) using the .dd image produced in the second workflow. The image was loaded via symlink to avoid duplicating the 20.0 GB file on the constrained VM disk. The file system browser confirmed the same directory structure observed in OSForensics, with f21fo-cw2 identified as the only active user account.
+**WRITE:**
+> A new case was created in Autopsy (version 4.22) [5] with the .dd image from the second workflow added as a disk image data source. Ingest modules were configured to run file type identification, keyword search, extension mismatch detection, and recent activity analysis. The file system confirmed the same structure observed in OSForensics, with f21fo-cw2 as the sole active user.
 
 ---
 
 ### 2. Deleted File Recovery
 
 **DO:**
-- In File Analysis, look for filenames shown in **red** — these are deleted files
-- Also run from terminal alongside Autopsy:
-  ```bash
-  fls -r -d /mnt/shared/lubuntu_forensic.dd
-  ```
-  This lists ALL deleted files with their inode numbers.
-- To recover a specific deleted file:
-  ```bash
-  icat /mnt/shared/lubuntu_forensic.dd <inode_number> > ~/recovered_file
-  ```
-- Note down: filename, path, inode, file type, size
-
-**SCREENSHOT:** The Autopsy file browser showing red (deleted) entries, OR the `fls` terminal output.
+- Left pane → **Deleted Files** node (Autopsy 4 has a dedicated section for this)
+- Or: left pane → Results → **Interesting Items** may flag things
+- Note filenames, paths, types, sizes
 
 **WRITE:**
-> Deleted files were identified through the file analysis module, which highlights removed entries. [Describe what you found — e.g. "Several deleted image files were recovered from the user's Documents directory."] The Sleuth Kit command `fls -r -d` was also used from the terminal to enumerate all deleted inodes across the image for cross-verification.
+> The deleted files section identified [X] removed files across the image. [Describe what — e.g. "These included image files from the user's Documents directory and temporary files from the system partition."] Selected files were exported for further examination.
 
 ---
 
-### 3. Bash History
+### 3. Extension Mismatch (Autopsy 4 Does This Automatically)
 
 **DO:**
-- Navigate to `/home/f21fo-cw2/.bash_history` in Autopsy
-- Click on it → read the contents in the text viewer
-- Muhammad already documented the key commands (ssh-keygen, ssh2john, slacker, timestomp, wine) from OSForensics
-- Your job: confirm Autopsy shows the same, and note if you spot anything extra
+- Left pane → **Results** → **Extension Mismatch Detected**
+- This is the ingest module output — it flags files where the MIME type doesn't match the extension
+- You should see the same JPEG-as-.dll files Muhammad found in OSForensics
+- Click on one → bottom pane shows hex, text, metadata, and the actual detected type
+
+**SCREENSHOT:** The Extension Mismatch results showing the flagged files.
 
 **WRITE:**
-> The bash history file for user f21fo-cw2 was examined and confirmed the same command history observed in the OSForensics analysis, including the use of ssh-keygen, ssh2john, and attempted execution of anti-forensic tools.
-
-(Keep it short — Muhammad already covered the detail. Just confirm Autopsy found the same thing.)
+> The extension mismatch ingest module automatically flagged [X] files where the detected MIME type did not match the file extension. Notably, several JPEG images were found with a .dll extension, consistent with the findings from OSForensics. This indicates a deliberate attempt to disguise image files.
 
 ---
 
-### 4. File Signature / Mismatch Analysis
+### 4. Bash History + Artefacts
 
 **DO:**
-- Muhammad found JPEG files saved as .dll using OSForensics mismatch search
-- In Autopsy, navigate to wherever those files are and click on them
-- Use the **hex viewer** tab to check the file header (JPEG starts with `FF D8 FF`)
-- Alternatively from terminal:
-  ```bash
-  file /path/to/suspicious.dll
-  ```
-  This will say "JPEG image data" if the extension is faked.
-- Also try:
-  ```bash
-  sorter -e /mnt/shared/lubuntu_forensic.dd
-  ```
-  `sorter` (part of Sleuth Kit) categorises files by type and flags extension mismatches.
-
-**SCREENSHOT:** The hex view of a mismatched file showing JPEG magic bytes, or `sorter` output.
+- Browse to `/home/f21fo-cw2/.bash_history` → click → view in bottom pane
+- Check `/home/f21fo-cw2/.ssh/` for the RSA keys
+- Check `/home/f21fo-cw2/Documents/` (the 4028-Astronomers folder with .doc/.rtf files)
+- Left pane → **Results** → **Recent Activity** shows recently accessed files/programs
 
 **WRITE:**
-> File signature analysis was performed to detect extension mismatches. [X] files were identified where the file content did not match the declared extension. For example, [filename] had a .dll extension but contained a JPEG header (FF D8 FF), consistent with the findings from OSForensics. The Sleuth Kit `sorter` utility was additionally used to automate the categorisation of files by their signatures.
+> The user's bash history confirmed the same commands identified in the OSForensics workflow, including SSH key generation, ssh2john execution, and attempted use of anti-forensic tools. The Recent Activity module additionally recovered [any extra artefact Autopsy found that OSForensics didn't — e.g. recent document access, program execution timestamps].
 
 ---
 
-### 5. Timeline Analysis
+### 5. Keyword Search (Optional But Good for Marks)
 
 **DO:**
-- In Autopsy, click **File Activity Timelines**
-- Select your image → create timeline for all files
-- Look for clusters of activity — when was the machine most active?
-- Note the date ranges
+- Top menu → **Keyword Search** (magnifying glass icon)
+- Search for terms like: `password`, `key`, `secret`, `bank`
+- Note any hits in allocated or unallocated space
 
-**SCREENSHOT:** The timeline view showing activity spikes (if it renders — Autopsy 2 timelines can be basic).
-
-**WRITE:**
-> A file activity timeline was generated to identify periods of user activity on the suspect machine. [Describe what you see — e.g. "Activity was concentrated between [date range], with a notable spike on [date] corresponding to the creation of the SSH key pair and execution of anti-forensic tools."]
+**WRITE (only if you find something useful):**
+> A keyword search across allocated and unallocated space was conducted for terms related to the investigation. [Describe hits if any.]
 
 ---
 
-### 6. Other Artefacts to Check
+### 6. Timeline
 
-**DO (browse these paths in Autopsy or terminal):**
+**DO:**
+- Top menu → **Timeline** → generates a visual timeline of file activity
+- Look for activity clusters — when was the machine being used?
 
-| Path | What to look for |
-|------|-----------------|
-| `/home/f21fo-cw2/.ssh/` | The RSA key pair (id_rsa, id_rsa.pub) |
-| `/home/f21fo-cw2/Documents/` | Any documents — especially the 4028-Astronomers folder Muhammad's evidence dump showed |
-| `/home/f21fo-cw2/Downloads/` | Anything downloaded |
-| `/home/f21fo-cw2/.local/share/Trash/` | Soft-deleted files |
-| `/var/log/auth.log` | Login records |
-| `/var/log/syslog` | System events |
-
-**WRITE:** Only mention what you actually find. Don't pad with empty paths.
+**WRITE (only if the timeline shows something meaningful):**
+> The timeline module visualised file system activity across the image. [Describe pattern if visible.]
 
 ---
 
-## Section 3.2 — Full Draft Template
+## Section 3.2 — Full Draft (Combine the Above)
 
-Combine the above into one flowing section. Here's the skeleton matching Muhammad's tone:
+Match Muhammad's 3.1 tone — facts, move on, one or two figure refs max:
 
 ---
 
-A case was created in Autopsy (version 2.24) [5] with the .dd image from the second workflow loaded via symlink to avoid duplicating the file on the constrained VM. The file system browser confirmed the same directory structure identified in OSForensics, with f21fo-cw2 as the only active user.
+A new case was created in Autopsy (version 4.22) [5] and the .dd image from the second workflow was added as a disk image data source. Ingest modules were configured for file type identification, extension mismatch detection, keyword search, and recent activity analysis.
 
-[PARAGRAPH ON DELETED FILES — what you found, how many, what types]
+The file system confirmed the same structure observed in OSForensics, with f21fo-cw2 as the sole active user. The deleted files section identified [X] removed files across the image, including [brief description]. The extension mismatch module flagged [X] files where the detected MIME type did not match the declared extension; notably, several JPEG images had been renamed with a .dll extension, confirming the findings from the first workflow.
 
-[PARAGRAPH ON FILE SIGNATURES — confirm the JPEG-as-dll mismatches, mention any additional ones Autopsy caught]
-
-[PARAGRAPH ON BASH HISTORY / ARTEFACTS — confirm OSForensics findings, add anything new]
-
-[PARAGRAPH ON TIMELINE — if useful, otherwise skip]
+The user's bash history was consistent with the OSForensics analysis, showing SSH key generation, ssh2john usage, and attempted execution of the anti-forensic tools slacker and timestomp. [Add one sentence about anything NEW Autopsy found that OSForensics didn't — e.g. a recent activity artefact, a keyword hit, or a timeline observation.]
 
 ---
 
 ## Section 3.3 — Comparison of Forensic Analysis Tools
 
-Match the style of your 2.4 — short intro, table, short paragraph.
+---
+
+Both OSForensics and Autopsy identified the same key artefacts. Table [X] compares the two tools.
+
+| Criterion | OSForensics | Autopsy 4 |
+|-----------|------------|-----------|
+| Platform | Windows (GUI) | Linux (desktop GUI) |
+| Image Support | E01, dd, VMDK | dd, E01, raw, VMDK |
+| Extension Mismatch | Built-in search | Automated ingest module |
+| Deleted File Recovery | Built-in | Dedicated Deleted Files node |
+| Keyword Search | Indexed search | Solr-based keyword indexing |
+| Timeline | Limited | Built-in visual timeline |
+| Stability | Crashed during file carving | Stable on 6 GB RAM |
+
+OSForensics provided an intuitive interface for file browsing and quick mismatch detection but experienced crashes during deleted file search and file carving on the constrained VM. Autopsy 4 ran stably with 6 GB of RAM and provided automated ingest modules that identified extension mismatches, extracted recent activity, and indexed keywords without manual intervention. However, the initial ingest processing required approximately [X] minutes to complete.
 
 ---
 
-Both OSForensics and Autopsy identified the same key evidence and artefacts from the suspect image. Table [X] compares the two tools.
+## Sections 4, 5, 6 — No Change from Previous Guide
 
-| Criterion | OSForensics | Autopsy (TSK) |
-|-----------|------------|---------------|
-| Platform | Windows (GUI) | Linux (web-based GUI + CLI) |
-| Image Format Support | E01, dd, VMDK | dd, raw (via Sleuth Kit) |
-| File Mismatch Detection | Built-in search function | Manual or via `sorter` utility |
-| Deleted File Recovery | Built-in with GUI | Visual (red highlight) + `icat` CLI |
-| Timeline Analysis | Limited | Built-in File Activity Timelines |
-| Keyword Search | Built-in indexed search | Grep-based keyword search |
-| Performance | Crashed during deleted file search and carving | Stable on 2 GB RAM due to lightweight web interface |
-| Ease of Use | Point-and-click, minimal setup | Requires terminal setup, browser-based interface |
-
-OSForensics provided a more intuitive interface for file browsing and mismatch detection but experienced stability issues on the constrained VM, crashing during deleted file search and file carving operations. Autopsy ran reliably on the 2 GB Debian VM due to its lightweight web-based architecture and allowed for deeper investigation through direct access to Sleuth Kit CLI tools such as `fls`, `icat`, and `sorter`.
+Refer to the earlier `autopsy_do_and_write_guide.md` for:
+- **Section 4** (Files Recovered table)
+- **Section 5** (Issues — same three + any Autopsy-specific ones)
+- **Section 6** (One-paragraph conclusion)
 
 ---
 
-## Section 4 — Files Recovered and Summary of Evidence
+## Screenshots You Need (Keep It to 3–4 Max)
 
-This is a table. List everything both tools found:
+| Fig # | What |
+|-------|------|
+| 9 | Autopsy 4 case with image loaded (data sources tree visible) |
+| 10 | Extension Mismatch results OR Deleted Files view |
+| 11 | One more notable finding (bash history view, timeline, keyword hit) |
 
-| # | File / Artefact | Location | Type | Recovery Method | Significance |
-|---|----------------|----------|------|----------------|-------------|
-| 1 | .bash_history | /home/f21fo-cw2/ | Text | Both tools | Shows ssh-keygen, ssh2john, anti-forensic tool usage |
-| 2 | id_rsa / id_rsa.pub | /home/f21fo-cw2/.ssh/ | SSH key pair | Both tools | 4096-bit RSA key, targeted by ssh2john |
-| 3 | [mismatched .dll files] | [path] | JPEG disguised as DLL | Both tools | Deliberate extension change to hide images |
-| 4 | [deleted files] | [paths] | [types] | Autopsy / fls+icat | [why significant] |
-| 5 | [Astronomer docs?] | /home/f21fo-cw2/Documents/4028-Astronomers/ | DOC files | OSForensics | [describe] |
-| ... | ... | ... | ... | ... | ... |
-
-Fill this in as you do the actual analysis. Keep the table — the rubric rewards "recording files recovered."
-
----
-
-## Section 5 — Discussion of Issues and Challenges
-
-Muhammad's evidence dump already notes three issues. Write them up properly:
-
-> Several issues were encountered during the investigation. The Windows 10 VM was limited to 40 GB of storage, requiring the evidence files to be stored on a shared folder with a software-based write blocker to maintain integrity. The evidence was provided as split VMDK segments which could not be directly processed by dc3dd; these were flattened into a single raw file using qemu-img prior to imaging. Additionally, OSForensics experienced performance issues and crashes when running deleted file search and file carving functionalities on the constrained VM.
-
-Add any Autopsy-specific issues you encounter (e.g. timeline rendering, slow keyword search, etc.).
-
----
-
-## Section 6 — Conclusion
-
-One short paragraph:
-
-> The forensic investigation successfully imaged and analysed the suspect's Lubuntu virtual machine using two independent workflows. Both imaging tools produced identical hash values, confirming evidence integrity. Analysis revealed [key finding summary — anti-forensic tool usage, disguised files, SSH key generation for offline cracking]. The use of two tools at each stage provided cross-verification of findings and demonstrated the strengths and limitations of each approach.
-
----
-
-## Remaining Screenshots You Need
-
-| Fig # | What | When to take it |
-|-------|------|----------------|
-| 9 | Autopsy case setup / host screen | After Step "Create the case" |
-| 10 | Autopsy file browser showing user directory or deleted files | During step 1 or 2 |
-| 11 | File signature mismatch (hex view or `sorter` output) | During step 4 |
-| 12 | Timeline or any other notable finding | During step 5 |
-
-Don't overdo screenshots — Muhammad used 4 figures across all of 3.1. Match that density.
+Muhammad used 4 figures total for 3.1. You do the same or fewer.
 
 ---
 
 ## Chain of Custody — Add Entry
 
-After you complete the Autopsy analysis, add a row to Table 4:
-
 | Date | Time | Purpose | Description | Signature |
 |------|------|---------|-------------|-----------|
-| [today] | [time] | Forensic analysis | Created Autopsy case and analysed .dd image | HG |
+| [today] | [time] | Forensic analysis | Autopsy 4 case created, ingest modules run on .dd image | HG |
