@@ -1,119 +1,240 @@
-# DEBIAN VM — VIDEO DEMO COMMANDS
-# Copy-paste these in order during recording
+# Autopsy Analysis — Do This → Write This
 
-# --- SHOW TOOLS INSTALLED ---
-foremost -V
-dc3dd --version
+> Left column = what to do in your Debian VM terminal/browser.
+> Right column = what goes into the report for that step.
+> Match Muhammad's 3.1 style: state what was done, state what was found, reference a figure only when showing a screenshot.
 
-# --- EXAMPLE 1: Default Carve ---
-sudo foremost -t all -o ~/Evidance/output_default -i /mnt/ewf/ewf1
-ls ~/Evidance/output_default/
+---
 
-# --- EXAMPLE 2: Audit Trail ---
-cat ~/Evidance/output_default/audit.txt
+## Setup (Do First, Before Anything)
 
-# --- EXAMPLE 3: Targeted Carve (images only) ---
-sudo foremost -c ~/Evidance/custom_foremost.conf -o ~/Evidance/output_custom -i /mnt/ewf/ewf1
-ls ~/Evidance/output_custom/
+### In your Debian terminal:
 
+```bash
+sudo apt-get update
+sudo apt-get install autopsy sleuthkit -y
+autopsy -V          # confirm version — likely 2.24
+sudo autopsy        # starts the web server
+```
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------
+It prints a URL like `http://localhost:9999/autopsy`. Open Firefox in the VM and go there.
 
-# ============================================================
-# DEBIAN VM — COMPLETE COMMAND LIST
-# ============================================================
+### Create the case:
 
-# ████████████████████████████████████████████████████████████
-# PART 1: RUN THESE BEFORE YOU HIT RECORD
-# (Do these after booting the VM, before starting OBS)
-# ████████████████████████████████████████████████████████████
+1. New Case → name it `CW2_Investigation`
+2. Add Host → `Lubuntu_Suspect_Machine`
+3. Add Image → path: `/mnt/shared/lubuntu_forensic.dd` → Type: Disk → Import: **Symlink**
+4. Click through to analyse the ext4 partition
 
-# --- Step 1: Mount the evidence image (must redo every boot) ---
-sudo mkdir -p /mnt/ewf
-sudo ewfmount /home/vboxuser/Evidance/usb_a.E01 /mnt/ewf
+**Take a screenshot** of the case setup / host added screen. This is your Figure 9 (or whatever number is next).
 
-# --- Step 2: Verify it mounted (should show ewf1) ---
-sudo ls -la /mnt/ewf/
+---
 
-# --- Step 3: Delete old output folders if they exist ---
-rm -rf ~/Evidance/output_default
-rm -rf ~/Evidance/output_custom
+## Step-by-Step: Do → Write
 
-# --- Step 4: Verify tools work ---
-foremost -V
-dc3dd --version
+---
 
-# --- Step 5: Verify custom config file exists ---
-ls ~/Evidance/custom_foremost.conf
+### 1. File System Browse + Identify Active User
 
-# --- Step 6: Quick test — does foremost actually run? ---
-sudo foremost -t all -o ~/Evidance/test_run -i /mnt/ewf/ewf1
-ls ~/Evidance/test_run/
+**DO:**
+- Click **File Analysis** in Autopsy
+- Browse to `/home/` — you'll see the same 6 users Muhammad found
+- Confirm only `f21fo-cw2` has actual content
+- Browse through `f21fo-cw2/Documents/`, `Downloads/`, `Desktop/`, `.ssh/`
 
-# --- Step 7: Delete the test run (so demo looks clean) ---
-rm -rf ~/Evidance/test_run
+**SCREENSHOT:** Take one of the file browser showing the home directory or the user's folder contents.
 
-# --- Step 8: Clear terminal so screen looks clean ---
-clear
+**WRITE (for 3.2):**
+> A case was created in Autopsy (version 2.24) using the .dd image produced in the second workflow. The image was loaded via symlink to avoid duplicating the 20.0 GB file on the constrained VM disk. The file system browser confirmed the same directory structure observed in OSForensics, with f21fo-cw2 identified as the only active user account.
 
-# ✅ IF ALL ABOVE WORKED: You are ready to record.
-# ❌ IF SOMETHING FAILED: See troubleshooting at bottom.
+---
 
+### 2. Deleted File Recovery
 
-# ████████████████████████████████████████████████████████████
-# PART 2: COPY-PASTE THESE DURING RECORDING (in order)
-# ████████████████████████████████████████████████████████████
+**DO:**
+- In File Analysis, look for filenames shown in **red** — these are deleted files
+- Also run from terminal alongside Autopsy:
+  ```bash
+  fls -r -d /mnt/shared/lubuntu_forensic.dd
+  ```
+  This lists ALL deleted files with their inode numbers.
+- To recover a specific deleted file:
+  ```bash
+  icat /mnt/shared/lubuntu_forensic.dd <inode_number> > ~/recovered_file
+  ```
+- Note down: filename, path, inode, file type, size
 
-# --- SHOW TOOLS INSTALLED ---
-foremost -V
-dc3dd --version
+**SCREENSHOT:** The Autopsy file browser showing red (deleted) entries, OR the `fls` terminal output.
 
-# --- EXAMPLE 1: Default Carve ---
-sudo foremost -t all -o ~/Evidance/output_default -i /mnt/ewf/ewf1
-ls ~/Evidance/output_default/
+**WRITE:**
+> Deleted files were identified through the file analysis module, which highlights removed entries. [Describe what you found — e.g. "Several deleted image files were recovered from the user's Documents directory."] The Sleuth Kit command `fls -r -d` was also used from the terminal to enumerate all deleted inodes across the image for cross-verification.
 
-# --- EXAMPLE 2: Audit Trail ---
-cat ~/Evidance/output_default/audit.txt
+---
 
-# --- EXAMPLE 3: Targeted Carve (images only) ---
-sudo foremost -c ~/Evidance/custom_foremost.conf -o ~/Evidance/output_custom -i /mnt/ewf/ewf1
-ls ~/Evidance/output_custom/
+### 3. Bash History
 
+**DO:**
+- Navigate to `/home/f21fo-cw2/.bash_history` in Autopsy
+- Click on it → read the contents in the text viewer
+- Muhammad already documented the key commands (ssh-keygen, ssh2john, slacker, timestomp, wine) from OSForensics
+- Your job: confirm Autopsy shows the same, and note if you spot anything extra
 
-# ████████████████████████████████████████████████████████████
-# TROUBLESHOOTING — IF THINGS GO WRONG
-# ████████████████████████████████████████████████████████████
+**WRITE:**
+> The bash history file for user f21fo-cw2 was examined and confirmed the same command history observed in the OSForensics analysis, including the use of ssh-keygen, ssh2john, and attempted execution of anti-forensic tools.
 
-# "ewfmount: command not found"
-sudo apt update && sudo apt install ewf-tools -y
+(Keep it short — Muhammad already covered the detail. Just confirm Autopsy found the same thing.)
 
-# "foremost: command not found"
-sudo apt update && sudo apt install foremost -y
+---
 
-# "dc3dd: command not found"
-sudo apt update && sudo apt install dc3dd -y
+### 4. File Signature / Mismatch Analysis
 
-# "ewfmount: mount point already in use / Resource busy"
-sudo umount /mnt/ewf
-sudo ewfmount /home/vboxuser/Evidance/usb_a.E01 /mnt/ewf
+**DO:**
+- Muhammad found JPEG files saved as .dll using OSForensics mismatch search
+- In Autopsy, navigate to wherever those files are and click on them
+- Use the **hex viewer** tab to check the file header (JPEG starts with `FF D8 FF`)
+- Alternatively from terminal:
+  ```bash
+  file /path/to/suspicious.dll
+  ```
+  This will say "JPEG image data" if the extension is faked.
+- Also try:
+  ```bash
+  sorter -e /mnt/shared/lubuntu_forensic.dd
+  ```
+  `sorter` (part of Sleuth Kit) categorises files by type and flags extension mismatches.
 
-# "Permission denied" on anything in /mnt/ewf/
-# → Just put sudo in front of the command
+**SCREENSHOT:** The hex view of a mismatched file showing JPEG magic bytes, or `sorter` output.
 
-# "output directory already exists" from foremost
-rm -rf ~/Evidance/output_default
-rm -rf ~/Evidance/output_custom
+**WRITE:**
+> File signature analysis was performed to detect extension mismatches. [X] files were identified where the file content did not match the declared extension. For example, [filename] had a .dll extension but contained a JPEG header (FF D8 FF), consistent with the findings from OSForensics. The Sleuth Kit `sorter` utility was additionally used to automate the categorisation of files by their signatures.
 
-# "No such file or directory" for usb_a.E01
-# → Find where it actually is:
-find /home/vboxuser -name "usb_a.E01" 2>/dev/null
+---
 
-# "No such file or directory" for custom_foremost.conf
-# → Recreate it:
-sudo cp /etc/foremost.conf /home/vboxuser/Evidance/custom_foremost.conf
-# Then edit to keep only image types:
-nano ~/Evidance/custom_foremost.conf
-# (uncomment jpg gif png bmp lines, comment out everything else, Ctrl+X Y Enter to save)
+### 5. Timeline Analysis
 
-# "cat audit.txt: Permission denied"
-sudo cat ~/Evidance/output_default/audit.txt
+**DO:**
+- In Autopsy, click **File Activity Timelines**
+- Select your image → create timeline for all files
+- Look for clusters of activity — when was the machine most active?
+- Note the date ranges
+
+**SCREENSHOT:** The timeline view showing activity spikes (if it renders — Autopsy 2 timelines can be basic).
+
+**WRITE:**
+> A file activity timeline was generated to identify periods of user activity on the suspect machine. [Describe what you see — e.g. "Activity was concentrated between [date range], with a notable spike on [date] corresponding to the creation of the SSH key pair and execution of anti-forensic tools."]
+
+---
+
+### 6. Other Artefacts to Check
+
+**DO (browse these paths in Autopsy or terminal):**
+
+| Path | What to look for |
+|------|-----------------|
+| `/home/f21fo-cw2/.ssh/` | The RSA key pair (id_rsa, id_rsa.pub) |
+| `/home/f21fo-cw2/Documents/` | Any documents — especially the 4028-Astronomers folder Muhammad's evidence dump showed |
+| `/home/f21fo-cw2/Downloads/` | Anything downloaded |
+| `/home/f21fo-cw2/.local/share/Trash/` | Soft-deleted files |
+| `/var/log/auth.log` | Login records |
+| `/var/log/syslog` | System events |
+
+**WRITE:** Only mention what you actually find. Don't pad with empty paths.
+
+---
+
+## Section 3.2 — Full Draft Template
+
+Combine the above into one flowing section. Here's the skeleton matching Muhammad's tone:
+
+---
+
+A case was created in Autopsy (version 2.24) [5] with the .dd image from the second workflow loaded via symlink to avoid duplicating the file on the constrained VM. The file system browser confirmed the same directory structure identified in OSForensics, with f21fo-cw2 as the only active user.
+
+[PARAGRAPH ON DELETED FILES — what you found, how many, what types]
+
+[PARAGRAPH ON FILE SIGNATURES — confirm the JPEG-as-dll mismatches, mention any additional ones Autopsy caught]
+
+[PARAGRAPH ON BASH HISTORY / ARTEFACTS — confirm OSForensics findings, add anything new]
+
+[PARAGRAPH ON TIMELINE — if useful, otherwise skip]
+
+---
+
+## Section 3.3 — Comparison of Forensic Analysis Tools
+
+Match the style of your 2.4 — short intro, table, short paragraph.
+
+---
+
+Both OSForensics and Autopsy identified the same key evidence and artefacts from the suspect image. Table [X] compares the two tools.
+
+| Criterion | OSForensics | Autopsy (TSK) |
+|-----------|------------|---------------|
+| Platform | Windows (GUI) | Linux (web-based GUI + CLI) |
+| Image Format Support | E01, dd, VMDK | dd, raw (via Sleuth Kit) |
+| File Mismatch Detection | Built-in search function | Manual or via `sorter` utility |
+| Deleted File Recovery | Built-in with GUI | Visual (red highlight) + `icat` CLI |
+| Timeline Analysis | Limited | Built-in File Activity Timelines |
+| Keyword Search | Built-in indexed search | Grep-based keyword search |
+| Performance | Crashed during deleted file search and carving | Stable on 2 GB RAM due to lightweight web interface |
+| Ease of Use | Point-and-click, minimal setup | Requires terminal setup, browser-based interface |
+
+OSForensics provided a more intuitive interface for file browsing and mismatch detection but experienced stability issues on the constrained VM, crashing during deleted file search and file carving operations. Autopsy ran reliably on the 2 GB Debian VM due to its lightweight web-based architecture and allowed for deeper investigation through direct access to Sleuth Kit CLI tools such as `fls`, `icat`, and `sorter`.
+
+---
+
+## Section 4 — Files Recovered and Summary of Evidence
+
+This is a table. List everything both tools found:
+
+| # | File / Artefact | Location | Type | Recovery Method | Significance |
+|---|----------------|----------|------|----------------|-------------|
+| 1 | .bash_history | /home/f21fo-cw2/ | Text | Both tools | Shows ssh-keygen, ssh2john, anti-forensic tool usage |
+| 2 | id_rsa / id_rsa.pub | /home/f21fo-cw2/.ssh/ | SSH key pair | Both tools | 4096-bit RSA key, targeted by ssh2john |
+| 3 | [mismatched .dll files] | [path] | JPEG disguised as DLL | Both tools | Deliberate extension change to hide images |
+| 4 | [deleted files] | [paths] | [types] | Autopsy / fls+icat | [why significant] |
+| 5 | [Astronomer docs?] | /home/f21fo-cw2/Documents/4028-Astronomers/ | DOC files | OSForensics | [describe] |
+| ... | ... | ... | ... | ... | ... |
+
+Fill this in as you do the actual analysis. Keep the table — the rubric rewards "recording files recovered."
+
+---
+
+## Section 5 — Discussion of Issues and Challenges
+
+Muhammad's evidence dump already notes three issues. Write them up properly:
+
+> Several issues were encountered during the investigation. The Windows 10 VM was limited to 40 GB of storage, requiring the evidence files to be stored on a shared folder with a software-based write blocker to maintain integrity. The evidence was provided as split VMDK segments which could not be directly processed by dc3dd; these were flattened into a single raw file using qemu-img prior to imaging. Additionally, OSForensics experienced performance issues and crashes when running deleted file search and file carving functionalities on the constrained VM.
+
+Add any Autopsy-specific issues you encounter (e.g. timeline rendering, slow keyword search, etc.).
+
+---
+
+## Section 6 — Conclusion
+
+One short paragraph:
+
+> The forensic investigation successfully imaged and analysed the suspect's Lubuntu virtual machine using two independent workflows. Both imaging tools produced identical hash values, confirming evidence integrity. Analysis revealed [key finding summary — anti-forensic tool usage, disguised files, SSH key generation for offline cracking]. The use of two tools at each stage provided cross-verification of findings and demonstrated the strengths and limitations of each approach.
+
+---
+
+## Remaining Screenshots You Need
+
+| Fig # | What | When to take it |
+|-------|------|----------------|
+| 9 | Autopsy case setup / host screen | After Step "Create the case" |
+| 10 | Autopsy file browser showing user directory or deleted files | During step 1 or 2 |
+| 11 | File signature mismatch (hex view or `sorter` output) | During step 4 |
+| 12 | Timeline or any other notable finding | During step 5 |
+
+Don't overdo screenshots — Muhammad used 4 figures across all of 3.1. Match that density.
+
+---
+
+## Chain of Custody — Add Entry
+
+After you complete the Autopsy analysis, add a row to Table 4:
+
+| Date | Time | Purpose | Description | Signature |
+|------|------|---------|-------------|-----------|
+| [today] | [time] | Forensic analysis | Created Autopsy case and analysed .dd image | HG |
