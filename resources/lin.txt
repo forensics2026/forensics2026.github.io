@@ -1,3 +1,22 @@
+Snap still can't read the file at `/mnt/shared/` even with removable-media connected. You need to restart Autopsy after connecting the interface. Close Autopsy completely, then in terminal:
+
+```bash
+autopsy --nosplash
+```
+
+Reopen the case, add data source again, same path. If **Next >** is still greyed out, then create a symlink in your home directory instead:
+
+```bash
+ln -s /mnt/shared/lubuntu_forensic.dd ~/lubuntu_forensic.dd
+```
+
+Then use this path in Autopsy:
+
+```
+/home/vboxuser/lubuntu_forensic.dd
+```
+
+
 
 Snap sandboxing is blocking access to `/mnt/shared/`. Close the browse dialog and **type the path manually** in the Path field:
 
