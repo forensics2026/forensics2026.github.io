@@ -1,3 +1,47 @@
+Good news — you already have the symlink `lubuntu_forensic.dd` sitting right in your home directory, and all the snap interfaces were connected. The snap is the easier path. Reinstall it:
+
+```bash
+sudo snap install autopsy
+```
+
+Then reconnect the key interfaces:
+
+```bash
+sudo snap connect autopsy:removable-media
+sudo snap connect autopsy:home
+sudo snap connect autopsy:block-devices
+sudo snap connect autopsy:mount-observe
+sudo snap connect autopsy:system-files-dev
+sudo snap connect autopsy:fuse-support
+```
+
+Launch it:
+
+```bash
+autopsy --nosplash
+```
+
+This time when adding the data source, use the **home directory symlink** path:
+
+```
+/home/vboxuser/lubuntu_forensic.dd
+```
+
+Not `/mnt/shared/`. The snap can read your home directory since `autopsy:home` is connected — that was the original problem. The file is the same (it's a symlink), but now Autopsy has permission to access it.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 The sleuthkit-java version I gave you doesn't match Autopsy 4.22.1. Click **OK** to dismiss the error, then run this in terminal:
 
 ```bash
