@@ -1,3 +1,33 @@
+The sleuthkit-java version I gave you doesn't match Autopsy 4.22.1. Click **OK** to dismiss the error, then run this in terminal:
+
+```bash
+# Remove the wrong version
+sudo dpkg -r sleuthkit-java
+
+# Download the correct matching version for Autopsy 4.22.1
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.12.1/sleuthkit-java_4.12.1-1_amd64.deb
+
+# Check what versions are actually available
+# Go to: https://github.com/sleuthkit/sleuthkit/releases
+# and find the .deb that matches
+
+# Actually — use Autopsy's own install script instead:
+cd ~/autopsy-4.22.1/linux_macos_install_scripts/
+chmod +x install_prereqs_ubuntu.sh
+sudo ./install_prereqs_ubuntu.sh
+```
+
+If that script doesn't exist in your unzipped folder, try:
+
+```bash
+ls ~/autopsy-4.22.1/linux_macos_install_scripts/
+```
+
+And tell me what files you see there. Autopsy ships with a script that installs the exact matching sleuthkit-java version automatically — that's the safest route rather than me guessing version numbers.
+
+
+
+
 Couldn't find a specific bug report, but this is a known snap sandboxing issue — Autopsy can't actually read the file even though it sees the filename. Run all of these in terminal:
 
 ```bash
