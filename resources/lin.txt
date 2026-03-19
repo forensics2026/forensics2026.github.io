@@ -1,18 +1,49 @@
-Open a terminal and run these commands to give Autopsy full access:
+Couldn't find a specific bug report, but this is a known snap sandboxing issue — Autopsy can't actually read the file even though it sees the filename. Run all of these in terminal:
 
 ```bash
-sudo snap connect autopsy:home
+# Connect every interface Autopsy needs
 sudo snap connect autopsy:removable-media
+sudo snap connect autopsy:home
+sudo snap connect autopsy:block-devices
+sudo snap connect autopsy:mount-observe
 sudo snap connect autopsy:system-files-dev
+sudo snap connect autopsy:fuse-support
+
+# Verify all connected
+snap connections autopsy
 ```
 
-Then **close Autopsy completely** and relaunch it:
+Then **close Autopsy fully** and relaunch:
 
 ```bash
 autopsy --nosplash
 ```
 
-Open your existing case (it'll appear on the welcome screen) → Add Data Source again. If Next is still grayed out after selecting the file, try pointing it to a **symlinked copy** in the snap directory:
+Open your case → Add Data Source → type the path `/mnt/shared/lubuntu_forensic.dd` → Tab out of the field.
+
+If Next is **still** grayed after all that, the snap sandbox is fundamentally blocking it. In that case, ditch the snap and install Autopsy 4 manually:
+
+```bash
+sudo snap remove autopsy
+
+# Install dependencies
+sudo apt install openjdk-17-jdk testdisk sleuthkit -y
+
+# Download Autopsy 4 zip from GitHub
+wget https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.22.1/autopsy-4.22.1_v2.zip
+
+# Also grab the sleuthkit-java deb
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.12.1/sleuthkit-java_4.12.1-1_amd64.deb
+sudo dpkg -i sleuthkit-java_4.12.1-1_amd64.deb
+
+# Unzip and run
+unzip autopsy-4.22.1_v2.zip
+cd autopsy-4.22.1/bin
+chmod +x autopsy
+./autopsy --nosplash
+```
+
+The manual install has no sandbox — it can read any file on disk. Try the snap interface commands first though, they might be enough.
 
 ```bash
 ln -s /home/vboxuser/lubuntu_forensic.dd /home/vboxuser/snap/autopsy/common/lubuntu_forensic.dd
