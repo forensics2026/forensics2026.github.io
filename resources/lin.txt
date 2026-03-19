@@ -1,3 +1,19 @@
+
+Snap sandboxing is blocking access to `/mnt/shared/`. Close the browse dialog and **type the path manually** in the Path field:
+
+```
+/mnt/shared/lubuntu_forensic.dd
+```
+
+If that doesn't work either, you need to connect the snap interface first. Cancel out, open a terminal and run:
+
+```bash
+sudo snap connect autopsy:removable-media
+```
+
+Then go back to Autopsy and try again. That command gives the snap permission to read `/mnt/`.
+
+
 # Autopsy 4.x on Debian 13 — Do This → Write This (Revised)
 
 > VM change: bump RAM to **6 GB** in VirtualBox settings (shut down VM first → Settings → System → Base Memory → 6144 MB).
