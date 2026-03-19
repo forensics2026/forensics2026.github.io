@@ -1,3 +1,25 @@
+Open a terminal and run these commands to give Autopsy full access:
+
+```bash
+sudo snap connect autopsy:home
+sudo snap connect autopsy:removable-media
+sudo snap connect autopsy:system-files-dev
+```
+
+Then **close Autopsy completely** and relaunch it:
+
+```bash
+autopsy --nosplash
+```
+
+Open your existing case (it'll appear on the welcome screen) → Add Data Source again. If Next is still grayed out after selecting the file, try pointing it to a **symlinked copy** in the snap directory:
+
+```bash
+ln -s /home/vboxuser/lubuntu_forensic.dd /home/vboxuser/snap/autopsy/common/lubuntu_forensic.dd
+```
+
+Then in Autopsy, browse to `/home/vboxuser/snap/autopsy/common/` and select it there.
+
 Snap still can't read the file at `/mnt/shared/` even with removable-media connected. You need to restart Autopsy after connecting the interface. Close Autopsy completely, then in terminal:
 
 ```bash
