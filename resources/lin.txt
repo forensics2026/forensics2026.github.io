@@ -1,3 +1,119 @@
+Nice. Autopsy is working. Now make the shared folder sane and permanent.
+
+On the Windows host
+
+In VirtualBox → Settings → Shared Folders for DF_Shared:
+
+keep Make Permanent on
+turn Auto-mount off
+
+You want Debian to use only your fstab mount at:
+
+/mnt/shared
+In Debian
+
+First, make sure you are not inside the shared folder:
+
+cd ~
+
+Close any Files window that is open on the shared folder too.
+
+Now check /etc/fstab:
+
+sudo nano /etc/fstab
+
+Keep exactly this line and remove any duplicate DF_Shared lines:
+
+DF_Shared /mnt/shared vboxsf uid=1000,gid=1000,dmode=0775,fmode=0664,nofail,x-systemd.automount 0 0
+
+Save and exit.
+
+Now reboot the VM:
+
+sudo /usr/sbin/reboot
+After reboot
+
+Run these:
+
+cd ~
+groups
+ls -lah /mnt/shared
+mount | grep vboxsf
+
+What you want:
+
+groups includes vboxsf
+ls -lah /mnt/shared shows your files
+no more /media/sf_DF_Shared mount
+Important note
+
+Because you used:
+
+x-systemd.automount
+
+the share may not appear in mount | grep vboxsf until you actually touch /mnt/shared first. So always run this first:
+
+ls -lah /mnt/shared
+
+Then check:
+
+mount | grep vboxsf
+If /mnt/shared still acts weird
+
+Run this once after reboot:
+
+cd ~
+sudo umount -lf /media/sf_DF_Shared 2>/dev/null
+sudo umount -lf /mnt/shared 2>/dev/null
+sudo systemctl daemon-reload
+sudo mount -a
+ls -lah /mnt/shared
+Path to use in Autopsy
+
+Use this exact path:
+
+/mnt/shared/lubuntu_forensic.dd
+One quick check
+
+If you want to confirm it is really fixed, run:
+
+touch /mnt/shared/test_from_debian.txt
+ls -lah /mnt/shared
+
+If that file appears, the shared folder is working the way you want
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 You got it installed.
 
 The key line in your screenshot is:
