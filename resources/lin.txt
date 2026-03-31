@@ -1,118 +1,92 @@
-Do this exact sequence from your **current** state.
+From this exact state, do this in order and do not improvise.
 
-Your screenshot shows two hard facts: `~/lubuntu_forensic.dd` is **not** a real local file, it is a symlink to `/mnt/shared/lubuntu_forensic.dd`, and `~/autopsy/bin/autopsy` fails because Autopsy has **not** been installed into `~/autopsy` yet. Shared folders in a Linux guest require **Guest Additions**, and Autopsy on Linux needs the **ZIP**, the matching **Sleuth Kit Java `.deb`**, and a **Java 17** install. For Autopsy 4.22.1, the correct pairing is the **`_v2.zip`** plus **Sleuth Kit 4.14.0**. ([Oracle Docs][1])
+Your screenshot means two things: the VirtualBox share is still not mounted, and Autopsy is not installed into ~/autopsy yet. Shared folders in Linux guests depend on Guest Additions, and Autopsy’s Linux install path is: prerequisites, The Sleuth Kit, then Autopsy itself. For Autopsy 4.22.1, the correct ZIP is the _v2.zip and it uses Sleuth Kit 4.14.0.
 
-### 1) In VirtualBox, fix the share on the host side
+1) Mount the VirtualBox share manually
 
-Open the VM settings or the running VM **Devices** menu and make sure the host folder is shared as:
+Run this in the Debian terminal:
 
-* **Name:** `DF_Shared`
-* **Auto-mount:** on
-* **Make Permanent:** on
+sudo VBoxControl sharedfolder list
+sudo mkdir -p /mnt/shared
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls -lh /mnt/shared
+ls -lh /mnt/shared/lubuntu_forensic.dd
 
-VirtualBox supports creating the share from VM settings or from the running VM’s **Devices** menu, and Linux guests access it through Guest Additions. ([Oracle Docs][1])
+If the first command shows the share name is not DF_Shared, rerun the mount command with the exact name it shows.
 
-### 2) In the running VM window, insert Guest Additions
-
-In the VM window menu:
-**Devices → Insert Guest Additions CD Image…**
-
-Then in the Debian terminal, run this block exactly:
-
-```bash
-sudo apt update
-sudo apt install build-essential dkms linux-headers-$(uname -r) -y
-sudo sh "$(find /media/cdrom0 -maxdepth 3 -name 'VBoxLinuxAdditions.run' | head -n1)"
-sudo usermod -aG vboxsf $USER
-sudo reboot
-```
-
-That installs Guest Additions, adds your user to `vboxsf`, and reboots. Shared folders use Guest Additions, and Linux guest access is typically controlled through the `vboxsf` group. ([Oracle Docs][1])
-
-### 3) After reboot, verify the `.dd` file is visible from the shared folder
+2) Replace the broken symlink with a clean one
 
 Run:
 
-```bash
-ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
-```
-
-Now replace the broken symlink with a clean one:
-
-```bash
 rm -f ~/lubuntu_forensic.dd
-ln -s /media/sf_DF_Shared/lubuntu_forensic.dd ~/lubuntu_forensic.dd
-ls -lh ~/lubuntu_forensic.dd
+ln -s /mnt/shared/lubuntu_forensic.dd ~/lubuntu_forensic.dd
 readlink -f ~/lubuntu_forensic.dd
-```
+ls -lh ~/lubuntu_forensic.dd
 
-At this point, `readlink -f ~/lubuntu_forensic.dd` should resolve to:
+At the end of this step, readlink -f ~/lubuntu_forensic.dd must resolve to:
 
-```text
-/media/sf_DF_Shared/lubuntu_forensic.dd
-```
+/mnt/shared/lubuntu_forensic.dd
+3) Remove the wrong Sleuth Kit package and install the correct one
 
-### 4) Remove the wrong Sleuth Kit Java package and get the correct one
-
-You currently have `sleuthkit-java_4.12.1-1_amd64.deb`, which is the wrong version for Autopsy 4.22.1. Autopsy 4.22.1 uses **Sleuth Kit 4.14.0**, and the release notes explicitly say the correct ZIP is the **`_v2.zip`** because the original ZIP was linked to the wrong TSK version. ([GitHub][2])
+You currently have sleuthkit-java_4.12.1-1_amd64.deb, which is the wrong version for Autopsy 4.22.1. The 4.22.1 release notes say it uses Sleuth Kit 4.14.0, and the release notes also say the correct ZIP is the _v2.zip build.
 
 Run:
 
-```bash
 sudo apt remove sleuthkit-java -y || true
 rm -f ~/sleuthkit-java_4.12.1-1_amd64.deb
 wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
-```
+4) Install Autopsy properly
 
-### 5) Install Autopsy properly into `~/autopsy`
+You already have:
 
-You already have `autopsy-4.22.1_v2.zip` and the extracted `autopsy-4.22.1` folder in your home directory. The official Linux instructions are: install prerequisites, install The Sleuth Kit `.deb`, then run `install_application.sh` with the ZIP path, install directory, and Java home. The same doc says Autopsy expects **Java 17**, and recommends `--nosplash` on first launch. ([Autopsy][3])
+~/autopsy-4.22.1
+~/autopsy-4.22.1_v2.zip
 
-Run this exact block:
+Autopsy’s Linux instructions say to run the prerequisites script, install The Sleuth Kit .deb, then run install_application.sh, and that the prerequisites script gives you the Java 17 path to use.
 
-```bash
+Run:
+
 cd ~/autopsy-4.22.1
 chmod u+x linux_macos_install_scripts/*.sh
 ./linux_macos_install_scripts/install_prereqs_ubuntu.sh
 sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
+update-java-alternatives -l | grep 17
 ./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
-~/autopsy/bin/autopsy --nosplash
-```
 
-### 6) In Autopsy, add the evidence image
+If update-java-alternatives -l | grep 17 shows a different Java 17 path, use that path instead of /usr/lib/jvm/java-17-openjdk-amd64.
+
+5) Launch Autopsy
+
+Run:
+
+~/autopsy/bin/autopsy --nosplash
+
+Autopsy’s Linux instructions explicitly recommend --nosplash on first run because the initial window can appear behind the splash screen and make it look stuck.
+
+6) Add the image in Autopsy
 
 Inside Autopsy:
 
-* Create a new case
-* Add Data Source
-* Choose **Disk Image / VM File**
-* Select:
+Create a new case
+Add Data Source
+Choose Disk Image / VM File
+Select:
+/mnt/shared/lubuntu_forensic.dd
 
-```text
-/media/sf_DF_Shared/lubuntu_forensic.dd
-```
+Do not use /media/sf_DF_Shared/... now. Your current path is the manual mount under /mnt/shared.
 
-Do **not** use the broken old `/mnt/shared/...` path anymore. Use the real, working `/media/sf_DF_Shared/...` path.
+7) Final verification block
 
-### 7) If you want one single verification block before opening Autopsy
+Before opening Autopsy, this block must succeed:
 
-Run this:
-
-```bash
-ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
+ls -lh /mnt/shared/lubuntu_forensic.dd
 readlink -f ~/lubuntu_forensic.dd
-ls -ld ~/autopsy
 ls -l ~/autopsy/bin/autopsy
-```
 
 The correct end state is:
 
-* the `.dd` file exists at `/media/sf_DF_Shared/lubuntu_forensic.dd`
-* `~/lubuntu_forensic.dd` resolves to that path
-* `~/autopsy/bin/autopsy` exists
+/mnt/shared/lubuntu_forensic.dd exists
+~/lubuntu_forensic.dd resolves to /mnt/shared/lubuntu_forensic.dd
+~/autopsy/bin/autopsy exists
 
-That is the one clean path from where you are now.
-
-[1]: https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/guestadditions.html?utm_source=chatgpt.com "7 Guest Additions - Oracle VirtualBox"
-[2]: https://github.com/sleuthkit/autopsy/releases/?utm_source=chatgpt.com "Releases · sleuthkit/autopsy"
-[3]: https://www.autopsy.com/download/ "Autopsy - Download"
+Run Step 1 exactly as written and stop only if ls -lh /mnt/shared/lubuntu_forensic.dd still fails
