@@ -1,3 +1,58 @@
+You’ve cleared the Java problem. The installer is now failing on the next dependency: it cannot find sleuthkit-4.14.0.jar. Autopsy’s Linux instructions say the install order is prerequisites, then The Sleuth Kit Java .deb, then Autopsy itself, and the 4.22.1 release notes say this Autopsy version uses Sleuth Kit 4.14.0 and that the correct ZIP is the _v2.zip.
+
+Run these commands exactly:
+
+cd ~
+sudo apt remove sleuthkit-java -y || true
+rm -f ~/sleuthkit-java_4.12.1-1_amd64.deb
+wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
+sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
+ls -l /usr/share/java/sleuthkit-4.14.0.jar
+
+That last ls must succeed before you do anything else. The error on your screen is specifically that sleuthkit-4.14.0.jar is missing from the standard Java library path, so this is the thing to fix now.
+
+Then rerun the Autopsy install from the same source directory you already used:
+
+cd ~/autopsy-4.22.1
+rm -rf ~/autopsy
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+ls -l ~/autopsy/bin/autopsy
+~/autopsy/bin/autopsy --nosplash
+
+If ~/autopsy/bin/autopsy exists, the install is done. After that, in Autopsy, add the image file using the path you already mounted successfully:
+
+/mnt/shared/lubuntu_forensic.dd
+
+Autopsy’s Linux doc says to pass the actual Java home with -j, and it recommends --nosplash on first run because the first window can appear behind the splash screen.
+
+If you want the shortest possible version, it is this:
+
+cd ~
+sudo apt remove sleuthkit-java -y || true
+wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
+sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
+cd ~/autopsy-4.22.1
+rm -rf ~/autopsy
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+~/autopsy/bin/autopsy --nosplash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 From your exact screenshot, the next move is just this.
 
 You are already in the correct directory: ~/autopsy-4.22.1
