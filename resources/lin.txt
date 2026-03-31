@@ -1,3 +1,78 @@
+No. Don’t go back a directory.
+
+You’re already in the right place: ~/autopsy-4.22.1.
+
+The failure is not the folder. The failure is this:
+
+Java was not found in /usr/lib/jvm/java-17-openjdk-amd64
+
+So do this exactly from where you are now.
+
+1) Find the real Java path
+
+Run:
+
+update-java-alternatives -l
+readlink -f $(which java)
+readlink -f $(which javac)
+2) If javac is missing, install the JDK
+
+Run:
+
+sudo apt update
+sudo apt install default-jdk -y
+
+Then run again:
+
+update-java-alternatives -l
+readlink -f $(which javac)
+3) Use the actual Java path, not the one we guessed
+
+If readlink -f $(which javac) returns something like:
+
+/usr/lib/jvm/default-java/bin/javac
+
+then the Java home is:
+
+/usr/lib/jvm/default-java
+
+If it returns something like:
+
+/usr/lib/jvm/java-21-openjdk-amd64/bin/javac
+
+then the Java home is:
+
+/usr/lib/jvm/java-21-openjdk-amd64
+4) Rerun the Autopsy install from the same directory
+
+Still inside ~/autopsy-4.22.1, run:
+
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j <PUT_THE_REAL_JAVA_HOME_HERE>
+
+Example:
+
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/default-java
+5) Then launch it
+~/autopsy/bin/autopsy --nosplash
+
+So the answer is:
+
+No, don’t go back a dir
+Yes, fix the Java path and rerun the install command from where you already are
+
+Run this block now:
+
+update-java-alternatives -l
+readlink -f $(which java)
+readlink -f $(which javac)
+
+and use the path it gives you after removing /bin/java or /bin/javac
+
+
+
+
+
+
 From this exact state, do this in order and do not improvise.
 
 Your screenshot means two things: the VirtualBox share is still not mounted, and Autopsy is not installed into ~/autopsy yet. Shared folders in Linux guests depend on Guest Additions, and Autopsy’s Linux install path is: prerequisites, The Sleuth Kit, then Autopsy itself. For Autopsy 4.22.1, the correct ZIP is the _v2.zip and it uses Sleuth Kit 4.14.0.
