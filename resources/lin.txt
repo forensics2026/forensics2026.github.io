@@ -1,3 +1,48 @@
+From your exact screenshot, the next move is just this.
+
+You are already in the correct directory: ~/autopsy-4.22.1
+
+Your actual Java path is:
+
+/usr/lib/jvm/java-21-openjdk-amd64
+
+So rerun the install with that exact path.
+
+Run these commands exactly
+cd ~/autopsy-4.22.1
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+ls -l ~/autopsy/bin/autopsy
+~/autopsy/bin/autopsy --nosplash
+If ~/autopsy/bin/autopsy exists
+
+Inside Autopsy:
+
+Create Case
+Add Data Source
+Choose Disk Image / VM File
+select your image path:
+/mnt/shared/lubuntu_forensic.dd
+If the install script fails again
+
+Run this exact check:
+
+ls -ld /usr/lib/jvm/java-21-openjdk-amd64
+ls -l /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+ls -l /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
+
+But do not change directory first.
+Do not guess another Java path.
+Do not touch the shared folder right now.
+
+Your next command is simply:
+
+./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+
+
+
+
+
+
 No. Don’t go back a directory.
 
 You’re already in the right place: ~/autopsy-4.22.1.
