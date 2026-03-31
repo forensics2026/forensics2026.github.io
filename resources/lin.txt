@@ -1,100 +1,57 @@
-Here is everything, from scratch, based only on what is confirmed working. Copy and paste each block one at a time.
+Snap can work, but the old problem was snap's sandboxing blocks access to `/mnt/shared/`. The fix is to mount the shared folder **inside your home directory** instead, where snap can read it. Here's the full guide from reboot:
 
 ---
 
-**Step 1 — Confirm the jar is still there**
+**Step 1 — Remount shared folder to a snap-friendly path**
 
 ```bash
-ls /usr/share/java/sleuthkit-4.14.0.jar
+mkdir -p ~/shared
+sudo mount -t vboxsf DF_Shared ~/shared
+ls ~/shared/lubuntu_forensic.dd
 ```
 
-If it says "No such file", stop and tell me. If you see the path, continue.
+You must see the file before continuing.
 
----
-
-**Step 2 — Remove any old install**
+**Step 2 — Install Autopsy via snap**
 
 ```bash
-rm -rf ~/autopsy
+sudo snap install autopsy
 ```
 
----
+If it's already installed, skip to Step 3.
 
-**Step 3 — Try the installer with explicit flags**
+**Step 3 — Give snap access to home files**
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-cd ~/autopsy-4.22.1
-bash linux_macos_install_scripts/install_application.sh -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+sudo snap connect autopsy:removable-media
+sudo snap connect autopsy:home
 ```
 
-If this prints "Usage:" again instead of installing, skip to Step 3B.
-
-**Step 3B — Use the other installer instead**
+**Step 4 — Launch Autopsy**
 
 ```bash
-cd ~/autopsy-4.22.1
-chmod +x unix_setup.sh
-bash unix_setup.sh
+autopsy
 ```
 
----
-
-**Step 4 — Check what got created**
-
-```bash
-ls ~/autopsy/bin/autopsy
-```
-
-If that file doesn't exist, try:
-
-```bash
-ls ~/autopsy-4.22.1/bin/autopsy
-```
-
-Whichever path shows the file is your launch path.
-
----
-
-**Step 5 — Launch Autopsy**
-
-Use whichever path worked in Step 4:
-
-```bash
-~/autopsy/bin/autopsy
-```
-
-or
-
-```bash
-~/autopsy-4.22.1/bin/autopsy
-```
-
----
-
-**Step 6 — Confirm the image is accessible**
-
-```bash
-ls /mnt/shared/lubuntu_forensic.dd
-```
-
-If it says "No such file":
-
-```bash
-sudo mount -t vboxsf DF_Shared /mnt/shared
-ls /mnt/shared/lubuntu_forensic.dd
-```
-
----
-
-**Step 7 — In the Autopsy GUI**
+**Step 5 — In the Autopsy GUI**
 
 New Case → Add Data Source → point it to:
 
 ```
-/mnt/shared/lubuntu_forensic.dd
+/home/vboxuser/shared/lubuntu_forensic.dd
+```
+
+Not `/mnt/shared/`, not the symlink — use the full path above.
+
+---
+
+**Meanwhile, in a second terminal, start the SHA1 hash:**
+
+```bash
+sudo mount -t vboxsf DF_Shared ~/shared
+sha1sum ~/shared/lubuntu_forensic.dd
 ```
 
 ---
 
-Start at Step 1 and go through each one. Screenshot whatever Step 3 or 3B gives you.
+Start from Step 1 and tell me what each step gives you.
