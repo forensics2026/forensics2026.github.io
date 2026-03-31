@@ -1,123 +1,150 @@
-Good. The problem is simpler than you think.
+You’ve hit the real issue now.
 
-Your command failed **before** Autopsy even entered the picture. The share did **not** mount, so `/mnt/shared/lubuntu_forensic.dd` does not exist yet. VirtualBox’s documented Linux syntax is just `mount -t vboxsf [-o OPTIONS] sharename mountpoint`, and auto-mounted Linux shares normally appear under `/media/sf_<sharename>`. Oracle also notes that access to auto-mounted shares in Linux is restricted to members of the `vboxsf` group. ([Oracle Docs][1])
+This is not an Autopsy problem yet. It is a Guest Additions / shared-folder problem.
 
-The immediate fix is: **stop using `mode=0775` for now**. Your guest is rejecting that option, so use the simplest working mount first.
+What your screenshot proves:
 
-Run these commands exactly, in order:
+virtualbox-guest-utils and virtualbox-guest-x11 are not available in Debian 13 trixie stable from your current repos.
+Debian’s package search shows those packages only in sid/unstable under contrib, not in trixie stable.
+The package that is available for trixie stable is virtualbox-guest-additions-iso, and it is in non-free.
 
-```bash
+So stop trying to install virtualbox-guest-utils from apt on trixie stable. That path is wrong for your setup.
+
+Do this instead
+
+Use the Guest Additions ISO route.
+
+That is the right move here because Debian trixie stable exposes the Guest Additions ISO package, which exists specifically so the guest can mount the ISO and install Guest Additions from it.
+
+Exact recovery plan
+Option 1 — easiest: use VirtualBox’s built-in Guest Additions ISO
+
+In the running VM window:
+
+Click Devices
+Click Insert Guest Additions CD Image...
+
+Then in Debian, open a terminal and run:
+
 sudo apt update
-sudo apt install virtualbox-guest-utils virtualbox-guest-x11 -y
-sudo usermod -aG vboxsf $USER
-reboot
-```
+sudo apt install build-essential dkms linux-headers-$(uname -r) -y
 
-After reboot, first check whether VirtualBox already auto-mounted the share:
+Now check whether the CD mounted automatically:
 
-```bash
+ls /media
+ls /media/cdrom
+
+If you see the Guest Additions CD, run:
+
+sudo sh /media/cdrom/VBoxLinuxAdditions.run
+
+If /media/cdrom is not the right path, find the mounted ISO first:
+
+mount | grep -i cdrom
+
+and use whatever mountpoint it shows.
+
+When the installer finishes, reboot:
+
+sudo reboot
+
+After reboot, check whether the shared folder auto-mounted:
+
 ls -lh /media
 ls -lh /media/sf_DF_Shared
 ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
-```
-
-If that works, you are done with the share. Use `/media/sf_DF_Shared/lubuntu_forensic.dd` in Autopsy. Auto-mounted Linux shares under `/media/sf_<name>` and `vboxsf` group access are the documented VirtualBox behavior. ([Oracle Docs][1])
-
-If `/media/sf_DF_Shared` does **not** exist, do a manual mount with no `mode` option:
-
-```bash
-sudo mkdir -p /mnt/shared
-sudo mount -t vboxsf DF_Shared /mnt/shared
-ls -lh /mnt/shared
-ls -lh /mnt/shared/lubuntu_forensic.dd
-```
-
-If that mounts but permissions are annoying, retry with only `uid` and `gid`:
-
-```bash
-sudo umount /mnt/shared 2>/dev/null
-sudo mount -t vboxsf -o uid=$(id -u),gid=$(id -g) DF_Shared /mnt/shared
-ls -lh /mnt/shared
-ls -lh /mnt/shared/lubuntu_forensic.dd
-```
-
-Oracle’s manual explicitly documents `uid` and `gid` as useful mount options for letting normal users read and write shared folders; your screenshot shows the share name is being recognized, but your guest does not like the `mode` option as passed. ([Oracle Docs][1])
-
-If manual mount still fails, check whether Guest Additions are actually active:
-
-```bash
-mount | grep vboxsf
 groups
-sudo dmesg | tail -50
-```
 
-What you want to see:
+If it worked, your user should now be able to read the share. Auto-mounted Linux VirtualBox shares normally appear under /media/sf_<share_name>, and Linux guest access is tied to the vboxsf group.
 
-* your user is in `vboxsf`
-* `vboxsf` appears in mounted filesystems
-* `lubuntu_forensic.dd` is visible from either `/media/sf_DF_Shared/` or `/mnt/shared/`
+If you see the share but get permission denied, add yourself to vboxsf and reboot again:
 
-Only **after that** should you try Autopsy.
+sudo usermod -aG vboxsf $USER
+sudo reboot
 
-For Autopsy on Debian, use the **official non-snap route**, not the snap. Autopsy’s Linux instructions say the Debian-based install is: install prerequisites, install the Sleuth Kit `.deb`, then install Autopsy from the ZIP. The 4.22.1 release notes also say that version uses **Sleuth Kit 4.14.0**, and that the correct ZIP is the **`_v2.zip`** build. ([GitHub][2])
+Then test again:
 
-Once the share is working, the install sequence is:
+ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
+Option 2 — if “Insert Guest Additions CD Image” is missing or broken
 
-```bash
+Enable non-free in Debian and install the ISO package directly, because Debian trixie stable does provide virtualbox-guest-additions-iso in non-free.
+
+First check your sources:
+
+cat /etc/apt/sources.list
+grep -R ^deb /etc/apt/sources.list.d/ 2>/dev/null
+
+If your Debian sources only mention main, edit them to add contrib non-free non-free-firmware.
+
+For example, if your source line looks like this:
+
+deb http://deb.debian.org/debian trixie main
+
+change it to:
+
+deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+
+Then run:
+
 sudo apt update
-sudo apt install default-jdk unzip wget -y
-java -version
-```
+sudo apt install virtualbox-guest-additions-iso build-essential dkms linux-headers-$(uname -r) -y
 
-Then from your Downloads folder, using the correct files:
+Then locate the ISO file:
 
-* `autopsy-4.22.1_v2.zip`
-* `sleuthkit-java_4.14.0-1_amd64.deb`
+dpkg -L virtualbox-guest-additions-iso | grep '\.iso$'
 
-Install them like this:
+Mount it and run the installer:
 
-```bash
-cd ~/Downloads
-sudo apt install ./sleuthkit-java_4.14.0-1_amd64.deb
-unzip autopsy-4.22.1_v2.zip -d autopsy-src
-cd autopsy-src/autopsy-4.22.1
-chmod u+x linux_macos_install_scripts/*.sh
-./linux_macos_install_scripts/install_prereqs_ubuntu.sh
-update-java-alternatives -l | grep 17
-./linux_macos_install_scripts/install_application.sh \
-  -z ~/Downloads/autopsy-4.22.1_v2.zip \
-  -i ~/autopsy \
-  -j /usr/lib/jvm/java-17-openjdk-amd64
-~/autopsy/bin/autopsy --nosplash
-```
+sudo mkdir -p /mnt/cdrom
+sudo mount -o loop /usr/share/virtualbox/VBoxGuestAdditions.iso /mnt/cdrom
+sudo sh /mnt/cdrom/VBoxLinuxAdditions.run
+sudo reboot
 
-That is the installation flow Autopsy documents for Debian-based Linux, and the docs say the prerequisites script tells you the Java 17 path to use. ([GitHub][2])
+After reboot, test:
 
-Then in Autopsy:
+ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
+groups
+After Guest Additions works
 
-* Create Case
-* Add Data Source
-* Choose disk image / VM file
-* Browse to whichever path now works:
+Only then move to Autopsy.
 
-  * `/media/sf_DF_Shared/lubuntu_forensic.dd`
-  * or `/mnt/shared/lubuntu_forensic.dd`
+Use the real path:
 
-Do **not** use a symlink for the first test.
+/media/sf_DF_Shared/lubuntu_forensic.dd
 
-Right now, your next move is not “fix Autopsy.” It is this exact command:
+If your share mounted manually instead, use:
 
-```bash
-sudo mount -t vboxsf DF_Shared /mnt/shared
-```
+/mnt/shared/lubuntu_forensic.dd
 
-Then check:
+Do not use a symlink for the first Autopsy test.
 
-```bash
-ls -lh /mnt/shared/lubuntu_forensic.dd
-```
+What your screenshot means, bluntly
+Unknown parameter 'mode' means your manual mount command was bad for this guest, so the share never mounted.
+Unable to locate package virtualbox-guest-utils and virtualbox-guest-x11 means those packages are not in your current trixie stable repo set.
+group 'vboxsf' does not exist is expected before Guest Additions are installed. The group is part of that stack.
 
-Send me the output of those two commands and I’ll tell you the next step immediately.
+So the next move is not “try Autopsy again.”
+The next move is install Guest Additions correctly.
 
-[1]: https://docs.oracle.com/cd/E97728_01/E97727/E97727.pdf "Oracle® VM VirtualBox - User Manual for Release 6.0"
-[2]: https://github.com/sleuthkit/autopsy/blob/develop/Running_Linux_OSX.md "autopsy/Running_Linux_OSX.md at develop · sleuthkit/autopsy · GitHub"
+Do this now
+
+In order:
+
+sudo apt update
+sudo apt install build-essential dkms linux-headers-$(uname -r) -y
+
+Then use Devices → Insert Guest Additions CD Image...
+
+Then:
+
+sudo sh /media/cdrom/VBoxLinuxAdditions.run
+sudo reboot
+
+After reboot:
+
+ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
+groups
+
+Send me the output of those last two commands.
