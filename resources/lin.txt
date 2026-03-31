@@ -1,3 +1,45 @@
+You got it installed.
+
+The key line in your screenshot is:
+
+Application setup done. You can run autopsy from /home/vboxuser/autopsy/autopsy-4.22.1/bin/autopsy
+
+So the launcher is here:
+
+/home/vboxuser/autopsy/autopsy-4.22.1/bin/autopsy
+
+You were trying the wrong path:
+
+~/autopsy/bin/autopsy
+
+That is why it said “No such file”.
+
+Run this now:
+
+~/autopsy/autopsy-4.22.1/bin/autopsy
+
+Or first verify it exists:
+
+ls -lh ~/autopsy/autopsy-4.22.1/bin/autopsy
+
+If you want a shorter command, make a symlink:
+
+ln -s ~/autopsy/autopsy-4.22.1/bin/autopsy ~/bin/autopsy 2>/dev/null || true
+
+Or just use:
+
+~/autopsy/autopsy-4.22.1/bin/autopsy
+
+For your evidence path inside Autopsy, use:
+
+/mnt/shared/lubuntu_forensic.dd
+
+If that command opens Autopsy but the image is not visible, the next step is fixing only the shared-folder path, not Autopsy itself.
+
+
+
+
+
 You ran the wrong script.
 
 This line is the problem:
