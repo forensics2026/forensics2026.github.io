@@ -1,74 +1,67 @@
-Yes. Use this exact route.
+Good. The problem is simpler than you think.
 
-The path most likely to work in Debian is the **official non-snap install**, not the snap. Autopsy’s own Linux instructions say there are two paths on Linux: snap, or the standard Debian-based flow of installing prerequisites, then The Sleuth Kit, then Autopsy itself. The download page for 4.22.1 also says Linux needs the **Autopsy ZIP** plus the **Sleuth Kit Java `.deb`**. For 4.22.1 specifically, the release notes say it uses **Sleuth Kit 4.14.0**, and the release notes also warn that the original ZIP link was wrong and that the **`_v2.zip`** is the correct ZIP. ([GitHub][1])
+Your command failed **before** Autopsy even entered the picture. The share did **not** mount, so `/mnt/shared/lubuntu_forensic.dd` does not exist yet. VirtualBox’s documented Linux syntax is just `mount -t vboxsf [-o OPTIONS] sharename mountpoint`, and auto-mounted Linux shares normally appear under `/media/sf_<sharename>`. Oracle also notes that access to auto-mounted shares in Linux is restricted to members of the `vboxsf` group. ([Oracle Docs][1])
 
-Before you start, set the VM to a sane config: keep RAM around **6–8 GB**, give it **2 or 4 CPU cores**, and make sure the Debian VM has **plenty of free disk** for the Autopsy case data and indexing. That part is practical advice from experience, not an Autopsy requirement.
+The immediate fix is: **stop using `mode=0775` for now**. Your guest is rejecting that option, so use the simplest working mount first.
 
-## Route A: get it working properly in Debian
-
-### 1. Fix the shared folder first
-
-VirtualBox shared folders require **Guest Additions** in the guest, and Linux guests mount them with the `vboxsf` filesystem. Oracle’s docs give the Linux mount syntax as `mount -t vboxsf sharename mountpoint`, and they also show the `/etc/fstab` format if you want it to mount automatically. They note that `uid`, `gid`, and `mode` options are useful so normal users can access the share. ([Oracle Docs][2])
-
-On the **host**, make sure the shared folder exists in the VM settings:
-
-* Shared Folders → add your host evidence folder
-* Share name: `DF_Shared`
-* Make it permanent
-
-Then boot Debian and run:
+Run these commands exactly, in order:
 
 ```bash
 sudo apt update
 sudo apt install virtualbox-guest-utils virtualbox-guest-x11 -y
-sudo reboot
+sudo usermod -aG vboxsf $USER
+reboot
 ```
 
-After reboot:
+After reboot, first check whether VirtualBox already auto-mounted the share:
+
+```bash
+ls -lh /media
+ls -lh /media/sf_DF_Shared
+ls -lh /media/sf_DF_Shared/lubuntu_forensic.dd
+```
+
+If that works, you are done with the share. Use `/media/sf_DF_Shared/lubuntu_forensic.dd` in Autopsy. Auto-mounted Linux shares under `/media/sf_<name>` and `vboxsf` group access are the documented VirtualBox behavior. ([Oracle Docs][1])
+
+If `/media/sf_DF_Shared` does **not** exist, do a manual mount with no `mode` option:
 
 ```bash
 sudo mkdir -p /mnt/shared
-sudo mount -t vboxsf -o uid=$(id -u),gid=$(id -g),mode=0775 DF_Shared /mnt/shared
+sudo mount -t vboxsf DF_Shared /mnt/shared
 ls -lh /mnt/shared
 ls -lh /mnt/shared/lubuntu_forensic.dd
 ```
 
-If that last command does **not** show the `.dd` file, stop. Autopsy is not the problem yet. Your shared folder is still broken.
-
-If you want it mounted automatically every boot:
+If that mounts but permissions are annoying, retry with only `uid` and `gid`:
 
 ```bash
-echo 'DF_Shared /mnt/shared vboxsf defaults,uid=1000,gid=1000,mode=0775 0 0' | sudo tee -a /etc/fstab
-sudo mount -a
+sudo umount /mnt/shared 2>/dev/null
+sudo mount -t vboxsf -o uid=$(id -u),gid=$(id -g) DF_Shared /mnt/shared
+ls -lh /mnt/shared
+ls -lh /mnt/shared/lubuntu_forensic.dd
 ```
 
-Use `1000` only if your normal user is UID 1000. Check with:
+Oracle’s manual explicitly documents `uid` and `gid` as useful mount options for letting normal users read and write shared folders; your screenshot shows the share name is being recognized, but your guest does not like the `mode` option as passed. ([Oracle Docs][1])
+
+If manual mount still fails, check whether Guest Additions are actually active:
 
 ```bash
-id
+mount | grep vboxsf
+groups
+sudo dmesg | tail -50
 ```
 
-### 2. Download the correct Autopsy files
+What you want to see:
 
-For Linux, you need:
+* your user is in `vboxsf`
+* `vboxsf` appears in mounted filesystems
+* `lubuntu_forensic.dd` is visible from either `/media/sf_DF_Shared/` or `/mnt/shared/`
 
-* the **Autopsy ZIP**
-* the **Sleuth Kit Java `.deb`**
+Only **after that** should you try Autopsy.
 
-For version **4.22.1**, use:
+For Autopsy on Debian, use the **official non-snap route**, not the snap. Autopsy’s Linux instructions say the Debian-based install is: install prerequisites, install the Sleuth Kit `.deb`, then install Autopsy from the ZIP. The 4.22.1 release notes also say that version uses **Sleuth Kit 4.14.0**, and that the correct ZIP is the **`_v2.zip`** build. ([GitHub][2])
 
-* `autopsy-4.22.1_v2.zip`
-* `sleuthkit-java_4.14.0-1_amd64.deb`
-
-That pairing matters because Autopsy 4.22.1 uses Sleuth Kit 4.14.0, and the project explicitly says the `_v2.zip` is the correct ZIP for that release. ([Autopsy][3])
-
-Put both files in `~/Downloads`.
-
-### 3. Install Java and prerequisites
-
-Autopsy’s Linux instructions say to run `install_prereqs_ubuntu.sh`, and they note that the script outputs the path to the **Java 17** installation. The same document says the install command for Autopsy needs the Java 17 home path. ([GitHub][1])
-
-Run:
+Once the share is working, the install sequence is:
 
 ```bash
 sudo apt update
@@ -76,172 +69,55 @@ sudo apt install default-jdk unzip wget -y
 java -version
 ```
 
-Then unzip the Autopsy package:
+Then from your Downloads folder, using the correct files:
 
-```bash
-cd ~/Downloads
-unzip autopsy-4.22.1_v2.zip -d autopsy-src
-cd autopsy-src/autopsy-4.22.1
-chmod u+x linux_macos_install_scripts/*.sh
-./linux_macos_install_scripts/install_prereqs_ubuntu.sh
-```
+* `autopsy-4.22.1_v2.zip`
+* `sleuthkit-java_4.14.0-1_amd64.deb`
 
-Now find your Java 17 path:
-
-```bash
-update-java-alternatives -l | grep 17
-```
-
-You want something like:
-
-```bash
-/usr/lib/jvm/java-17-openjdk-amd64
-```
-
-### 4. Install Sleuth Kit Java
-
-Autopsy’s Linux instructions say to install the Sleuth Kit `.deb` directly with `apt install /path/to/...deb`. ([GitHub][1])
-
-Run:
+Install them like this:
 
 ```bash
 cd ~/Downloads
 sudo apt install ./sleuthkit-java_4.14.0-1_amd64.deb
-```
-
-### 5. Install Autopsy itself
-
-Autopsy’s Linux instructions say to run `install_application.sh` with the ZIP path, install directory, and Java home. They also recommend `--nosplash` later because the first-run window can hide behind the splash screen. ([GitHub][1])
-
-Run:
-
-```bash
-cd ~/Downloads/autopsy-src/autopsy-4.22.1
+unzip autopsy-4.22.1_v2.zip -d autopsy-src
+cd autopsy-src/autopsy-4.22.1
+chmod u+x linux_macos_install_scripts/*.sh
+./linux_macos_install_scripts/install_prereqs_ubuntu.sh
+update-java-alternatives -l | grep 17
 ./linux_macos_install_scripts/install_application.sh \
   -z ~/Downloads/autopsy-4.22.1_v2.zip \
   -i ~/autopsy \
   -j /usr/lib/jvm/java-17-openjdk-amd64
-```
-
-If your Java path is different, use the one from `update-java-alternatives -l`.
-
-### 6. Launch Autopsy
-
-Use `--nosplash` on first launch. The official docs say Autopsy can look stalled because a window may appear behind the splash screen. ([GitHub][1])
-
-Run:
-
-```bash
 ~/autopsy/bin/autopsy --nosplash
 ```
 
-### 7. Add the `.dd` image
+That is the installation flow Autopsy documents for Debian-based Linux, and the docs say the prerequisites script tells you the Java 17 path to use. ([GitHub][2])
 
-In Autopsy:
+Then in Autopsy:
 
-* Create case
+* Create Case
 * Add Data Source
 * Choose disk image / VM file
-* Browse to `/mnt/shared/lubuntu_forensic.dd`
+* Browse to whichever path now works:
 
-Use the **real file path**, not a symlink, for the first test.
+  * `/media/sf_DF_Shared/lubuntu_forensic.dd`
+  * or `/mnt/shared/lubuntu_forensic.dd`
 
-If it loads, create the case on the Debian VM’s local disk, not inside the shared folder.
+Do **not** use a symlink for the first test.
 
-## If it still fails
-
-Autopsy’s Linux docs say:
-
-* if you see JavaFX errors, Java is wrong
-* if you see reflective-access warnings or similar, the wrong Java may be in use
-* `messages.log` is the place to check the Java version
-* Autopsy first checks `jdkhome` in `etc/autopsy.conf`, then `$JAVA_HOME` if `jdkhome` is not set. ([GitHub][1])
-
-So check this:
+Right now, your next move is not “fix Autopsy.” It is this exact command:
 
 ```bash
-grep -n 'jdkhome' ~/autopsy/etc/autopsy.conf
-echo $JAVA_HOME
+sudo mount -t vboxsf DF_Shared /mnt/shared
 ```
 
-If `jdkhome` is missing or wrong, set it:
+Then check:
 
 ```bash
-sed -i 's|^#\?jdkhome=.*|jdkhome=/usr/lib/jvm/java-17-openjdk-amd64|' ~/autopsy/etc/autopsy.conf
-```
-
-Then relaunch:
-
-```bash
-~/autopsy/bin/autopsy --nosplash
-```
-
-If you get the JNI / `libtsk_jni` error again, that almost always means your Autopsy ZIP and Sleuth Kit Java `.deb` do **not** match. For 4.22.1, the correct pairing is the `_v2.zip` plus Sleuth Kit **4.14.0**. ([GitHub][4])
-
-## Important Linux caveat
-
-Autopsy’s own Linux/macOS notes say **not all current features are functional on Linux**, and they explicitly list **Recent Activity** among the known limitations. So if the app runs but that module is incomplete or flaky on Debian, that is not you being stupid; it is a documented limitation. ([GitHub][1])
-
-## Route B: snap only if you insist
-
-Autopsy’s snap exists, but the project’s snap config says it is a **strictly confined** snap and relies on interfaces like `block-devices`, `removable-media`, `mount-observe`, `fuse-support`, and `system-files-dev` to ingest data sources. That is why the snap route is more fragile. ([GitHub][5])
-
-If you want to try it anyway:
-
-```bash
-sudo snap install autopsy
-sudo snap connect autopsy:home
-sudo snap connect autopsy:removable-media
-sudo snap connect autopsy:mount-observe
-sudo snap connect autopsy:fuse-support
-sudo snap connect autopsy:system-files-dev
-snap connections autopsy
-autopsy --nosplash
-```
-
-Then point Autopsy at:
-
-```bash
-/mnt/shared/lubuntu_forensic.dd
-```
-
-If the snap still refuses to ingest, stop wasting time on the snap and use Route A.
-
-## Quick verification checklist
-
-Run these before opening Autopsy:
-
-```bash
-free -h
-nproc
-df -h
-mount | grep vboxsf
-ls -lh /mnt/shared
 ls -lh /mnt/shared/lubuntu_forensic.dd
-java -version
 ```
 
-If:
+Send me the output of those two commands and I’ll tell you the next step immediately.
 
-* the share is not mounted,
-* the `.dd` file is not readable,
-* or Java is not 17,
-
-then Autopsy is not going to behave.
-
-Follow Route A exactly in order. If you want, send me the outputs of these four commands next:
-
-```bash
-mount | grep vboxsf
-ls -lh /mnt/shared/lubuntu_forensic.dd
-java -version
-grep -n 'jdkhome' ~/autopsy/etc/autopsy.conf
-```
-
-and I’ll tell you what is wrong immediately.
-
-[1]: https://github.com/sleuthkit/autopsy/blob/develop/Running_Linux_OSX.md "autopsy/Running_Linux_OSX.md at develop · sleuthkit/autopsy · GitHub"
-[2]: https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/sharedfolders.html "4.3. Shared Folders"
-[3]: https://www.autopsy.com/download/?utm_source=chatgpt.com "Autopsy - Download"
-[4]: https://github.com/sleuthkit/autopsy/releases/?utm_source=chatgpt.com "Releases · sleuthkit/autopsy"
-[5]: https://github.com/sleuthkit/autopsy/blob/develop/snap/snapcraft.yaml "autopsy/snap/snapcraft.yaml at develop · sleuthkit/autopsy · GitHub"
+[1]: https://docs.oracle.com/cd/E97728_01/E97727/E97727.pdf "Oracle® VM VirtualBox - User Manual for Release 6.0"
+[2]: https://github.com/sleuthkit/autopsy/blob/develop/Running_Linux_OSX.md "autopsy/Running_Linux_OSX.md at develop · sleuthkit/autopsy · GitHub"
