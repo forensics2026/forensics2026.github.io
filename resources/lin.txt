@@ -1,3 +1,38 @@
+You ran the wrong script.
+
+This line is the problem:
+
+bash linux_macos_install_scripts/install_prereqs_ubuntu.sh -z ~/Downloads/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
+
+install_prereqs_ubuntu.sh only installs packages. It does not create ~/autopsy/bin/autopsy.
+
+You need to run:
+
+install_application.sh
+
+Do this exactly, one line at a time:
+
+cd ~/autopsy-src/autopsy-4.22.1
+bash linux_macos_install_scripts/install_application.sh -z ~/Downloads/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
+ls -lh ~/autopsy/bin/autopsy
+~/autopsy/bin/autopsy
+
+A few important points:
+
+The update-java-alternatives: command not found message came from the prereqs script and is not the thing blocking you right now.
+sleuthkit-java is already installed, which is good.
+~/autopsy/bin/autopsy does not exist yet because the application installer has not been run yet.
+
+If that command fails, run this and paste the output:
+
+bash linux_macos_install_scripts/install_application.sh --help
+
+and also:
+
+ls linux_macos_install_scripts
+
+
+
 1) On your Windows host: download Debian 12 and create the VM
 
 Download the Debian 12 Bookworm installer from Debian’s official Bookworm installation page. That is the right source for a Debian 12 install image.
