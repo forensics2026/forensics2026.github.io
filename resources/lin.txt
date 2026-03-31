@@ -1,59 +1,57 @@
-Hamza, here's the clean sequence from your exact current state. The blocker is that Autopsy 4.22.1 needs `sleuthkit-4.14.0.jar` and your old deb (`sleuthkit-java_4.12.1-1_amd64.deb`) is the wrong version.
+OK. Here's the full clean restart, step by step. Run each command exactly, and paste me the output if anything fails.
 
-**Step 1 — Clean up the broken install directory**
+---
+
+**1. Remove any old broken install target**
 
 ```bash
 rm -rf ~/autopsy
 ```
 
-**Step 2 — Download the correct Sleuth Kit Java bindings (4.14.0)**
-
-```bash
-cd ~
-wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb
-```
-
-If `wget` can't reach GitHub from the VM, download it on the Windows host from that same URL and drop it into your shared folder, then copy from `/mnt/shared/`.
-
-**Step 3 — Install the deb**
+**2. Install the Sleuth Kit Java bindings deb (already downloaded)**
 
 ```bash
 sudo dpkg -i ~/sleuthkit-java_4.14.0-1_amd64.deb
 ```
 
-If it complains about missing dependencies, follow with:
+If it errors about dependencies:
 
 ```bash
 sudo apt-get install -f -y
 ```
 
-**Step 4 — Verify the jar landed**
+**3. Verify the jar is in place**
 
 ```bash
 ls /usr/share/java/sleuthkit-4.14.0.jar
 ```
 
-You should see that file. If it's there, you're unblocked.
+Stop here and confirm you see the file before continuing.
 
-**Step 5 — Re-run the Autopsy installer**
+**4. Set Java home and re-run the installer**
 
 ```bash
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 cd ~/autopsy-4.22.1
 bash linux_macos_install_scripts/install_application.sh
 ```
 
-**Step 6 — Launch Autopsy**
+**5. Verify the install created the launch script**
+
+```bash
+ls ~/autopsy/bin/autopsy
+```
+
+**6. Launch Autopsy**
 
 ```bash
 ~/autopsy/bin/autopsy
 ```
 
-**Step 7 — When Autopsy opens, add a new case, then add the image at:**
+**7. Inside Autopsy GUI — add the image at:**
 
 ```
 /mnt/shared/lubuntu_forensic.dd
 ```
 
-If `/mnt/shared/` isn't mounted after a reboot, verify it first with `ls /mnt/shared/lubuntu_forensic.dd` before pointing Autopsy at it.
-
-Run Steps 1–4 first and let me know what happens at each stage — especially the output of Step 4.
+Start with Step 2 since the deb is already sitting in your home directory. Show me what Step 2 and Step 3 output.
