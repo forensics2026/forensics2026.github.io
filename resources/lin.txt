@@ -1,119 +1,100 @@
-The problem is that `apt-get install -f` couldn't find all the dependencies on Debian 13, so it **removed** the package instead of fixing it. The jar is gone.
+Here is everything, from scratch, based only on what is confirmed working. Copy and paste each block one at a time.
 
-We can work around this by extracting just the jar from the deb manually and placing it where the installer expects it.
+---
 
-**1. Extract the jar from the deb**
-
-```bash
-mkdir /tmp/tsk
-dpkg-deb -x ~/sleuthkit-java_4.14.0-1_amd64.deb /tmp/tsk
-find /tmp/tsk -name "*.jar"
-```
-
-**2. Copy the jar to where Autopsy looks for it**
-
-```bash
-sudo cp /tmp/tsk/usr/share/java/sleuthkit-4.14.0.jar /usr/share/java/
-```
-
-**3. Verify it's there**
+**Step 1 — Confirm the jar is still there**
 
 ```bash
 ls /usr/share/java/sleuthkit-4.14.0.jar
 ```
 
-**4. Clean up old install and re-run the Autopsy installer**
-
-```bash
-rm -rf ~/autopsy
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-cd ~/autopsy-4.22.1
-bash linux_macos_install_scripts/install_application.sh
-```
-
-**5. Verify and launch**
-
-```bash
-ls ~/autopsy/bin/autopsy
-~/autopsy/bin/autopsy
-```
-
-Run Steps 1–3 first and show me the output.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"Nothing happened" after a `mount` command is actually good — that means it succeeded silently. But let's verify and then go all the way through. Here's the complete guide, top to bottom:
+If it says "No such file", stop and tell me. If you see the path, continue.
 
 ---
 
-**1. Confirm the shared folder is mounted**
+**Step 2 — Remove any old install**
+
+```bash
+rm -rf ~/autopsy
+```
+
+---
+
+**Step 3 — Try the installer with explicit flags**
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+cd ~/autopsy-4.22.1
+bash linux_macos_install_scripts/install_application.sh -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
+```
+
+If this prints "Usage:" again instead of installing, skip to Step 3B.
+
+**Step 3B — Use the other installer instead**
+
+```bash
+cd ~/autopsy-4.22.1
+chmod +x unix_setup.sh
+bash unix_setup.sh
+```
+
+---
+
+**Step 4 — Check what got created**
+
+```bash
+ls ~/autopsy/bin/autopsy
+```
+
+If that file doesn't exist, try:
+
+```bash
+ls ~/autopsy-4.22.1/bin/autopsy
+```
+
+Whichever path shows the file is your launch path.
+
+---
+
+**Step 5 — Launch Autopsy**
+
+Use whichever path worked in Step 4:
+
+```bash
+~/autopsy/bin/autopsy
+```
+
+or
+
+```bash
+~/autopsy-4.22.1/bin/autopsy
+```
+
+---
+
+**Step 6 — Confirm the image is accessible**
 
 ```bash
 ls /mnt/shared/lubuntu_forensic.dd
 ```
 
-You should see the file listed. If yes, continue.
-
-**2. Remove old broken Autopsy install**
+If it says "No such file":
 
 ```bash
-rm -rf ~/autopsy
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls /mnt/shared/lubuntu_forensic.dd
 ```
 
-**3. Install the Sleuth Kit Java bindings**
+---
 
-```bash
-sudo dpkg -i ~/sleuthkit-java_4.14.0-1_amd64.deb
-sudo apt-get install -f -y
-```
+**Step 7 — In the Autopsy GUI**
 
-**4. Verify the jar is in place**
-
-```bash
-ls /usr/share/java/sleuthkit-4.14.0.jar
-```
-
-You must see this file before continuing.
-
-**5. Set Java home and run the Autopsy installer**
-
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-cd ~/autopsy-4.22.1
-bash linux_macos_install_scripts/install_application.sh
-```
-
-**6. Verify the install worked**
-
-```bash
-ls ~/autopsy/bin/autopsy
-```
-
-You should see the file. If yes, continue.
-
-**7. Launch Autopsy**
-
-```bash
-~/autopsy/bin/autopsy
-```
-
-**8. Inside the Autopsy GUI**
-
-Create a new case, then when it asks for a data source, point it to:
+New Case → Add Data Source → point it to:
 
 ```
 /mnt/shared/lubuntu_forensic.dd
 ```
 
-Run Step 1 now and show me what it says.
+---
+
+Start at Step 1 and go through each one. Screenshot whatever Step 3 or 3B gives you.
