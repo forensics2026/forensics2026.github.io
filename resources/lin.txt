@@ -1,57 +1,181 @@
-Snap can work, but the old problem was snap's sandboxing blocks access to `/mnt/shared/`. The fix is to mount the shared folder **inside your home directory** instead, where snap can read it. Here's the full guide from reboot:
+1) On your Windows host: download Debian 12 and create the VM
 
----
+Download the Debian 12 Bookworm installer from Debian’s official Bookworm installation page. That is the right source for a Debian 12 install image.
 
-**Step 1 — Remount shared folder to a snap-friendly path**
+Create the VM with these settings:
 
-```bash
-mkdir -p ~/shared
-sudo mount -t vboxsf DF_Shared ~/shared
-ls ~/shared/lubuntu_forensic.dd
-```
+Debian 12
+4 GB RAM
+2 CPUs
+80 GB dynamic disk
+Graphics controller VBoxSVGA
+128 MB video memory
+3D acceleration off
 
-You must see the file before continuing.
+That VM sizing is my recommendation for your 16 GB laptop.
 
-**Step 2 — Install Autopsy via snap**
+During Debian install, pick XFCE rather than GNOME. That is also my recommendation.
 
-```bash
-sudo snap install autopsy
-```
+2) After Debian boots: install base packages
 
-If it's already installed, skip to Step 3.
+On Debian 12, qemu-utils provides qemu-img, dc3dd is available in Bookworm, and openjdk-17-jdk is in Bookworm as well.
 
-**Step 3 — Give snap access to home files**
+Run:
 
-```bash
-sudo snap connect autopsy:removable-media
-sudo snap connect autopsy:home
-```
+sudo apt update
+sudo apt install -y qemu-utils dc3dd openjdk-17-jdk unzip wget curl p7zip-full build-essential dkms linux-headers-$(uname -r)
 
-**Step 4 — Launch Autopsy**
+Check them:
 
-```bash
-autopsy
-```
+qemu-img --version
+dc3dd --help | head
+java -version
+3) Install VirtualBox Guest Additions
 
-**Step 5 — In the Autopsy GUI**
+VirtualBox shared folders require Guest Additions in the guest. Oracle says Guest Additions are installed inside the VM from the VBoxGuestAdditions.iso, which you mount from the VirtualBox Devices menu. Oracle also says shared folders depend on Guest Additions.
 
-New Case → Add Data Source → point it to:
+In the VM window, click:
 
-```
-/home/vboxuser/shared/lubuntu_forensic.dd
-```
+Devices -> Insert Guest Additions CD Image
 
-Not `/mnt/shared/`, not the symlink — use the full path above.
+Then in Debian run:
 
----
+sudo mkdir -p /mnt/cdrom
+sudo mount /dev/cdrom /mnt/cdrom
+sudo sh /mnt/cdrom/VBoxLinuxAdditions.run
+sudo reboot
+4) Set up the shared folder properly
 
-**Meanwhile, in a second terminal, start the SHA1 hash:**
+Oracle says you create the shared folder on the host with a share name, then mount it in the guest using that share name through vboxsf. It also notes that Linux guests can auto-mount shared folders under /media, but manual mounting is fine too.
 
-```bash
-sudo mount -t vboxsf DF_Shared ~/shared
-sha1sum ~/shared/lubuntu_forensic.dd
-```
+On the Windows host, in VirtualBox, add your evidence folder as a shared folder named:
 
----
+DF_Shared
 
-Start from Step 1 and tell me what each step gives you.
+Tick:
+
+Auto-mount
+Make Permanent
+
+Then in Debian run:
+
+sudo mkdir -p /mnt/shared
+sudo modprobe vboxsf
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls -lah /mnt/shared
+
+If you want it permanent:
+
+echo 'DF_Shared /mnt/shared vboxsf defaults 0 0' | sudo tee -a /etc/fstab
+5) Download Autopsy and Sleuth Kit with wget
+
+Autopsy 4.22.1’s release notes say the correct zip is autopsy-4.22.1_v2.zip, because the original zip pointed to the wrong TSK version. The same release notes say it uses Sleuth Kit 4.14.0. The Sleuth Kit 4.14.0 release includes the Debian package sleuthkit-java_4.14.0-1_amd64.deb.
+
+Run:
+
+cd ~/Downloads
+
+wget https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.22.1/autopsy-4.22.1_v2.zip
+
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb
+
+Check:
+
+ls -lh ~/Downloads/autopsy-4.22.1_v2.zip
+ls -lh ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb
+6) Install Autopsy the official non-snap way
+
+Autopsy’s Linux install guide says to run the Linux prerequisites script, install the matching Sleuth Kit .deb, then run install_application.sh with -z, -i, and -j. It also says the Java home should be Java 17.
+
+Run:
+
+cd ~/Downloads
+unzip autopsy-4.22.1_v2.zip -d ~/autopsy-src
+cd ~/autopsy-src/autopsy-4.22.1
+
+bash linux_macos_install_scripts/install_prereqs_ubuntu.sh
+
+Now install Sleuth Kit:
+
+cd ~/Downloads
+sudo apt install ./sleuthkit-java_4.14.0-1_amd64.deb
+
+Now install Autopsy:
+
+cd ~/autopsy-src/autopsy-4.22.1
+bash linux_macos_install_scripts/install_application.sh -z ~/Downloads/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
+
+Launch it:
+
+~/autopsy/bin/autopsy
+7) Use your evidence from the shared folder
+
+Because the shared folder is mounted at /mnt/shared, your image path should be:
+
+/mnt/shared/lubuntu_forensic.dd
+
+Do not copy the 20 GB image into the VM again. Use it in place from the shared folder. That is my recommendation based on the failures you hit before.
+
+8) Final sanity checks
+
+Run these:
+
+mount | grep vboxsf
+ls -lh /mnt/shared
+ls /usr/share/java/sleuthkit-4.14.0.jar
+qemu-img --version
+dc3dd --help | head
+java -version
+~/autopsy/bin/autopsy
+
+If those all work, the rebuild is good.
+
+9) If Guest Additions or shared folders fail
+
+Run:
+
+sudo apt install -y build-essential dkms linux-headers-$(uname -r)
+sudo sh /mnt/cdrom/VBoxLinuxAdditions.run
+sudo reboot
+sudo modprobe vboxsf
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls -lah /mnt/shared
+
+That matches Oracle’s Guest Additions and shared-folder model.
+
+10) Copy-paste install block
+
+This is the condensed version for inside Debian after the OS is installed:
+
+sudo apt update
+sudo apt install -y qemu-utils dc3dd openjdk-17-jdk unzip wget curl p7zip-full build-essential dkms linux-headers-$(uname -r)
+
+sudo mkdir -p /mnt/cdrom
+sudo mount /dev/cdrom /mnt/cdrom
+sudo sh /mnt/cdrom/VBoxLinuxAdditions.run
+sudo reboot
+
+After reboot:
+
+sudo mkdir -p /mnt/shared
+sudo modprobe vboxsf
+sudo mount -t vboxsf DF_Shared /mnt/shared
+ls -lah /mnt/shared
+
+cd ~/Downloads
+wget https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.22.1/autopsy-4.22.1_v2.zip
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb
+
+unzip autopsy-4.22.1_v2.zip -d ~/autopsy-src
+cd ~/autopsy-src/autopsy-4.22.1
+bash linux_macos_install_scripts/install_prereqs_ubuntu.sh
+
+cd ~/Downloads
+sudo apt install ./sleuthkit-java_4.14.0-1_amd64.deb
+
+cd ~/autopsy-src/autopsy-4.22.1
+bash linux_macos_install_scripts/install_application.sh -z ~/Downloads/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
+
+~/autopsy/bin/autopsy
+
+If you want, I can turn this into a stricter checklist with host-side clicks and Debian-side commands separated line by line
