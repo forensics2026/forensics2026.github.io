@@ -1,267 +1,59 @@
-You’ve cleared the Java problem. The installer is now failing on the next dependency: it cannot find sleuthkit-4.14.0.jar. Autopsy’s Linux instructions say the install order is prerequisites, then The Sleuth Kit Java .deb, then Autopsy itself, and the 4.22.1 release notes say this Autopsy version uses Sleuth Kit 4.14.0 and that the correct ZIP is the _v2.zip.
+Hamza, here's the clean sequence from your exact current state. The blocker is that Autopsy 4.22.1 needs `sleuthkit-4.14.0.jar` and your old deb (`sleuthkit-java_4.12.1-1_amd64.deb`) is the wrong version.
 
-Run these commands exactly:
+**Step 1 — Clean up the broken install directory**
 
-cd ~
-sudo apt remove sleuthkit-java -y || true
-rm -f ~/sleuthkit-java_4.12.1-1_amd64.deb
-wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
-sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
-ls -l /usr/share/java/sleuthkit-4.14.0.jar
-
-That last ls must succeed before you do anything else. The error on your screen is specifically that sleuthkit-4.14.0.jar is missing from the standard Java library path, so this is the thing to fix now.
-
-Then rerun the Autopsy install from the same source directory you already used:
-
-cd ~/autopsy-4.22.1
+```bash
 rm -rf ~/autopsy
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
-ls -l ~/autopsy/bin/autopsy
-~/autopsy/bin/autopsy --nosplash
+```
 
-If ~/autopsy/bin/autopsy exists, the install is done. After that, in Autopsy, add the image file using the path you already mounted successfully:
+**Step 2 — Download the correct Sleuth Kit Java bindings (4.14.0)**
 
-/mnt/shared/lubuntu_forensic.dd
-
-Autopsy’s Linux doc says to pass the actual Java home with -j, and it recommends --nosplash on first run because the first window can appear behind the splash screen.
-
-If you want the shortest possible version, it is this:
-
+```bash
 cd ~
-sudo apt remove sleuthkit-java -y || true
-wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
-sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb
+```
+
+If `wget` can't reach GitHub from the VM, download it on the Windows host from that same URL and drop it into your shared folder, then copy from `/mnt/shared/`.
+
+**Step 3 — Install the deb**
+
+```bash
+sudo dpkg -i ~/sleuthkit-java_4.14.0-1_amd64.deb
+```
+
+If it complains about missing dependencies, follow with:
+
+```bash
+sudo apt-get install -f -y
+```
+
+**Step 4 — Verify the jar landed**
+
+```bash
+ls /usr/share/java/sleuthkit-4.14.0.jar
+```
+
+You should see that file. If it's there, you're unblocked.
+
+**Step 5 — Re-run the Autopsy installer**
+
+```bash
 cd ~/autopsy-4.22.1
-rm -rf ~/autopsy
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
-~/autopsy/bin/autopsy --nosplash
+bash linux_macos_install_scripts/install_application.sh
+```
 
+**Step 6 — Launch Autopsy**
 
+```bash
+~/autopsy/bin/autopsy
+```
 
+**Step 7 — When Autopsy opens, add a new case, then add the image at:**
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-From your exact screenshot, the next move is just this.
-
-You are already in the correct directory: ~/autopsy-4.22.1
-
-Your actual Java path is:
-
-/usr/lib/jvm/java-21-openjdk-amd64
-
-So rerun the install with that exact path.
-
-Run these commands exactly
-cd ~/autopsy-4.22.1
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
-ls -l ~/autopsy/bin/autopsy
-~/autopsy/bin/autopsy --nosplash
-If ~/autopsy/bin/autopsy exists
-
-Inside Autopsy:
-
-Create Case
-Add Data Source
-Choose Disk Image / VM File
-select your image path:
+```
 /mnt/shared/lubuntu_forensic.dd
-If the install script fails again
+```
 
-Run this exact check:
+If `/mnt/shared/` isn't mounted after a reboot, verify it first with `ls /mnt/shared/lubuntu_forensic.dd` before pointing Autopsy at it.
 
-ls -ld /usr/lib/jvm/java-21-openjdk-amd64
-ls -l /usr/lib/jvm/java-21-openjdk-amd64/bin/java
-ls -l /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
-
-But do not change directory first.
-Do not guess another Java path.
-Do not touch the shared folder right now.
-
-Your next command is simply:
-
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-21-openjdk-amd64
-
-
-
-
-
-
-No. Don’t go back a directory.
-
-You’re already in the right place: ~/autopsy-4.22.1.
-
-The failure is not the folder. The failure is this:
-
-Java was not found in /usr/lib/jvm/java-17-openjdk-amd64
-
-So do this exactly from where you are now.
-
-1) Find the real Java path
-
-Run:
-
-update-java-alternatives -l
-readlink -f $(which java)
-readlink -f $(which javac)
-2) If javac is missing, install the JDK
-
-Run:
-
-sudo apt update
-sudo apt install default-jdk -y
-
-Then run again:
-
-update-java-alternatives -l
-readlink -f $(which javac)
-3) Use the actual Java path, not the one we guessed
-
-If readlink -f $(which javac) returns something like:
-
-/usr/lib/jvm/default-java/bin/javac
-
-then the Java home is:
-
-/usr/lib/jvm/default-java
-
-If it returns something like:
-
-/usr/lib/jvm/java-21-openjdk-amd64/bin/javac
-
-then the Java home is:
-
-/usr/lib/jvm/java-21-openjdk-amd64
-4) Rerun the Autopsy install from the same directory
-
-Still inside ~/autopsy-4.22.1, run:
-
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j <PUT_THE_REAL_JAVA_HOME_HERE>
-
-Example:
-
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/default-java
-5) Then launch it
-~/autopsy/bin/autopsy --nosplash
-
-So the answer is:
-
-No, don’t go back a dir
-Yes, fix the Java path and rerun the install command from where you already are
-
-Run this block now:
-
-update-java-alternatives -l
-readlink -f $(which java)
-readlink -f $(which javac)
-
-and use the path it gives you after removing /bin/java or /bin/javac
-
-
-
-
-
-
-From this exact state, do this in order and do not improvise.
-
-Your screenshot means two things: the VirtualBox share is still not mounted, and Autopsy is not installed into ~/autopsy yet. Shared folders in Linux guests depend on Guest Additions, and Autopsy’s Linux install path is: prerequisites, The Sleuth Kit, then Autopsy itself. For Autopsy 4.22.1, the correct ZIP is the _v2.zip and it uses Sleuth Kit 4.14.0.
-
-1) Mount the VirtualBox share manually
-
-Run this in the Debian terminal:
-
-sudo VBoxControl sharedfolder list
-sudo mkdir -p /mnt/shared
-sudo mount -t vboxsf DF_Shared /mnt/shared
-ls -lh /mnt/shared
-ls -lh /mnt/shared/lubuntu_forensic.dd
-
-If the first command shows the share name is not DF_Shared, rerun the mount command with the exact name it shows.
-
-2) Replace the broken symlink with a clean one
-
-Run:
-
-rm -f ~/lubuntu_forensic.dd
-ln -s /mnt/shared/lubuntu_forensic.dd ~/lubuntu_forensic.dd
-readlink -f ~/lubuntu_forensic.dd
-ls -lh ~/lubuntu_forensic.dd
-
-At the end of this step, readlink -f ~/lubuntu_forensic.dd must resolve to:
-
-/mnt/shared/lubuntu_forensic.dd
-3) Remove the wrong Sleuth Kit package and install the correct one
-
-You currently have sleuthkit-java_4.12.1-1_amd64.deb, which is the wrong version for Autopsy 4.22.1. The 4.22.1 release notes say it uses Sleuth Kit 4.14.0, and the release notes also say the correct ZIP is the _v2.zip build.
-
-Run:
-
-sudo apt remove sleuthkit-java -y || true
-rm -f ~/sleuthkit-java_4.12.1-1_amd64.deb
-wget -O ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb "https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.14.0/sleuthkit-java_4.14.0-1_amd64.deb"
-4) Install Autopsy properly
-
-You already have:
-
-~/autopsy-4.22.1
-~/autopsy-4.22.1_v2.zip
-
-Autopsy’s Linux instructions say to run the prerequisites script, install The Sleuth Kit .deb, then run install_application.sh, and that the prerequisites script gives you the Java 17 path to use.
-
-Run:
-
-cd ~/autopsy-4.22.1
-chmod u+x linux_macos_install_scripts/*.sh
-./linux_macos_install_scripts/install_prereqs_ubuntu.sh
-sudo apt install ~/Downloads/sleuthkit-java_4.14.0-1_amd64.deb -y
-update-java-alternatives -l | grep 17
-./linux_macos_install_scripts/install_application.sh -z ~/autopsy-4.22.1_v2.zip -i ~/autopsy -j /usr/lib/jvm/java-17-openjdk-amd64
-
-If update-java-alternatives -l | grep 17 shows a different Java 17 path, use that path instead of /usr/lib/jvm/java-17-openjdk-amd64.
-
-5) Launch Autopsy
-
-Run:
-
-~/autopsy/bin/autopsy --nosplash
-
-Autopsy’s Linux instructions explicitly recommend --nosplash on first run because the initial window can appear behind the splash screen and make it look stuck.
-
-6) Add the image in Autopsy
-
-Inside Autopsy:
-
-Create a new case
-Add Data Source
-Choose Disk Image / VM File
-Select:
-/mnt/shared/lubuntu_forensic.dd
-
-Do not use /media/sf_DF_Shared/... now. Your current path is the manual mount under /mnt/shared.
-
-7) Final verification block
-
-Before opening Autopsy, this block must succeed:
-
-ls -lh /mnt/shared/lubuntu_forensic.dd
-readlink -f ~/lubuntu_forensic.dd
-ls -l ~/autopsy/bin/autopsy
-
-The correct end state is:
-
-/mnt/shared/lubuntu_forensic.dd exists
-~/lubuntu_forensic.dd resolves to /mnt/shared/lubuntu_forensic.dd
-~/autopsy/bin/autopsy exists
-
-Run Step 1 exactly as written and stop only if ls -lh /mnt/shared/lubuntu_forensic.dd still fails
+Run Steps 1–4 first and let me know what happens at each stage — especially the output of Step 4.
