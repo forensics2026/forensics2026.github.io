@@ -1,353 +1,247 @@
-Good news — you already have the symlink `lubuntu_forensic.dd` sitting right in your home directory, and all the snap interfaces were connected. The snap is the easier path. Reinstall it:
+Yes. Use this exact route.
+
+The path most likely to work in Debian is the **official non-snap install**, not the snap. Autopsy’s own Linux instructions say there are two paths on Linux: snap, or the standard Debian-based flow of installing prerequisites, then The Sleuth Kit, then Autopsy itself. The download page for 4.22.1 also says Linux needs the **Autopsy ZIP** plus the **Sleuth Kit Java `.deb`**. For 4.22.1 specifically, the release notes say it uses **Sleuth Kit 4.14.0**, and the release notes also warn that the original ZIP link was wrong and that the **`_v2.zip`** is the correct ZIP. ([GitHub][1])
+
+Before you start, set the VM to a sane config: keep RAM around **6–8 GB**, give it **2 or 4 CPU cores**, and make sure the Debian VM has **plenty of free disk** for the Autopsy case data and indexing. That part is practical advice from experience, not an Autopsy requirement.
+
+## Route A: get it working properly in Debian
+
+### 1. Fix the shared folder first
+
+VirtualBox shared folders require **Guest Additions** in the guest, and Linux guests mount them with the `vboxsf` filesystem. Oracle’s docs give the Linux mount syntax as `mount -t vboxsf sharename mountpoint`, and they also show the `/etc/fstab` format if you want it to mount automatically. They note that `uid`, `gid`, and `mode` options are useful so normal users can access the share. ([Oracle Docs][2])
+
+On the **host**, make sure the shared folder exists in the VM settings:
+
+* Shared Folders → add your host evidence folder
+* Share name: `DF_Shared`
+* Make it permanent
+
+Then boot Debian and run:
+
+```bash
+sudo apt update
+sudo apt install virtualbox-guest-utils virtualbox-guest-x11 -y
+sudo reboot
+```
+
+After reboot:
+
+```bash
+sudo mkdir -p /mnt/shared
+sudo mount -t vboxsf -o uid=$(id -u),gid=$(id -g),mode=0775 DF_Shared /mnt/shared
+ls -lh /mnt/shared
+ls -lh /mnt/shared/lubuntu_forensic.dd
+```
+
+If that last command does **not** show the `.dd` file, stop. Autopsy is not the problem yet. Your shared folder is still broken.
+
+If you want it mounted automatically every boot:
+
+```bash
+echo 'DF_Shared /mnt/shared vboxsf defaults,uid=1000,gid=1000,mode=0775 0 0' | sudo tee -a /etc/fstab
+sudo mount -a
+```
+
+Use `1000` only if your normal user is UID 1000. Check with:
+
+```bash
+id
+```
+
+### 2. Download the correct Autopsy files
+
+For Linux, you need:
+
+* the **Autopsy ZIP**
+* the **Sleuth Kit Java `.deb`**
+
+For version **4.22.1**, use:
+
+* `autopsy-4.22.1_v2.zip`
+* `sleuthkit-java_4.14.0-1_amd64.deb`
+
+That pairing matters because Autopsy 4.22.1 uses Sleuth Kit 4.14.0, and the project explicitly says the `_v2.zip` is the correct ZIP for that release. ([Autopsy][3])
+
+Put both files in `~/Downloads`.
+
+### 3. Install Java and prerequisites
+
+Autopsy’s Linux instructions say to run `install_prereqs_ubuntu.sh`, and they note that the script outputs the path to the **Java 17** installation. The same document says the install command for Autopsy needs the Java 17 home path. ([GitHub][1])
+
+Run:
+
+```bash
+sudo apt update
+sudo apt install default-jdk unzip wget -y
+java -version
+```
+
+Then unzip the Autopsy package:
+
+```bash
+cd ~/Downloads
+unzip autopsy-4.22.1_v2.zip -d autopsy-src
+cd autopsy-src/autopsy-4.22.1
+chmod u+x linux_macos_install_scripts/*.sh
+./linux_macos_install_scripts/install_prereqs_ubuntu.sh
+```
+
+Now find your Java 17 path:
+
+```bash
+update-java-alternatives -l | grep 17
+```
+
+You want something like:
+
+```bash
+/usr/lib/jvm/java-17-openjdk-amd64
+```
+
+### 4. Install Sleuth Kit Java
+
+Autopsy’s Linux instructions say to install the Sleuth Kit `.deb` directly with `apt install /path/to/...deb`. ([GitHub][1])
+
+Run:
+
+```bash
+cd ~/Downloads
+sudo apt install ./sleuthkit-java_4.14.0-1_amd64.deb
+```
+
+### 5. Install Autopsy itself
+
+Autopsy’s Linux instructions say to run `install_application.sh` with the ZIP path, install directory, and Java home. They also recommend `--nosplash` later because the first-run window can hide behind the splash screen. ([GitHub][1])
+
+Run:
+
+```bash
+cd ~/Downloads/autopsy-src/autopsy-4.22.1
+./linux_macos_install_scripts/install_application.sh \
+  -z ~/Downloads/autopsy-4.22.1_v2.zip \
+  -i ~/autopsy \
+  -j /usr/lib/jvm/java-17-openjdk-amd64
+```
+
+If your Java path is different, use the one from `update-java-alternatives -l`.
+
+### 6. Launch Autopsy
+
+Use `--nosplash` on first launch. The official docs say Autopsy can look stalled because a window may appear behind the splash screen. ([GitHub][1])
+
+Run:
+
+```bash
+~/autopsy/bin/autopsy --nosplash
+```
+
+### 7. Add the `.dd` image
+
+In Autopsy:
+
+* Create case
+* Add Data Source
+* Choose disk image / VM file
+* Browse to `/mnt/shared/lubuntu_forensic.dd`
+
+Use the **real file path**, not a symlink, for the first test.
+
+If it loads, create the case on the Debian VM’s local disk, not inside the shared folder.
+
+## If it still fails
+
+Autopsy’s Linux docs say:
+
+* if you see JavaFX errors, Java is wrong
+* if you see reflective-access warnings or similar, the wrong Java may be in use
+* `messages.log` is the place to check the Java version
+* Autopsy first checks `jdkhome` in `etc/autopsy.conf`, then `$JAVA_HOME` if `jdkhome` is not set. ([GitHub][1])
+
+So check this:
+
+```bash
+grep -n 'jdkhome' ~/autopsy/etc/autopsy.conf
+echo $JAVA_HOME
+```
+
+If `jdkhome` is missing or wrong, set it:
+
+```bash
+sed -i 's|^#\?jdkhome=.*|jdkhome=/usr/lib/jvm/java-17-openjdk-amd64|' ~/autopsy/etc/autopsy.conf
+```
+
+Then relaunch:
+
+```bash
+~/autopsy/bin/autopsy --nosplash
+```
+
+If you get the JNI / `libtsk_jni` error again, that almost always means your Autopsy ZIP and Sleuth Kit Java `.deb` do **not** match. For 4.22.1, the correct pairing is the `_v2.zip` plus Sleuth Kit **4.14.0**. ([GitHub][4])
+
+## Important Linux caveat
+
+Autopsy’s own Linux/macOS notes say **not all current features are functional on Linux**, and they explicitly list **Recent Activity** among the known limitations. So if the app runs but that module is incomplete or flaky on Debian, that is not you being stupid; it is a documented limitation. ([GitHub][1])
+
+## Route B: snap only if you insist
+
+Autopsy’s snap exists, but the project’s snap config says it is a **strictly confined** snap and relies on interfaces like `block-devices`, `removable-media`, `mount-observe`, `fuse-support`, and `system-files-dev` to ingest data sources. That is why the snap route is more fragile. ([GitHub][5])
+
+If you want to try it anyway:
 
 ```bash
 sudo snap install autopsy
-```
-
-Then reconnect the key interfaces:
-
-```bash
-sudo snap connect autopsy:removable-media
 sudo snap connect autopsy:home
-sudo snap connect autopsy:block-devices
-sudo snap connect autopsy:mount-observe
-sudo snap connect autopsy:system-files-dev
-sudo snap connect autopsy:fuse-support
-```
-
-Launch it:
-
-```bash
-autopsy --nosplash
-```
-
-This time when adding the data source, use the **home directory symlink** path:
-
-```
-/home/vboxuser/lubuntu_forensic.dd
-```
-
-Not `/mnt/shared/`. The snap can read your home directory since `autopsy:home` is connected — that was the original problem. The file is the same (it's a symlink), but now Autopsy has permission to access it.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-The sleuthkit-java version I gave you doesn't match Autopsy 4.22.1. Click **OK** to dismiss the error, then run this in terminal:
-
-```bash
-# Remove the wrong version
-sudo dpkg -r sleuthkit-java
-
-# Download the correct matching version for Autopsy 4.22.1
-wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.12.1/sleuthkit-java_4.12.1-1_amd64.deb
-
-# Check what versions are actually available
-# Go to: https://github.com/sleuthkit/sleuthkit/releases
-# and find the .deb that matches
-
-# Actually — use Autopsy's own install script instead:
-cd ~/autopsy-4.22.1/linux_macos_install_scripts/
-chmod +x install_prereqs_ubuntu.sh
-sudo ./install_prereqs_ubuntu.sh
-```
-
-If that script doesn't exist in your unzipped folder, try:
-
-```bash
-ls ~/autopsy-4.22.1/linux_macos_install_scripts/
-```
-
-And tell me what files you see there. Autopsy ships with a script that installs the exact matching sleuthkit-java version automatically — that's the safest route rather than me guessing version numbers.
-
-
-
-
-Couldn't find a specific bug report, but this is a known snap sandboxing issue — Autopsy can't actually read the file even though it sees the filename. Run all of these in terminal:
-
-```bash
-# Connect every interface Autopsy needs
 sudo snap connect autopsy:removable-media
-sudo snap connect autopsy:home
-sudo snap connect autopsy:block-devices
 sudo snap connect autopsy:mount-observe
-sudo snap connect autopsy:system-files-dev
 sudo snap connect autopsy:fuse-support
-
-# Verify all connected
+sudo snap connect autopsy:system-files-dev
 snap connections autopsy
-```
-
-Then **close Autopsy fully** and relaunch:
-
-```bash
 autopsy --nosplash
 ```
 
-Open your case → Add Data Source → type the path `/mnt/shared/lubuntu_forensic.dd` → Tab out of the field.
-
-If Next is **still** grayed after all that, the snap sandbox is fundamentally blocking it. In that case, ditch the snap and install Autopsy 4 manually:
+Then point Autopsy at:
 
 ```bash
-sudo snap remove autopsy
-
-# Install dependencies
-sudo apt install openjdk-17-jdk testdisk sleuthkit -y
-
-# Download Autopsy 4 zip from GitHub
-wget https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.22.1/autopsy-4.22.1_v2.zip
-
-# Also grab the sleuthkit-java deb
-wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.12.1/sleuthkit-java_4.12.1-1_amd64.deb
-sudo dpkg -i sleuthkit-java_4.12.1-1_amd64.deb
-
-# Unzip and run
-unzip autopsy-4.22.1_v2.zip
-cd autopsy-4.22.1/bin
-chmod +x autopsy
-./autopsy --nosplash
-```
-
-The manual install has no sandbox — it can read any file on disk. Try the snap interface commands first though, they might be enough.
-
-```bash
-ln -s /home/vboxuser/lubuntu_forensic.dd /home/vboxuser/snap/autopsy/common/lubuntu_forensic.dd
-```
-
-Then in Autopsy, browse to `/home/vboxuser/snap/autopsy/common/` and select it there.
-
-Snap still can't read the file at `/mnt/shared/` even with removable-media connected. You need to restart Autopsy after connecting the interface. Close Autopsy completely, then in terminal:
-
-```bash
-autopsy --nosplash
-```
-
-Reopen the case, add data source again, same path. If **Next >** is still greyed out, then create a symlink in your home directory instead:
-
-```bash
-ln -s /mnt/shared/lubuntu_forensic.dd ~/lubuntu_forensic.dd
-```
-
-Then use this path in Autopsy:
-
-```
-/home/vboxuser/lubuntu_forensic.dd
-```
-
-
-
-Snap sandboxing is blocking access to `/mnt/shared/`. Close the browse dialog and **type the path manually** in the Path field:
-
-```
 /mnt/shared/lubuntu_forensic.dd
 ```
 
-If that doesn't work either, you need to connect the snap interface first. Cancel out, open a terminal and run:
+If the snap still refuses to ingest, stop wasting time on the snap and use Route A.
+
+## Quick verification checklist
+
+Run these before opening Autopsy:
 
 ```bash
-sudo snap connect autopsy:removable-media
+free -h
+nproc
+df -h
+mount | grep vboxsf
+ls -lh /mnt/shared
+ls -lh /mnt/shared/lubuntu_forensic.dd
+java -version
 ```
 
-Then go back to Autopsy and try again. That command gives the snap permission to read `/mnt/`.
+If:
 
+* the share is not mounted,
+* the `.dd` file is not readable,
+* or Java is not 17,
 
-# Autopsy 4.x on Debian 13 — Do This → Write This (Revised)
+then Autopsy is not going to behave.
 
-> VM change: bump RAM to **6 GB** in VirtualBox settings (shut down VM first → Settings → System → Base Memory → 6144 MB).
-
----
-
-## Install Autopsy 4 via Snap (Easiest Method)
+Follow Route A exactly in order. If you want, send me the outputs of these four commands next:
 
 ```bash
-# 1. Install snap if not already present
-sudo apt update
-sudo apt install snapd -y
-
-# 2. Install Autopsy 4
-sudo snap install autopsy
-
-# 3. Connect required snap interfaces (Autopsy needs disk access)
-snap connections autopsy | sed -nE 's/^[^ ]* *([^ ]*) *- *- *$/\1/p' | xargs -I{} sudo snap connect {}
-
-# 4. Launch (first run use --nosplash to avoid hidden dialog bug)
-autopsy --nosplash
+mount | grep vboxsf
+ls -lh /mnt/shared/lubuntu_forensic.dd
+java -version
+grep -n 'jdkhome' ~/autopsy/etc/autopsy.conf
 ```
 
-If snap gives network issues inside the VM, the alternative is manual install from GitHub:
-```bash
-# Download from https://github.com/sleuthkit/autopsy/releases
-# Get the .zip + the matching sleuthkit-java .deb
-# Then run the install_application.sh script
-```
+and I’ll tell you what is wrong immediately.
 
-But try snap first — it handles all dependencies automatically.
-
----
-
-## First Run — Create Case & Add Image
-
-1. Autopsy 4 opens as a full desktop GUI (like on Windows)
-2. **New Case** → Case Name: `CW2_Investigation` → Base Directory: pick anywhere with space (e.g. `/mnt/shared/autopsy_cases/`)
-3. **Add Data Source** → select **Disk Image or VM File** → path: `/mnt/shared/lubuntu_forensic.dd`
-4. **Ingest Modules** — run these (untick the rest to save time on 6 GB RAM):
-   - Recent Activity
-   - File Type Identification (by signature)
-   - Keyword Search
-   - Email Parser
-   - Encryption Detection
-   - Picture Analyzer
-   - Extension Mismatch Detector ← this is the one that catches the JPEG-as-.dll files
-5. Click **Finish** and let it run. On 6 GB RAM with a 20 GB image this could take 20–40 minutes.
-
-**Take a screenshot** of the New Case dialog or the ingest modules running.
-
----
-
-## Step-by-Step: Do → Write
-
----
-
-### 1. File System Browse + Confirm Active User
-
-**DO:**
-- Left pane → Data Sources → expand the volume → browse `/home/`
-- Confirm 6 users, only `f21fo-cw2` has content
-
-**WRITE:**
-> A new case was created in Autopsy (version 4.22) [5] with the .dd image from the second workflow added as a disk image data source. Ingest modules were configured to run file type identification, keyword search, extension mismatch detection, and recent activity analysis. The file system confirmed the same structure observed in OSForensics, with f21fo-cw2 as the sole active user.
-
----
-
-### 2. Deleted File Recovery
-
-**DO:**
-- Left pane → **Deleted Files** node (Autopsy 4 has a dedicated section for this)
-- Or: left pane → Results → **Interesting Items** may flag things
-- Note filenames, paths, types, sizes
-
-**WRITE:**
-> The deleted files section identified [X] removed files across the image. [Describe what — e.g. "These included image files from the user's Documents directory and temporary files from the system partition."] Selected files were exported for further examination.
-
----
-
-### 3. Extension Mismatch (Autopsy 4 Does This Automatically)
-
-**DO:**
-- Left pane → **Results** → **Extension Mismatch Detected**
-- This is the ingest module output — it flags files where the MIME type doesn't match the extension
-- You should see the same JPEG-as-.dll files Muhammad found in OSForensics
-- Click on one → bottom pane shows hex, text, metadata, and the actual detected type
-
-**SCREENSHOT:** The Extension Mismatch results showing the flagged files.
-
-**WRITE:**
-> The extension mismatch ingest module automatically flagged [X] files where the detected MIME type did not match the file extension. Notably, several JPEG images were found with a .dll extension, consistent with the findings from OSForensics. This indicates a deliberate attempt to disguise image files.
-
----
-
-### 4. Bash History + Artefacts
-
-**DO:**
-- Browse to `/home/f21fo-cw2/.bash_history` → click → view in bottom pane
-- Check `/home/f21fo-cw2/.ssh/` for the RSA keys
-- Check `/home/f21fo-cw2/Documents/` (the 4028-Astronomers folder with .doc/.rtf files)
-- Left pane → **Results** → **Recent Activity** shows recently accessed files/programs
-
-**WRITE:**
-> The user's bash history confirmed the same commands identified in the OSForensics workflow, including SSH key generation, ssh2john execution, and attempted use of anti-forensic tools. The Recent Activity module additionally recovered [any extra artefact Autopsy found that OSForensics didn't — e.g. recent document access, program execution timestamps].
-
----
-
-### 5. Keyword Search (Optional But Good for Marks)
-
-**DO:**
-- Top menu → **Keyword Search** (magnifying glass icon)
-- Search for terms like: `password`, `key`, `secret`, `bank`
-- Note any hits in allocated or unallocated space
-
-**WRITE (only if you find something useful):**
-> A keyword search across allocated and unallocated space was conducted for terms related to the investigation. [Describe hits if any.]
-
----
-
-### 6. Timeline
-
-**DO:**
-- Top menu → **Timeline** → generates a visual timeline of file activity
-- Look for activity clusters — when was the machine being used?
-
-**WRITE (only if the timeline shows something meaningful):**
-> The timeline module visualised file system activity across the image. [Describe pattern if visible.]
-
----
-
-## Section 3.2 — Full Draft (Combine the Above)
-
-Match Muhammad's 3.1 tone — facts, move on, one or two figure refs max:
-
----
-
-A new case was created in Autopsy (version 4.22) [5] and the .dd image from the second workflow was added as a disk image data source. Ingest modules were configured for file type identification, extension mismatch detection, keyword search, and recent activity analysis.
-
-The file system confirmed the same structure observed in OSForensics, with f21fo-cw2 as the sole active user. The deleted files section identified [X] removed files across the image, including [brief description]. The extension mismatch module flagged [X] files where the detected MIME type did not match the declared extension; notably, several JPEG images had been renamed with a .dll extension, confirming the findings from the first workflow.
-
-The user's bash history was consistent with the OSForensics analysis, showing SSH key generation, ssh2john usage, and attempted execution of the anti-forensic tools slacker and timestomp. [Add one sentence about anything NEW Autopsy found that OSForensics didn't — e.g. a recent activity artefact, a keyword hit, or a timeline observation.]
-
----
-
-## Section 3.3 — Comparison of Forensic Analysis Tools
-
----
-
-Both OSForensics and Autopsy identified the same key artefacts. Table [X] compares the two tools.
-
-| Criterion | OSForensics | Autopsy 4 |
-|-----------|------------|-----------|
-| Platform | Windows (GUI) | Linux (desktop GUI) |
-| Image Support | E01, dd, VMDK | dd, E01, raw, VMDK |
-| Extension Mismatch | Built-in search | Automated ingest module |
-| Deleted File Recovery | Built-in | Dedicated Deleted Files node |
-| Keyword Search | Indexed search | Solr-based keyword indexing |
-| Timeline | Limited | Built-in visual timeline |
-| Stability | Crashed during file carving | Stable on 6 GB RAM |
-
-OSForensics provided an intuitive interface for file browsing and quick mismatch detection but experienced crashes during deleted file search and file carving on the constrained VM. Autopsy 4 ran stably with 6 GB of RAM and provided automated ingest modules that identified extension mismatches, extracted recent activity, and indexed keywords without manual intervention. However, the initial ingest processing required approximately [X] minutes to complete.
-
----
-
-## Sections 4, 5, 6 — No Change from Previous Guide
-
-Refer to the earlier `autopsy_do_and_write_guide.md` for:
-- **Section 4** (Files Recovered table)
-- **Section 5** (Issues — same three + any Autopsy-specific ones)
-- **Section 6** (One-paragraph conclusion)
-
----
-
-## Screenshots You Need (Keep It to 3–4 Max)
-
-| Fig # | What |
-|-------|------|
-| 9 | Autopsy 4 case with image loaded (data sources tree visible) |
-| 10 | Extension Mismatch results OR Deleted Files view |
-| 11 | One more notable finding (bash history view, timeline, keyword hit) |
-
-Muhammad used 4 figures total for 3.1. You do the same or fewer.
-
----
-
-## Chain of Custody — Add Entry
-
-| Date | Time | Purpose | Description | Signature |
-|------|------|---------|-------------|-----------|
-| [today] | [time] | Forensic analysis | Autopsy 4 case created, ingest modules run on .dd image | HG |
+[1]: https://github.com/sleuthkit/autopsy/blob/develop/Running_Linux_OSX.md "autopsy/Running_Linux_OSX.md at develop · sleuthkit/autopsy · GitHub"
+[2]: https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/sharedfolders.html "4.3. Shared Folders"
+[3]: https://www.autopsy.com/download/?utm_source=chatgpt.com "Autopsy - Download"
+[4]: https://github.com/sleuthkit/autopsy/releases/?utm_source=chatgpt.com "Releases · sleuthkit/autopsy"
+[5]: https://github.com/sleuthkit/autopsy/blob/develop/snap/snapcraft.yaml "autopsy/snap/snapcraft.yaml at develop · sleuthkit/autopsy · GitHub"
