@@ -1,34 +1,37 @@
-OK. Here's the full clean restart, step by step. Run each command exactly, and paste me the output if anything fails.
+"Nothing happened" after a `mount` command is actually good — that means it succeeded silently. But let's verify and then go all the way through. Here's the complete guide, top to bottom:
 
 ---
 
-**1. Remove any old broken install target**
+**1. Confirm the shared folder is mounted**
+
+```bash
+ls /mnt/shared/lubuntu_forensic.dd
+```
+
+You should see the file listed. If yes, continue.
+
+**2. Remove old broken Autopsy install**
 
 ```bash
 rm -rf ~/autopsy
 ```
 
-**2. Install the Sleuth Kit Java bindings deb (already downloaded)**
+**3. Install the Sleuth Kit Java bindings**
 
 ```bash
 sudo dpkg -i ~/sleuthkit-java_4.14.0-1_amd64.deb
-```
-
-If it errors about dependencies:
-
-```bash
 sudo apt-get install -f -y
 ```
 
-**3. Verify the jar is in place**
+**4. Verify the jar is in place**
 
 ```bash
 ls /usr/share/java/sleuthkit-4.14.0.jar
 ```
 
-Stop here and confirm you see the file before continuing.
+You must see this file before continuing.
 
-**4. Set Java home and re-run the installer**
+**5. Set Java home and run the Autopsy installer**
 
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
@@ -36,22 +39,26 @@ cd ~/autopsy-4.22.1
 bash linux_macos_install_scripts/install_application.sh
 ```
 
-**5. Verify the install created the launch script**
+**6. Verify the install worked**
 
 ```bash
 ls ~/autopsy/bin/autopsy
 ```
 
-**6. Launch Autopsy**
+You should see the file. If yes, continue.
+
+**7. Launch Autopsy**
 
 ```bash
 ~/autopsy/bin/autopsy
 ```
 
-**7. Inside Autopsy GUI — add the image at:**
+**8. Inside the Autopsy GUI**
+
+Create a new case, then when it asks for a data source, point it to:
 
 ```
 /mnt/shared/lubuntu_forensic.dd
 ```
 
-Start with Step 2 since the deb is already sitting in your home directory. Show me what Step 2 and Step 3 output.
+Run Step 1 now and show me what it says.
