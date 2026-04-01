@@ -1,3 +1,28 @@
+sudo nano /etc/fstab
+```
+
+Find the line with `DF_Shared` and remove `nofail,x-systemd.automount` from the options. Change it to:
+```
+DF_Shared /mnt/shared vboxsf uid=1000,gid=1000,dmode=0775,fmode=0664 0 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Nice. Autopsy is working. Now make the shared folder sane and permanent.
 
 On the Windows host
